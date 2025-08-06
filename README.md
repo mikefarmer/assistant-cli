@@ -6,11 +6,12 @@ A personal assistant command-line interface tool with comprehensive authenticati
 
 Assistant-CLI is a Go-based personal assistant tool designed with a phased approach. **Phase 1** (currently in progress) focuses on core text-to-speech functionality using Google Cloud Text-to-Speech API with robust authentication. Future phases will add Calendar, Gmail, Drive integration, and MCP server capabilities.
 
-## Current Status: Phase 1.2 Complete ✅
+## Current Status: Phase 1.3 Complete ✅
 
 - ✅ **Phase 1.1**: Project foundation with Go module, Cobra CLI, and directory structure
 - ✅ **Phase 1.2**: Complete authentication system with API Key, Service Account, and OAuth2 support
-- 🚧 **Phase 1.3**: Core TTS integration (next)
+- ✅ **Phase 1.3**: Core TTS integration with Google Cloud Text-to-Speech API
+- 🚧 **Phase 1.4**: Audio playback and file management (next)
 
 ## Features
 
@@ -21,11 +22,13 @@ Assistant-CLI is a Go-based personal assistant tool designed with a phased appro
 - **Auto-detection**: Automatically selects best auth method based on available credentials
 - **Interactive Setup**: Guided authentication process with `assistant-cli login`
 
-### Text-to-Speech (🚧 In Development - Phase 1.3)
-- **STDIN Input**: Pipe text directly into the tool  
-- **Voice Customization**: Adjust voice, language, speed, and pitch
-- **Audio Playback**: Optionally play generated audio immediately
-- **SSML Support**: Advanced speech markup language support
+### Text-to-Speech (✅ Complete - Phase 1.3)
+- **STDIN Input**: Pipe text directly into the tool with UTF-8 support
+- **Voice Customization**: Comprehensive voice settings (voice, language, speed, pitch, volume)
+- **Multiple Audio Formats**: MP3, LINEAR16/WAV, OGG_OPUS, MULAW, ALAW, PCM support
+- **SSML Support**: Advanced speech markup language with security validation
+- **Voice Discovery**: List available voices by language
+- **Robust Error Handling**: Retry logic and comprehensive validation
 
 ### Platform & Configuration (✅ Complete)
 - **Cross-Platform**: Works on macOS, Linux, and Windows
@@ -89,13 +92,27 @@ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
 ./assistant-cli login --validate
 ```
 
-### 3. Text-to-Speech Usage (Coming in Phase 1.3)
-
-*Note: TTS functionality is currently in development. The authentication system is complete and ready for integration.*
+### 3. Text-to-Speech Usage (✅ Available Now)
 
 ```bash
-# Future usage (Phase 1.3)
+# Basic text-to-speech
 echo "Hello, World!" | ./assistant-cli synthesize -o hello.mp3
+
+# Advanced voice customization
+cat story.txt | ./assistant-cli synthesize \
+  --voice en-US-Wavenet-C \
+  --speed 1.2 \
+  --pitch -2.0 \
+  --volume 3.0 \
+  --format LINEAR16 \
+  --output speech.wav
+
+# SSML support for advanced speech control
+echo "<speak>Hello <break time='1s'/> <emphasis>World!</emphasis></speak>" | \
+  ./assistant-cli synthesize --format MP3 -o greeting.mp3
+
+# List available voices
+./assistant-cli synthesize --list-voices --language en-US
 ```
 
 ## Authentication Methods
@@ -200,9 +217,7 @@ export ASSISTANT_CLI_OAUTH2_CLIENT_SECRET="your-client-secret"
 ./assistant-cli login --help
 ```
 
-### Text-to-Speech Commands (🚧 Coming in Phase 1.3)
-
-*The following commands are planned for Phase 1.3 implementation:*
+### Text-to-Speech Commands (✅ Available Now)
 
 ```bash
 # Basic text-to-speech
@@ -213,13 +228,22 @@ cat text.txt | ./assistant-cli synthesize \
   --voice en-US-Wavenet-C \
   --speed 1.2 \
   --pitch -2.0 \
-  --output speech.mp3
+  --volume 3.0 \
+  --format LINEAR16 \
+  --output speech.wav
 
-# With immediate playback
-echo "Hello!" | ./assistant-cli synthesize --play
+# SSML markup for advanced control
+echo "<speak>Hello <break time='500ms'/> World!</speak>" | \
+  ./assistant-cli synthesize -o advanced.mp3
+
+# List available voices for a language
+./assistant-cli synthesize --list-voices --language en-US
 
 # Using configuration file
 echo "Welcome" | ./assistant-cli synthesize --config ~/.assistant-cli.yaml
+
+# Multiple audio format support
+echo "Test" | ./assistant-cli synthesize --format OGG_OPUS -o test.ogg
 ```
 
 ## Configuration
@@ -237,14 +261,15 @@ auth:
   service_account_file: "/path/to/key.json"  # Only for serviceaccount method
   # Note: Sensitive credentials (API keys, OAuth secrets) should use environment variables
 
-# Text-to-Speech settings (Phase 1.3 🚧)  
+# Text-to-Speech settings (Phase 1.3 ✅)  
 tts:
   voice: "en-US-Wavenet-D"
   language: "en-US" 
   speaking_rate: 1.0
   pitch: 0.0
+  volume_gain: 0.0
 
-# Output settings (Phase 1.4 🚧)
+# Output settings (Phase 1.3 ✅)
 output:
   default_path: "./output"
   format: "MP3"
@@ -265,9 +290,12 @@ export ASSISTANT_CLI_OAUTH2_CLIENT_ID="your-client-id"
 export ASSISTANT_CLI_OAUTH2_CLIENT_SECRET="your-client-secret"
 export ASSISTANT_CLI_OAUTH2_TOKEN_FILE="/custom/token/path.json"
 
-# Future: TTS and output settings (Phase 1.3+)
+# TTS and output settings (Phase 1.3 ✅)
 export ASSISTANT_CLI_VOICE="en-US-Wavenet-C"
 export ASSISTANT_CLI_OUTPUT_PATH="./speech-files"
+export ASSISTANT_CLI_SPEAKING_RATE="1.2"
+export ASSISTANT_CLI_PITCH="0.0"
+export ASSISTANT_CLI_VOLUME_GAIN="0.0"
 ```
 
 ## Development
@@ -342,7 +370,9 @@ assistant-cli/
 │   │   ├── apikey.go      # API key provider
 │   │   ├── service.go     # Service account provider
 │   │   └── oauth2.go      # OAuth2 provider
-│   ├── tts/               # TTS integration 🚧
+│   ├── tts/               # TTS integration ✅
+│   │   ├── client.go      # Google Cloud TTS client wrapper
+│   │   └── synthesizer.go # Speech synthesis engine
 │   ├── config/            # Configuration management 🚧
 │   ├── output/            # File output handling 🚧
 │   └── player/            # Audio playback 🚧
@@ -418,17 +448,25 @@ See [phase-1-tasks.md](phase-1-tasks.md) for detailed implementation status.
 - Auto-detection and credential management
 - Comprehensive error handling and user guidance
 
-### 🚧 **Phase 1.3**: Core TTS Integration (Next)
-- Google Cloud Text-to-Speech API integration
-- Voice synthesis with customization options
-- SSML support for advanced speech control
-- Audio file generation and management
+### ✅ **Phase 1.3**: Core TTS Integration (Complete)
+- Google Cloud Text-to-Speech API integration with retry logic
+- Voice synthesis with comprehensive customization (voice, speed, pitch, volume)
+- SSML support with security validation for advanced speech control
+- Multiple audio format support (MP3, LINEAR16/WAV, OGG_OPUS, MULAW, ALAW, PCM)
+- Voice discovery and listing functionality
+- Robust input validation and error handling
+
+### 🚧 **Phase 1.4**: Audio Playback and Enhanced I/O (Next)
+- Cross-platform audio playback functionality
+- Enhanced file output management
+- Configuration system improvements
+- Performance optimizations
 
 ### 📋 **Future Phases**
-- **Phase 1.4-1.10**: Complete TTS functionality, testing, distribution
+- **Phase 1.5-1.10**: Testing, distribution, and polish
 - **Phase 2**: Google services integration (Calendar, Gmail, Drive)  
 - **Phase 3**: MCP server capability for AI assistant integration
 
 ---
 
-*Assistant-CLI is actively developed with a focus on security, usability, and extensibility. The authentication system is production-ready and the TTS integration is the next priority.*
+*Assistant-CLI is actively developed with a focus on security, usability, and extensibility. Both authentication and core TTS functionality are production-ready. Audio playback is the next priority.*

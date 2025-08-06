@@ -10,8 +10,14 @@ import (
 
 var (
 	cfgFile string
-	version = "dev" // This will be set by build flags
 )
+
+var version = "dev" // This will be set by build flags
+
+// SetVersion sets the version for the CLI
+func SetVersion(v string) {
+	version = v
+}
 
 // NewRootCmd creates and returns the root command
 func NewRootCmd() *cobra.Command {
@@ -38,6 +44,7 @@ It supports multiple authentication methods and provides various customization o
 
 	// Add subcommands
 	rootCmd.AddCommand(loginCmd)
+	rootCmd.AddCommand(NewSynthesizeCmd())
 
 	return rootCmd
 }

@@ -153,6 +153,36 @@ func (am *AuthManager) IsConfigured() bool {
 	return false
 }
 
+// Validate checks if the authentication is properly configured and working
+func (am *AuthManager) Validate(ctx context.Context) error {
+	if am.active == nil {
+		method, err := am.SelectAuthMethod()
+		if err != nil {
+			return fmt.Errorf("failed to select auth method: %w", err)
+		}
+
+		provider, exists := am.providers[method]
+		if !exists {
+			return fmt.Errorf("no provider for auth method: %s", method)
+		}
+
+		if !provider.IsConfigured() {
+			return fmt.Errorf("authentication provider %s is not configured", method)
+		}
+
+		// Authenticate if necessary
+		if err := provider.Authenticate(ctx); err != nil {
+			return fmt.Errorf("authentication failed for method %s: %w", method, err)
+		}
+
+		am.active = provider
+	}
+
+	// Test the connection by creating a client
+	_, err := am.GetClient(ctx)
+	return err
+}
+
 // DefaultAuthConfig returns a default authentication configuration
 func DefaultAuthConfig() AuthConfig {
 	return AuthConfig{
