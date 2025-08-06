@@ -36,6 +36,9 @@ It supports multiple authentication methods and provides various customization o
 	// Initialize config when root command is created
 	cobra.OnInitialize(initConfig)
 
+	// Add subcommands
+	rootCmd.AddCommand(loginCmd)
+
 	return rootCmd
 }
 
