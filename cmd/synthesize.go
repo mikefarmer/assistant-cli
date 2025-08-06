@@ -6,7 +6,10 @@ import (
 	"os"
 
 	"github.com/mikefarmer/assistant-cli/internal/auth"
+	"github.com/mikefarmer/assistant-cli/internal/output"
+	"github.com/mikefarmer/assistant-cli/internal/player"
 	"github.com/mikefarmer/assistant-cli/internal/tts"
+	"github.com/mikefarmer/assistant-cli/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -142,7 +145,33 @@ func runSynthesize(cmd *cobra.Command, args []string) error {
 
 	fmt.Fprintln(os.Stderr, "Reading text from STDIN...")
 	
-	resp, err := synthesizer.SynthesizeFromReader(ctx, os.Stdin, req)
+	// Use enhanced input processing with validation
+	inputProcessor := utils.NewInputProcessor(os.Stdin)
+	text, err := inputProcessor.ReadText()
+	if err != nil {
+		return fmt.Errorf("failed to read input: %w", err)
+	}
+	
+	// Validate and potentially sanitize SSML content
+	validator := utils.NewSSMLValidator()
+	if err := validator.ValidateSSML(text); err != nil {
+		return fmt.Errorf("input validation failed: %w", err)
+	}
+	
+	// Display input statistics
+	stats := inputProcessor.GetTextStats(text)
+	fmt.Fprintf(os.Stderr, "✓ Input processed: %s\n", stats.String())
+	
+	// Generate safe output filename if not provided
+	if outputFile == "output.mp3" {
+		// Create a filename based on first few words of input
+		safeFilename := output.GetSafeFilename(text[:min(50, len(text))], audioFormat)
+		outputFile = safeFilename
+	}
+	
+	req.OutputFile = outputFile
+	
+	resp, err := synthesizer.SynthesizeText(ctx, text, req)
 	if err != nil {
 		return fmt.Errorf("synthesis failed: %w", err)
 	}
@@ -194,5 +223,33 @@ func handleListVoices(ctx context.Context, client *tts.Client, lang string) erro
 }
 
 func playAudioFile(filePath string) error {
-	return fmt.Errorf("audio playback not yet implemented")
+	// Check if audio playback is supported on this platform
+	if !player.IsSupported() {
+		return fmt.Errorf("audio playback is not supported on this platform")
+	}
+	
+	// Create audio player
+	audioPlayer, err := player.NewAudioPlayer()
+	if err != nil {
+		return fmt.Errorf("failed to initialize audio player: %w", err)
+	}
+	
+	// Get player info for debugging
+	info := audioPlayer.GetPlayerInfo()
+	fmt.Fprintf(os.Stderr, "Playing audio with %s on %s...\n", info.Command, info.Platform)
+	
+	// Play the audio file
+	if err := audioPlayer.Play(filePath); err != nil {
+		return fmt.Errorf("failed to play audio: %w", err)
+	}
+	
+	return nil
+}
+
+// min returns the minimum of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

@@ -63,6 +63,12 @@ func (s *Synthesizer) SynthesizeFromReader(ctx context.Context, reader io.Reader
 	return s.Synthesize(ctx, req)
 }
 
+// SynthesizeText synthesizes text directly (wrapper around Synthesize)
+func (s *Synthesizer) SynthesizeText(ctx context.Context, text string, req *SynthesizeRequest) (*SynthesizeResponse, error) {
+	req.Text = text
+	return s.Synthesize(ctx, req)
+}
+
 func (s *Synthesizer) Synthesize(ctx context.Context, req *SynthesizeRequest) (*SynthesizeResponse, error) {
 	if req == nil {
 		return nil, fmt.Errorf("synthesis request cannot be nil")
