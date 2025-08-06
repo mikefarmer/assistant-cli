@@ -1,136 +1,298 @@
 # Assistant-CLI
 
-A personal assistant command-line interface tool with various capabilities including text-to-speech conversion.
+A personal assistant command-line interface tool with comprehensive authentication and text-to-speech capabilities.
 
 ## Overview
 
-Assistant-CLI is a Go-based personal assistant tool that currently provides text-to-speech functionality using Google Cloud Text-to-Speech API. It accepts text input via STDIN and converts it to speech, outputting the result as an MP3 file. The tool will be extended with additional features for Calendar, Gmail, and Drive integration.
+Assistant-CLI is a Go-based personal assistant tool designed with a phased approach. **Phase 1** (currently in progress) focuses on core text-to-speech functionality using Google Cloud Text-to-Speech API with robust authentication. Future phases will add Calendar, Gmail, Drive integration, and MCP server capabilities.
+
+## Current Status: Phase 1.2 Complete ✅
+
+- ✅ **Phase 1.1**: Project foundation with Go module, Cobra CLI, and directory structure
+- ✅ **Phase 1.2**: Complete authentication system with API Key, Service Account, and OAuth2 support
+- 🚧 **Phase 1.3**: Core TTS integration (next)
 
 ## Features
 
-- **Multiple Authentication Methods**: API Key, Service Account, and OAuth2
-- **STDIN Input**: Pipe text directly into the tool
+### Authentication (✅ Complete)
+- **API Key Authentication**: Simplest method using Google Cloud API keys
+- **Service Account Authentication**: JSON file-based auth for automation
+- **OAuth2 Authentication**: Interactive browser flow with token caching and refresh
+- **Auto-detection**: Automatically selects best auth method based on available credentials
+- **Interactive Setup**: Guided authentication process with `assistant-cli login`
+
+### Text-to-Speech (🚧 In Development - Phase 1.3)
+- **STDIN Input**: Pipe text directly into the tool  
 - **Voice Customization**: Adjust voice, language, speed, and pitch
 - **Audio Playback**: Optionally play generated audio immediately
+- **SSML Support**: Advanced speech markup language support
+
+### Platform & Configuration (✅ Complete)
 - **Cross-Platform**: Works on macOS, Linux, and Windows
-- **Configuration Support**: Use config files for persistent settings
+- **Configuration Support**: YAML config files with environment variable support
+- **CLI Framework**: Built with Cobra for excellent user experience
 
 ## Installation
+
+### Prerequisites
+- Google Cloud account with Text-to-Speech API enabled
+- API credentials (API key, service account, or OAuth2 client credentials)
 
 ### From Source
 
 ```bash
-go install github.com/mikefarmer/assistant-cli@latest
+# Clone the repository
+git clone https://github.com/mikefarmer/assistant-cli.git
+cd assistant-cli
+
+# Build the binary
+go build -o assistant-cli main.go
 ```
 
 ### Pre-built Binaries
 
-Download the appropriate binary for your platform from the [Releases](https://github.com/mikefarmer/assistant-cli/releases) page.
+Download the appropriate binary for your platform from the [Releases](https://github.com/mikefarmer/assistant-cli/releases) page (coming soon).
 
 ## Quick Start
 
-1. Set up authentication (choose one method):
+### 1. Authentication Setup
 
-   ```bash
-   # API Key (simplest)
-   export ASSISTANT_CLI_API_KEY="your-api-key-here"
-   
-   # Or use the login command
-   assistant-cli login --method api_key --api-key "your-api-key-here"
-   ```
+Choose one of the three authentication methods:
 
-2. Convert text to speech:
-
-   ```bash
-   echo "Hello, World!" | assistant-cli synthesize -o hello.mp3
-   ```
-
-3. Play immediately after generation:
-
-   ```bash
-   echo "Hello, World!" | assistant-cli synthesize --play
-   ```
-
-## Authentication
-
-### API Key (Recommended for Quick Start)
-
-1. Create an API key in Google Cloud Console
-2. Restrict it to Text-to-Speech API
-3. Use it via environment variable or command flag
-
-### Service Account (For Automation)
-
+#### Option A: API Key (Simplest)
 ```bash
-assistant-cli login --method service_account --credentials path/to/key.json
+# Set environment variable
+export ASSISTANT_CLI_API_KEY="your-google-cloud-api-key"
+
+# Or use interactive login
+./assistant-cli login --method apikey
 ```
 
-### OAuth2 (Interactive)
-
+#### Option B: Service Account (For Automation)
 ```bash
-assistant-cli login --method oauth2
+# Set environment variable
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
+
+# Or use interactive login
+./assistant-cli login --method serviceaccount --service-account /path/to/key.json
 ```
 
-## Usage Examples
-
-### Basic Usage
-
+#### Option C: OAuth2 (Interactive)
 ```bash
-echo "Hello, World!" | assistant-cli synthesize -o output.mp3
+# Interactive browser-based authentication
+./assistant-cli login --method oauth2 --client-id YOUR_CLIENT_ID --client-secret YOUR_CLIENT_SECRET
 ```
 
-### Custom Voice Parameters
+### 2. Verify Authentication
 
 ```bash
-cat text.txt | assistant-cli synthesize \
+./assistant-cli login --validate
+```
+
+### 3. Text-to-Speech Usage (Coming in Phase 1.3)
+
+*Note: TTS functionality is currently in development. The authentication system is complete and ready for integration.*
+
+```bash
+# Future usage (Phase 1.3)
+echo "Hello, World!" | ./assistant-cli synthesize -o hello.mp3
+```
+
+## Authentication Methods
+
+The assistant-cli supports three robust authentication methods with auto-detection and validation:
+
+### 1. API Key Authentication (Simplest)
+
+**Best for**: Quick start, personal use, simple scripts
+
+**Setup**:
+1. Create an API key in [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Enable Text-to-Speech API for your project  
+3. Restrict the key to Text-to-Speech API (recommended)
+4. Use one of these methods:
+
+```bash
+# Environment variable (recommended)
+export ASSISTANT_CLI_API_KEY="your-api-key-here"
+
+# Interactive login
+./assistant-cli login --method apikey
+
+# Direct flag (less secure)
+./assistant-cli login --method apikey --api-key "your-api-key"
+```
+
+### 2. Service Account Authentication (For Automation)
+
+**Best for**: Server deployments, CI/CD, automation, production environments
+
+**Setup**:
+1. Create a service account in Google Cloud Console
+2. Grant it "Cloud Text-to-Speech User" role
+3. Download the JSON key file
+4. Use one of these methods:
+
+```bash
+# Environment variable (recommended)  
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
+
+# Interactive login
+./assistant-cli login --method serviceaccount
+
+# Direct flag
+./assistant-cli login --method serviceaccount --service-account /path/to/key.json
+```
+
+### 3. OAuth2 Authentication (Interactive)
+
+**Best for**: Desktop applications, user consent workflows, development
+
+**Setup**:
+1. Create OAuth2 credentials in Google Cloud Console
+2. Set redirect URI to `http://localhost:8080/callback`
+3. Use one of these methods:
+
+```bash
+# Environment variables (recommended)
+export ASSISTANT_CLI_OAUTH2_CLIENT_ID="your-client-id"
+export ASSISTANT_CLI_OAUTH2_CLIENT_SECRET="your-client-secret"
+
+# Interactive login (will open browser)
+./assistant-cli login --method oauth2
+
+# Direct flags  
+./assistant-cli login --method oauth2 --client-id ID --client-secret SECRET
+```
+
+### Authentication Management
+
+```bash
+# Check current authentication status
+./assistant-cli login --validate
+
+# Force re-authentication
+./assistant-cli login --force
+
+# Auto-detect and use best available method
+./assistant-cli login
+
+# Get help with authentication
+./assistant-cli login --help
+```
+
+## Available Commands
+
+### Authentication Commands (✅ Available Now)
+
+```bash
+# Interactive authentication setup
+./assistant-cli login
+
+# Specific authentication method
+./assistant-cli login --method apikey|serviceaccount|oauth2
+
+# Validate current authentication
+./assistant-cli login --validate
+
+# View help
+./assistant-cli --help
+./assistant-cli login --help
+```
+
+### Text-to-Speech Commands (🚧 Coming in Phase 1.3)
+
+*The following commands are planned for Phase 1.3 implementation:*
+
+```bash
+# Basic text-to-speech
+echo "Hello, World!" | ./assistant-cli synthesize -o output.mp3
+
+# Custom voice parameters
+cat text.txt | ./assistant-cli synthesize \
   --voice en-US-Wavenet-C \
   --speed 1.2 \
   --pitch -2.0 \
   --output speech.mp3
-```
 
-### Using Configuration File
+# With immediate playback
+echo "Hello!" | ./assistant-cli synthesize --play
 
-```bash
-echo "Welcome" | assistant-cli synthesize --config ~/.assistant-cli/config.yaml
+# Using configuration file
+echo "Welcome" | ./assistant-cli synthesize --config ~/.assistant-cli.yaml
 ```
 
 ## Configuration
 
-Create a configuration file at `~/.assistant-cli/config.yaml`:
+The assistant-cli uses a hierarchical configuration system: **CLI flags** > **Environment variables** > **Config file** > **Defaults**
+
+### Configuration File
+
+Create a configuration file at `~/.assistant-cli.yaml`:
 
 ```yaml
+# Authentication settings (Phase 1.2 ✅)
 auth:
-  method: "api_key"
-  api_key: ""  # Can be set here or via ASSISTANT_CLI_API_KEY env var
+  method: "apikey"  # apikey, serviceaccount, or oauth2
+  service_account_file: "/path/to/key.json"  # Only for serviceaccount method
+  # Note: Sensitive credentials (API keys, OAuth secrets) should use environment variables
 
-audio:
+# Text-to-Speech settings (Phase 1.3 🚧)  
+tts:
   voice: "en-US-Wavenet-D"
-  language: "en-US"
+  language: "en-US" 
   speaking_rate: 1.0
   pitch: 0.0
 
+# Output settings (Phase 1.4 🚧)
 output:
   default_path: "./output"
   format: "MP3"
   overwrite: true
 
+# Playback settings (Phase 1.4 🚧)
 playback:
   auto_play: false
+```
+
+### Environment Variables
+
+```bash
+# Authentication
+export ASSISTANT_CLI_API_KEY="your-api-key"
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
+export ASSISTANT_CLI_OAUTH2_CLIENT_ID="your-client-id"
+export ASSISTANT_CLI_OAUTH2_CLIENT_SECRET="your-client-secret"
+export ASSISTANT_CLI_OAUTH2_TOKEN_FILE="/custom/token/path.json"
+
+# Future: TTS and output settings (Phase 1.3+)
+export ASSISTANT_CLI_VOICE="en-US-Wavenet-C"
+export ASSISTANT_CLI_OUTPUT_PATH="./speech-files"
 ```
 
 ## Development
 
 ### Prerequisites
 
-- Go 1.21 or later
+- Go 1.23.0 or later (project uses latest Go features)
 - Google Cloud account with Text-to-Speech API enabled
+- Git for version control
 
 ### Building
 
 ```bash
+# Clone and build
+git clone https://github.com/mikefarmer/assistant-cli.git
+cd assistant-cli
+
+# Install dependencies
+go mod download
+
 # Build for current platform
 go build -o assistant-cli main.go
+
+# Or use the Makefile
+make build
 
 # Cross-platform builds
 make build-all
@@ -142,25 +304,131 @@ make build-all
 # Run all tests
 go test ./...
 
-# With coverage
+# Run tests with coverage
 go test -cover ./...
+
+# Run tests with verbose output
+go test -v ./...
+
+# Test specific package
+go test ./internal/auth
+```
+
+### Code Quality
+
+```bash
+# Format code
+go fmt ./...
+
+# Run linter (requires golangci-lint)
+golangci-lint run
+
+# Update dependencies
+go mod tidy
+```
+
+## Architecture
+
+The project follows a clean, modular architecture designed for extensibility:
+
+```
+assistant-cli/
+├── cmd/                    # CLI commands (Cobra)
+│   ├── root.go            # Root command and config
+│   └── login.go           # Authentication commands ✅
+├── internal/              # Private application code
+│   ├── auth/              # Authentication system ✅
+│   │   ├── manager.go     # Auth coordinator
+│   │   ├── apikey.go      # API key provider
+│   │   ├── service.go     # Service account provider
+│   │   └── oauth2.go      # OAuth2 provider
+│   ├── tts/               # TTS integration 🚧
+│   ├── config/            # Configuration management 🚧
+│   ├── output/            # File output handling 🚧
+│   └── player/            # Audio playback 🚧
+└── pkg/                   # Public/shared utilities
+    └── utils/             # Common utilities 🚧
+```
+
+## Troubleshooting
+
+### Authentication Issues
+
+```bash
+# Check authentication status
+./assistant-cli login --validate
+
+# Common issues:
+# 1. API key invalid or expired
+# 2. Service account file permissions
+# 3. OAuth2 client credentials incorrect
+# 4. Text-to-Speech API not enabled
+
+# Force re-authentication
+./assistant-cli login --force
+```
+
+### Build Issues
+
+```bash
+# Update to Go 1.23+
+go version
+
+# Clean module cache
+go clean -modcache
+go mod download
+
+# Rebuild
+go build -o assistant-cli main.go
 ```
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) first.
+Contributions are welcome! This project follows a phased development approach:
+
+1. **Phase 1.2** ✅ - Authentication system (complete)
+2. **Phase 1.3** 🚧 - TTS integration (next priority)  
+3. **Phase 1.4** 📋 - Input/output processing
+4. **Phase 2** 📋 - Google services integration
+5. **Phase 3** 📋 - MCP server capability
+
+See [phase-1-tasks.md](phase-1-tasks.md) for detailed implementation status.
 
 ## Support
 
-- Documentation: [Wiki](https://github.com/mikefarmer/assistant-cli/wiki)
-- Issues: [GitHub Issues](https://github.com/mikefarmer/assistant-cli/issues)
+- **Issues**: [GitHub Issues](https://github.com/mikefarmer/assistant-cli/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/mikefarmer/assistant-cli/discussions)
+- **Documentation**: Check the `/docs` directory
 
-## Roadmap
+## Project Status & Roadmap
 
-- **Phase 1** (Current): Core TTS functionality
-- **Phase 2**: Google services integration (Calendar, Gmail, Drive)
-- **Phase 3**: MCP server capability for AI assistants
+### ✅ **Phase 1.1**: Project Foundation (Complete)
+- Go module setup with latest Go 1.23
+- Cobra CLI framework integration  
+- Project structure and development tooling
+- Cross-platform build configuration
+
+### ✅ **Phase 1.2**: Authentication Foundation (Complete)  
+- Multi-method authentication (API Key, Service Account, OAuth2)
+- Interactive login command with validation
+- Auto-detection and credential management
+- Comprehensive error handling and user guidance
+
+### 🚧 **Phase 1.3**: Core TTS Integration (Next)
+- Google Cloud Text-to-Speech API integration
+- Voice synthesis with customization options
+- SSML support for advanced speech control
+- Audio file generation and management
+
+### 📋 **Future Phases**
+- **Phase 1.4-1.10**: Complete TTS functionality, testing, distribution
+- **Phase 2**: Google services integration (Calendar, Gmail, Drive)  
+- **Phase 3**: MCP server capability for AI assistant integration
+
+---
+
+*Assistant-CLI is actively developed with a focus on security, usability, and extensibility. The authentication system is production-ready and the TTS integration is the next priority.*
