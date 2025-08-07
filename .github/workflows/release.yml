@@ -39,10 +39,10 @@ jobs:
         VERSION: ${{ steps.version.outputs.VERSION }}
       run: |        
         # macOS AMD64 (Intel)
-        GOOS=darwin GOARCH=amd64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-darwin-amd64 main.go
+        GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${VERSION}" -o dist/assistant-cli-darwin-amd64 main.go
         
         # macOS ARM64 (Apple Silicon)
-        GOOS=darwin GOARCH=arm64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-darwin-arm64 main.go
+        GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${VERSION}" -o dist/assistant-cli-darwin-arm64 main.go
 
     - name: Generate checksums
       run: |

@@ -3,7 +3,7 @@
 # Variables
 BINARY_NAME=assistant-cli
 VERSION?=dev
-LDFLAGS=-ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}"
+LDFLAGS=-ldflags "-X main.version=${VERSION}"
 
 # Default target
 all: test build
@@ -22,8 +22,8 @@ build:
 ## build-all: Build binaries for macOS platforms
 build-all: clean
 	mkdir -p dist
-	GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o dist/${BINARY_NAME}-darwin-amd64 main.go
-	GOOS=darwin GOARCH=arm64 go build ${LDFLAGS} -o dist/${BINARY_NAME}-darwin-arm64 main.go
+	GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${VERSION}" -o dist/${BINARY_NAME}-darwin-amd64 main.go
+	GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${VERSION}" -o dist/${BINARY_NAME}-darwin-arm64 main.go
 
 ## install: Install the binary to GOPATH/bin
 install:
@@ -76,14 +76,40 @@ release-prep: build-all checksums
 	@echo "Release preparation complete. Files in dist/ directory:"
 	@ls -la dist/
 
-## tag-release: Create and push a semantic version tag
+## release-preview: Show what a release would do without creating it
+release-preview:
+	@echo "🔍 Release Preview"
+	@echo "=================="
+	@echo "Current tags:"
+	@git tag -l | tail -5
+	@echo ""
+	@read -p "Enter version to preview (e.g., v1.0.0): " version; \
+	if [ -z "$$version" ]; then echo "Version cannot be empty"; exit 1; fi; \
+	echo ""; \
+	echo "📋 This would:"; \
+	echo "  1. Build binaries with version: $$version"; \
+	echo "  2. Test binary version matches: $$version"; \
+	echo "  3. Create git tag: $$version"; \
+	echo "  4. Push tag to trigger GitHub Actions release"; \
+	echo "  5. GitHub will build and publish: assistant-cli-darwin-amd64, assistant-cli-darwin-arm64"; \
+	echo ""; \
+	echo "💡 To actually create the release, run: make tag-release"
+
+## tag-release: Create and push a semantic version tag with version sync
 tag-release:
 	@echo "Current tags:"
 	@git tag -l | tail -5
 	@echo ""
 	@read -p "Enter new version (e.g., v1.0.0): " version; \
 	if [ -z "$$version" ]; then echo "Version cannot be empty"; exit 1; fi; \
-	echo "Creating tag $$version..."; \
+	echo "Building release binaries with version $$version..."; \
+	VERSION=$$version $(MAKE) build-all; \
+	echo "Testing binary with version $$version..."; \
+	ARCH=$$(uname -m); \
+	if [ "$$ARCH" = "x86_64" ]; then ARCH="amd64"; elif [ "$$ARCH" = "aarch64" ]; then ARCH="arm64"; fi; \
+	./dist/${BINARY_NAME}-darwin-$$ARCH --version | grep "$$version" || (echo "Version mismatch in binary!" && exit 1); \
+	echo "Creating git tag $$version..."; \
 	git tag -a "$$version" -m "Release $$version"; \
-	echo "Pushing tag $$version..."; \
-	git push origin "$$version"
+	echo "Pushing tag $$version to trigger release workflow..."; \
+	git push origin "$$version"; \
+	echo "✅ Release $$version created! Check GitHub Actions for build progress."

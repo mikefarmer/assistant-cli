@@ -67,7 +67,7 @@ jobs:
 
     - name: Build binary
       run: |
-        go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=ci-${{ github.sha }}" -o assistant-cli main.go
+        go build -ldflags "-X main.version=ci-${{ github.sha }}" -o assistant-cli main.go
 
     - name: Test CLI help command
       run: |
