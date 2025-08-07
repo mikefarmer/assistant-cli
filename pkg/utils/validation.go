@@ -111,8 +111,8 @@ func (v *SSMLValidator) initializeDangerousPatterns() {
 
 // IsSSML determines if the input text contains SSML markup
 func (v *SSMLValidator) IsSSML(text string) bool {
-	// Simple check for SSML structure
-	return strings.Contains(text, "<") && strings.Contains(text, ">")
+	// Simple check for SSML structure - any angle bracket indicates potential SSML
+	return strings.Contains(text, "<") || strings.Contains(text, ">")
 }
 
 // ValidateSSML performs comprehensive SSML validation
@@ -322,7 +322,8 @@ func (v *SSMLValidator) validateProsodyAttributes(text string) error {
 
 // validateSayAsAttributes validates say-as tag attributes
 func (v *SSMLValidator) validateSayAsAttributes(text string) error {
-	sayAsRegex := regexp.MustCompile(`<say-as\s+([^>]+)>`)
+	// Match say-as tags with or without attributes
+	sayAsRegex := regexp.MustCompile(`<say-as(\s+[^>]+)?>`)
 	matches := sayAsRegex.FindAllStringSubmatch(text, -1)
 	
 	validInterpretAs := map[string]bool{
@@ -343,7 +344,7 @@ func (v *SSMLValidator) validateSayAsAttributes(text string) error {
 	}
 	
 	for _, match := range matches {
-		attrs := match[1]
+		attrs := match[1] // This will be empty string if no attributes
 		
 		// interpret-as is required for say-as
 		interpretRegex := regexp.MustCompile(`interpret-as=["']?([^"'\s>]+)["']?`)

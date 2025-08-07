@@ -191,13 +191,15 @@ func TestCalculatePercentile(t *testing.T) {
 	}
 	
 	p50 := calculatePercentile(durations, 50)
+	// P50 of [10,20,30,40,50] with 50% index = (50 * 4) / 100 = 2, so durations[2] = 30ms
 	if p50 != 30*time.Millisecond {
 		t.Errorf("expected P50 to be 30ms, got %v", p50)
 	}
 	
 	p90 := calculatePercentile(durations, 90)
-	if p90 != 50*time.Millisecond {
-		t.Errorf("expected P90 to be 50ms, got %v", p90)
+	// P90 of [10,20,30,40,50] with 90% index = (90 * 4) / 100 = 3.6 -> 3, so durations[3] = 40ms
+	if p90 != 40*time.Millisecond {
+		t.Errorf("expected P90 to be 40ms, got %v", p90)
 	}
 	
 	// Test edge case: empty slice

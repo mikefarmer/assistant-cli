@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -122,7 +123,8 @@ func TestAudioPlayer_buildMacOSCommand(t *testing.T) {
 	testFile := "/tmp/test.mp3"
 	cmd := player.buildMacOSCommand(testFile)
 	
-	assert.Equal(t, "afplay", cmd.Path)
+	// The path might be full path like "/usr/bin/afplay" or just "afplay"
+	assert.True(t, strings.HasSuffix(cmd.Path, "afplay"), "expected path to end with 'afplay', got %s", cmd.Path)
 	assert.Contains(t, cmd.Args, testFile)
 }
 
@@ -139,7 +141,7 @@ func TestAudioPlayer_buildLinuxCommand(t *testing.T) {
 	testFile := "/tmp/test.wav"
 	cmd := player.buildLinuxCommand(testFile)
 	
-	assert.Equal(t, "aplay", cmd.Path)
+	assert.True(t, strings.HasSuffix(cmd.Path, "aplay"), "expected path to end with 'aplay', got %s", cmd.Path)
 	assert.Contains(t, cmd.Args, testFile)
 }
 

@@ -79,7 +79,8 @@ func (p *InputProcessor) ReadText() (string, error) {
 	// Read input with buffering
 	var buffer strings.Builder
 	scanner := bufio.NewScanner(p.reader)
-	scanner.Buffer(make([]byte, BufferSize), p.maxLength+1)
+	// Set scanner buffer to be larger than our limit to avoid scanner errors for length issues
+	scanner.Buffer(make([]byte, BufferSize), p.maxLength+1000)
 	
 	// Read all lines
 	for scanner.Scan() {
@@ -97,8 +98,10 @@ func (p *InputProcessor) ReadText() (string, error) {
 		}
 	}
 	
-	// Check for scanner errors
+	// Check for scanner errors - but only if it's not a length-related issue
 	if err := scanner.Err(); err != nil {
+		// If we exceeded our length limit, we should have already returned above
+		// This means it's a genuine read error
 		return "", &InputError{
 			Type:    "read",
 			Message: fmt.Sprintf("failed to read input: %v", err),
@@ -235,7 +238,12 @@ func (p *InputProcessor) SplitByLength(text string, maxLength int) []string {
 		splitPoint := p.findSplitPoint(remaining, maxLength)
 		
 		chunk := remaining[:splitPoint]
-		chunks = append(chunks, strings.TrimSpace(chunk))
+		// Don't trim if the chunk ends with sentence punctuation + space
+		if strings.HasSuffix(chunk, ". ") || strings.HasSuffix(chunk, "! ") || strings.HasSuffix(chunk, "? ") {
+			chunks = append(chunks, chunk)
+		} else {
+			chunks = append(chunks, strings.TrimSpace(chunk))
+		}
 		remaining = strings.TrimSpace(remaining[splitPoint:])
 	}
 	
@@ -253,19 +261,24 @@ func (p *InputProcessor) findSplitPoint(text string, maxLength int) int {
 		return len(text)
 	}
 	
-	// Try to find a good break point (sentence, then clause, then word)
+	// Try to find a good break point
 	breakChars := []string{". ", "! ", "? ", "; ", ", ", " "}
 	
+	// Look for the best break point within the allowable length
 	for _, breakChar := range breakChars {
-		// Look for break character within the last 20% of the allowed length
-		searchStart := maxLength - (maxLength / 5)
-		if searchStart < 0 {
-			searchStart = 0
-		}
-		
-		substr := text[searchStart:maxLength]
+		// Look for the last occurrence of the break character within maxLength
+		substr := text[:maxLength]
 		if idx := strings.LastIndex(substr, breakChar); idx != -1 {
-			return searchStart + idx + len(breakChar)
+			// For sentence endings, we want to include the space
+			if breakChar == ". " || breakChar == "! " || breakChar == "? " {
+				return idx + len(breakChar)
+			}
+			// For word boundaries (just spaces), include the space  
+			if breakChar == " " {
+				return idx + 1
+			}
+			// For other punctuation, include it
+			return idx + len(breakChar)
 		}
 	}
 	
@@ -280,7 +293,7 @@ func (p *InputProcessor) GetTextStats(text string) TextStats {
 	runes := []rune(text)
 	
 	return TextStats{
-		Characters:    len(text),
+		Characters:    len(runes), // Use UTF-8 character count
 		CharactersUTF: len(runes),
 		Words:         len(words),
 		Lines:         len(lines),

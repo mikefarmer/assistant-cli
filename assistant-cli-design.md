@@ -371,8 +371,6 @@ require (
 
 ### 9.2 Distribution Methods
 - GitHub Releases with binaries
-- Go module for library usage
-- Package managers (Homebrew, apt, etc.)
 
 ### 9.3 Authentication Setup Guide
 

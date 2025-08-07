@@ -1,0 +1,1028 @@
+FAIL	github.com/mikefarmer/assistant-cli/test [build failed]
+=== RUN   TestVersion
+--- PASS: TestVersion (0.00s)
+=== RUN   TestSetVersion
+--- PASS: TestSetVersion (0.00s)
+PASS
+coverage: 0.0% of statements
+ok  	github.com/mikefarmer/assistant-cli	0.268s	coverage: 0.0% of statements
+=== RUN   TestConfigCommand
+=== RUN   TestConfigCommand/config_help
+=== RUN   TestConfigCommand/config_no_subcommand_shows_help
+--- PASS: TestConfigCommand (0.00s)
+    --- PASS: TestConfigCommand/config_help (0.00s)
+    --- PASS: TestConfigCommand/config_no_subcommand_shows_help (0.00s)
+=== RUN   TestConfigGenerate
+=== RUN   TestConfigGenerate/generate_help
+--- PASS: TestConfigGenerate (0.00s)
+    --- PASS: TestConfigGenerate/generate_help (0.00s)
+=== RUN   TestConfigValidate
+=== RUN   TestConfigValidate/validate_help
+--- PASS: TestConfigValidate (0.00s)
+    --- PASS: TestConfigValidate/validate_help (0.00s)
+=== RUN   TestConfigShow
+=== RUN   TestConfigShow/show_help
+--- PASS: TestConfigShow (0.00s)
+    --- PASS: TestConfigShow/show_help (0.00s)
+=== RUN   TestRunGenerateConfigFunction
+=== RUN   TestRunGenerateConfigFunction/generate_with_default_path_behavior
+✓ Generated configuration file: /var/folders/wb/2nqhvl5j2fzddq8ny519bz080000gn/T/config_test2125746859/test-config.yaml
+Edit the file to customize your settings, then run 'assistant-cli config validate' to check for errors.
+=== RUN   TestRunGenerateConfigFunction/generate_with_existing_file_without_force
+--- PASS: TestRunGenerateConfigFunction (0.00s)
+    --- PASS: TestRunGenerateConfigFunction/generate_with_default_path_behavior (0.00s)
+    --- PASS: TestRunGenerateConfigFunction/generate_with_existing_file_without_force (0.00s)
+=== RUN   TestMaskSensitiveValues
+=== RUN   TestMaskSensitiveValues/mask_function_exists
+--- PASS: TestMaskSensitiveValues (0.00s)
+    --- PASS: TestMaskSensitiveValues/mask_function_exists (0.00s)
+=== RUN   TestGetValueSource
+=== RUN   TestGetValueSource/environment_source
+=== RUN   TestGetValueSource/config/default_source
+--- PASS: TestGetValueSource (0.00s)
+    --- PASS: TestGetValueSource/environment_source (0.00s)
+    --- PASS: TestGetValueSource/config/default_source (0.00s)
+=== RUN   TestLoginCommand
+=== RUN   TestLoginCommand/login_help
+=== RUN   TestLoginCommand/method_flag_help
+--- PASS: TestLoginCommand (0.00s)
+    --- PASS: TestLoginCommand/login_help (0.00s)
+    --- PASS: TestLoginCommand/method_flag_help (0.00s)
+=== RUN   TestLoginCommandFlags
+=== RUN   TestLoginCommandFlags/flag_method
+=== RUN   TestLoginCommandFlags/flag_api-key
+=== RUN   TestLoginCommandFlags/flag_service-account
+=== RUN   TestLoginCommandFlags/flag_client-id
+=== RUN   TestLoginCommandFlags/flag_client-secret
+=== RUN   TestLoginCommandFlags/flag_force
+=== RUN   TestLoginCommandFlags/flag_validate
+--- PASS: TestLoginCommandFlags (0.00s)
+    --- PASS: TestLoginCommandFlags/flag_method (0.00s)
+    --- PASS: TestLoginCommandFlags/flag_api-key (0.00s)
+    --- PASS: TestLoginCommandFlags/flag_service-account (0.00s)
+    --- PASS: TestLoginCommandFlags/flag_client-id (0.00s)
+    --- PASS: TestLoginCommandFlags/flag_client-secret (0.00s)
+    --- PASS: TestLoginCommandFlags/flag_force (0.00s)
+    --- PASS: TestLoginCommandFlags/flag_validate (0.00s)
+=== RUN   TestDetermineAuthMethod
+=== RUN   TestDetermineAuthMethod/explicit_API_key_method
+=== RUN   TestDetermineAuthMethod/explicit_service_account_method
+=== RUN   TestDetermineAuthMethod/explicit_OAuth2_method
+=== RUN   TestDetermineAuthMethod/invalid_method
+=== RUN   TestDetermineAuthMethod/API_key_flag
+=== RUN   TestDetermineAuthMethod/service_account_flag
+=== RUN   TestDetermineAuthMethod/OAuth2_flags
+=== RUN   TestDetermineAuthMethod/API_key_environment
+=== RUN   TestDetermineAuthMethod/service_account_environment
+=== RUN   TestDetermineAuthMethod/OAuth2_environment
+--- PASS: TestDetermineAuthMethod (0.00s)
+    --- PASS: TestDetermineAuthMethod/explicit_API_key_method (0.00s)
+    --- PASS: TestDetermineAuthMethod/explicit_service_account_method (0.00s)
+    --- PASS: TestDetermineAuthMethod/explicit_OAuth2_method (0.00s)
+    --- PASS: TestDetermineAuthMethod/invalid_method (0.00s)
+    --- PASS: TestDetermineAuthMethod/API_key_flag (0.00s)
+    --- PASS: TestDetermineAuthMethod/service_account_flag (0.00s)
+    --- PASS: TestDetermineAuthMethod/OAuth2_flags (0.00s)
+    --- PASS: TestDetermineAuthMethod/API_key_environment (0.00s)
+    --- PASS: TestDetermineAuthMethod/service_account_environment (0.00s)
+    --- PASS: TestDetermineAuthMethod/OAuth2_environment (0.00s)
+=== RUN   TestCreateAuthConfig
+=== RUN   TestCreateAuthConfig/API_key_config
+=== RUN   TestCreateAuthConfig/service_account_config
+=== RUN   TestCreateAuthConfig/OAuth2_config
+--- PASS: TestCreateAuthConfig (0.00s)
+    --- PASS: TestCreateAuthConfig/API_key_config (0.00s)
+    --- PASS: TestCreateAuthConfig/service_account_config (0.00s)
+    --- PASS: TestCreateAuthConfig/OAuth2_config (0.00s)
+=== RUN   TestPromptForServiceAccountFile
+=== RUN   TestPromptForServiceAccountFile/regular_path
+=== RUN   TestPromptForServiceAccountFile/path_with_spaces
+--- PASS: TestPromptForServiceAccountFile (0.00s)
+    --- PASS: TestPromptForServiceAccountFile/regular_path (0.00s)
+    --- PASS: TestPromptForServiceAccountFile/path_with_spaces (0.00s)
+=== RUN   TestPerformAuthentication
+=== RUN   TestPerformAuthentication/unsupported_method
+--- PASS: TestPerformAuthentication (0.00s)
+    --- PASS: TestPerformAuthentication/unsupported_method (0.00s)
+=== RUN   TestSaveAuthConfigLogic
+=== RUN   TestSaveAuthConfigLogic/apikey
+=== RUN   TestSaveAuthConfigLogic/serviceaccount
+=== RUN   TestSaveAuthConfigLogic/oauth2
+--- PASS: TestSaveAuthConfigLogic (0.00s)
+    --- PASS: TestSaveAuthConfigLogic/apikey (0.00s)
+    --- PASS: TestSaveAuthConfigLogic/serviceaccount (0.00s)
+    --- PASS: TestSaveAuthConfigLogic/oauth2 (0.00s)
+=== RUN   TestLoginFlagDefaults
+--- PASS: TestLoginFlagDefaults (0.00s)
+=== RUN   TestValidateAuthentication
+=== RUN   TestValidateAuthentication/error_handling
+--- PASS: TestValidateAuthentication (0.00s)
+    --- PASS: TestValidateAuthentication/error_handling (0.00s)
+=== RUN   TestRootCommand
+=== RUN   TestRootCommand/help_flag
+=== RUN   TestRootCommand/version_flag
+=== RUN   TestRootCommand/no_args_shows_help
+--- PASS: TestRootCommand (0.00s)
+    --- PASS: TestRootCommand/help_flag (0.00s)
+    --- PASS: TestRootCommand/version_flag (0.00s)
+    --- PASS: TestRootCommand/no_args_shows_help (0.00s)
+=== RUN   TestInitConfig
+--- PASS: TestInitConfig (0.00s)
+=== RUN   TestRootCommandStructure
+--- PASS: TestRootCommandStructure (0.00s)
+=== RUN   TestNewSynthesizeCmd
+--- PASS: TestNewSynthesizeCmd (0.00s)
+=== RUN   TestSynthesizeCommandHelp
+=== RUN   TestSynthesizeCommandHelp/help_flag
+=== RUN   TestSynthesizeCommandHelp/voice_flag_help
+=== RUN   TestSynthesizeCommandHelp/language_flag_help
+--- PASS: TestSynthesizeCommandHelp (0.00s)
+    --- PASS: TestSynthesizeCommandHelp/help_flag (0.00s)
+    --- PASS: TestSynthesizeCommandHelp/voice_flag_help (0.00s)
+    --- PASS: TestSynthesizeCommandHelp/language_flag_help (0.00s)
+=== RUN   TestSynthesizeFlagValidation
+=== RUN   TestSynthesizeFlagValidation/invalid_audio_format
+=== RUN   TestSynthesizeFlagValidation/negative_speaking_rate
+=== RUN   TestSynthesizeFlagValidation/pitch_out_of_range
+--- PASS: TestSynthesizeFlagValidation (0.01s)
+    --- PASS: TestSynthesizeFlagValidation/invalid_audio_format (0.00s)
+    --- PASS: TestSynthesizeFlagValidation/negative_speaking_rate (0.01s)
+    --- PASS: TestSynthesizeFlagValidation/pitch_out_of_range (0.01s)
+=== RUN   TestConvertToAuthConfig
+--- PASS: TestConvertToAuthConfig (0.00s)
+=== RUN   TestMinFunction
+=== RUN   TestMinFunction/a_smaller
+=== RUN   TestMinFunction/b_smaller
+=== RUN   TestMinFunction/equal
+=== RUN   TestMinFunction/negative_numbers
+=== RUN   TestMinFunction/mixed_signs
+--- PASS: TestMinFunction (0.00s)
+    --- PASS: TestMinFunction/a_smaller (0.00s)
+    --- PASS: TestMinFunction/b_smaller (0.00s)
+    --- PASS: TestMinFunction/equal (0.00s)
+    --- PASS: TestMinFunction/negative_numbers (0.00s)
+    --- PASS: TestMinFunction/mixed_signs (0.00s)
+=== RUN   TestPlayAudioFile
+=== RUN   TestPlayAudioFile/play_audio_when_supported
+Playing audio with afplay on darwin...
+=== RUN   TestPlayAudioFile/play_non-existent_file
+Playing audio with afplay on darwin...
+--- PASS: TestPlayAudioFile (0.01s)
+    --- PASS: TestPlayAudioFile/play_audio_when_supported (0.00s)
+    --- PASS: TestPlayAudioFile/play_non-existent_file (0.00s)
+=== RUN   TestSynthesizeFlagDefaults
+--- PASS: TestSynthesizeFlagDefaults (0.00s)
+=== RUN   TestHandleListVoicesInput
+--- PASS: TestHandleListVoicesInput (0.00s)
+=== RUN   TestRunSynthesizeComponents
+=== RUN   TestRunSynthesizeComponents/auth_config_conversion
+=== RUN   TestRunSynthesizeComponents/output_file_handling
+=== RUN   TestRunSynthesizeComponents/output_file_handling/custom_output_file
+=== RUN   TestRunSynthesizeComponents/output_file_handling/default_with_auto_filename_disabled
+--- PASS: TestRunSynthesizeComponents (0.00s)
+    --- PASS: TestRunSynthesizeComponents/auth_config_conversion (0.00s)
+    --- PASS: TestRunSynthesizeComponents/output_file_handling (0.00s)
+        --- PASS: TestRunSynthesizeComponents/output_file_handling/custom_output_file (0.00s)
+        --- PASS: TestRunSynthesizeComponents/output_file_handling/default_with_auto_filename_disabled (0.00s)
+PASS
+coverage: 31.1% of statements
+ok  	github.com/mikefarmer/assistant-cli/cmd	0.671s	coverage: 31.1% of statements
+=== RUN   TestNewAPIKeyProvider
+=== RUN   TestNewAPIKeyProvider/valid_API_key
+=== RUN   TestNewAPIKeyProvider/empty_API_key
+=== RUN   TestNewAPIKeyProvider/short_API_key
+--- PASS: TestNewAPIKeyProvider (0.00s)
+    --- PASS: TestNewAPIKeyProvider/valid_API_key (0.00s)
+    --- PASS: TestNewAPIKeyProvider/empty_API_key (0.00s)
+    --- PASS: TestNewAPIKeyProvider/short_API_key (0.00s)
+=== RUN   TestAPIKeyProvider_IsConfigured
+=== RUN   TestAPIKeyProvider_IsConfigured/valid_API_key_format
+=== RUN   TestAPIKeyProvider_IsConfigured/another_valid_format
+=== RUN   TestAPIKeyProvider_IsConfigured/valid_AIza_format
+=== RUN   TestAPIKeyProvider_IsConfigured/valid_BIza_format
+=== RUN   TestAPIKeyProvider_IsConfigured/empty_key
+=== RUN   TestAPIKeyProvider_IsConfigured/too_short
+=== RUN   TestAPIKeyProvider_IsConfigured/wrong_prefix
+=== RUN   TestAPIKeyProvider_IsConfigured/no_prefix
+--- PASS: TestAPIKeyProvider_IsConfigured (0.00s)
+    --- PASS: TestAPIKeyProvider_IsConfigured/valid_API_key_format (0.00s)
+    --- PASS: TestAPIKeyProvider_IsConfigured/another_valid_format (0.00s)
+    --- PASS: TestAPIKeyProvider_IsConfigured/valid_AIza_format (0.00s)
+    --- PASS: TestAPIKeyProvider_IsConfigured/valid_BIza_format (0.00s)
+    --- PASS: TestAPIKeyProvider_IsConfigured/empty_key (0.00s)
+    --- PASS: TestAPIKeyProvider_IsConfigured/too_short (0.00s)
+    --- PASS: TestAPIKeyProvider_IsConfigured/wrong_prefix (0.00s)
+    --- PASS: TestAPIKeyProvider_IsConfigured/no_prefix (0.00s)
+=== RUN   TestAPIKeyProvider_Authenticate
+--- PASS: TestAPIKeyProvider_Authenticate (0.00s)
+=== RUN   TestAPIKeyProvider_GetClient_InvalidKey
+--- PASS: TestAPIKeyProvider_GetClient_InvalidKey (0.00s)
+=== RUN   TestAPIKeyProvider_GetClient_EmptyKey
+--- PASS: TestAPIKeyProvider_GetClient_EmptyKey (0.00s)
+=== RUN   TestAPIKeyProvider_Authenticate_InvalidKey
+--- PASS: TestAPIKeyProvider_Authenticate_InvalidKey (0.00s)
+=== RUN   TestNewAuthManager
+--- PASS: TestNewAuthManager (0.00s)
+=== RUN   TestAuthMethod_String
+=== RUN   TestAuthMethod_String/apikey
+=== RUN   TestAuthMethod_String/serviceaccount
+=== RUN   TestAuthMethod_String/oauth2
+=== RUN   TestAuthMethod_String/unknown
+--- PASS: TestAuthMethod_String (0.00s)
+    --- PASS: TestAuthMethod_String/apikey (0.00s)
+    --- PASS: TestAuthMethod_String/serviceaccount (0.00s)
+    --- PASS: TestAuthMethod_String/oauth2 (0.00s)
+    --- PASS: TestAuthMethod_String/unknown (0.00s)
+=== RUN   TestDefaultAuthConfig
+--- PASS: TestDefaultAuthConfig (0.00s)
+=== RUN   TestAuthManager_SelectAuthMethod
+=== RUN   TestAuthManager_SelectAuthMethod/explicit_API_key_config
+=== RUN   TestAuthManager_SelectAuthMethod/explicit_service_account_config
+=== RUN   TestAuthManager_SelectAuthMethod/explicit_OAuth2_config
+=== RUN   TestAuthManager_SelectAuthMethod/API_key_from_environment
+=== RUN   TestAuthManager_SelectAuthMethod/OAuth2_with_client_credentials
+=== RUN   TestAuthManager_SelectAuthMethod/default_to_API_key
+--- PASS: TestAuthManager_SelectAuthMethod (0.00s)
+    --- PASS: TestAuthManager_SelectAuthMethod/explicit_API_key_config (0.00s)
+    --- PASS: TestAuthManager_SelectAuthMethod/explicit_service_account_config (0.00s)
+    --- PASS: TestAuthManager_SelectAuthMethod/explicit_OAuth2_config (0.00s)
+    --- PASS: TestAuthManager_SelectAuthMethod/API_key_from_environment (0.00s)
+    --- PASS: TestAuthManager_SelectAuthMethod/OAuth2_with_client_credentials (0.00s)
+    --- PASS: TestAuthManager_SelectAuthMethod/default_to_API_key (0.00s)
+=== RUN   TestAuthManager_IsConfigured
+=== RUN   TestAuthManager_IsConfigured/API_key_configured
+=== RUN   TestAuthManager_IsConfigured/no_configuration
+--- PASS: TestAuthManager_IsConfigured (0.00s)
+    --- PASS: TestAuthManager_IsConfigured/API_key_configured (0.00s)
+    --- PASS: TestAuthManager_IsConfigured/no_configuration (0.00s)
+=== RUN   TestAuthManager_GetActiveMethod
+--- PASS: TestAuthManager_GetActiveMethod (0.00s)
+=== RUN   TestAuthManager_GetClient_NoCredentials
+--- PASS: TestAuthManager_GetClient_NoCredentials (0.00s)
+=== RUN   TestNewOAuth2Provider
+--- PASS: TestNewOAuth2Provider (0.00s)
+=== RUN   TestOAuth2Provider_IsConfigured
+=== RUN   TestOAuth2Provider_IsConfigured/complete_configuration
+=== RUN   TestOAuth2Provider_IsConfigured/missing_client_ID
+=== RUN   TestOAuth2Provider_IsConfigured/missing_client_secret
+=== RUN   TestOAuth2Provider_IsConfigured/missing_token_file
+=== RUN   TestOAuth2Provider_IsConfigured/all_empty
+--- PASS: TestOAuth2Provider_IsConfigured (0.00s)
+    --- PASS: TestOAuth2Provider_IsConfigured/complete_configuration (0.00s)
+    --- PASS: TestOAuth2Provider_IsConfigured/missing_client_ID (0.00s)
+    --- PASS: TestOAuth2Provider_IsConfigured/missing_client_secret (0.00s)
+    --- PASS: TestOAuth2Provider_IsConfigured/missing_token_file (0.00s)
+    --- PASS: TestOAuth2Provider_IsConfigured/all_empty (0.00s)
+=== RUN   TestOAuth2Provider_loadToken
+=== RUN   TestOAuth2Provider_loadToken/valid_token_file
+=== RUN   TestOAuth2Provider_loadToken/non-existent_file
+=== RUN   TestOAuth2Provider_loadToken/invalid_JSON_file
+=== RUN   TestOAuth2Provider_loadToken/empty_path
+--- PASS: TestOAuth2Provider_loadToken (0.00s)
+    --- PASS: TestOAuth2Provider_loadToken/valid_token_file (0.00s)
+    --- PASS: TestOAuth2Provider_loadToken/non-existent_file (0.00s)
+    --- PASS: TestOAuth2Provider_loadToken/invalid_JSON_file (0.00s)
+    --- PASS: TestOAuth2Provider_loadToken/empty_path (0.00s)
+=== RUN   TestOAuth2Provider_saveToken
+--- PASS: TestOAuth2Provider_saveToken (0.00s)
+=== RUN   TestOAuth2Provider_hasValidToken
+=== RUN   TestOAuth2Provider_hasValidToken/nil_token
+=== RUN   TestOAuth2Provider_hasValidToken/expired_token_without_refresh
+=== RUN   TestOAuth2Provider_hasValidToken/expired_token_with_refresh
+=== RUN   TestOAuth2Provider_hasValidToken/valid_token
+=== RUN   TestOAuth2Provider_hasValidToken/token_without_expiry
+--- PASS: TestOAuth2Provider_hasValidToken (0.00s)
+    --- PASS: TestOAuth2Provider_hasValidToken/nil_token (0.00s)
+    --- PASS: TestOAuth2Provider_hasValidToken/expired_token_without_refresh (0.00s)
+    --- PASS: TestOAuth2Provider_hasValidToken/expired_token_with_refresh (0.00s)
+    --- PASS: TestOAuth2Provider_hasValidToken/valid_token (0.00s)
+    --- PASS: TestOAuth2Provider_hasValidToken/token_without_expiry (0.00s)
+=== RUN   TestOAuth2Provider_Authenticate_NoCredentials
+--- PASS: TestOAuth2Provider_Authenticate_NoCredentials (0.00s)
+=== RUN   TestOAuth2Provider_GetClient_NoCredentials
+--- PASS: TestOAuth2Provider_GetClient_NoCredentials (0.00s)
+=== RUN   TestNewServiceAccountProvider
+=== RUN   TestNewServiceAccountProvider/with_key_file
+=== RUN   TestNewServiceAccountProvider/empty_key_file
+--- PASS: TestNewServiceAccountProvider (0.00s)
+    --- PASS: TestNewServiceAccountProvider/with_key_file (0.00s)
+    --- PASS: TestNewServiceAccountProvider/empty_key_file (0.00s)
+=== RUN   TestServiceAccountProvider_IsConfigured
+=== RUN   TestServiceAccountProvider_IsConfigured/valid_service_account_file
+=== RUN   TestServiceAccountProvider_IsConfigured/non-existent_file
+=== RUN   TestServiceAccountProvider_IsConfigured/invalid_JSON_file
+=== RUN   TestServiceAccountProvider_IsConfigured/incomplete_service_account
+Service account file missing required field: client_id
+=== RUN   TestServiceAccountProvider_IsConfigured/empty_path
+--- PASS: TestServiceAccountProvider_IsConfigured (0.00s)
+    --- PASS: TestServiceAccountProvider_IsConfigured/valid_service_account_file (0.00s)
+    --- PASS: TestServiceAccountProvider_IsConfigured/non-existent_file (0.00s)
+    --- PASS: TestServiceAccountProvider_IsConfigured/invalid_JSON_file (0.00s)
+    --- PASS: TestServiceAccountProvider_IsConfigured/incomplete_service_account (0.00s)
+    --- PASS: TestServiceAccountProvider_IsConfigured/empty_path (0.00s)
+=== RUN   TestServiceAccountProvider_Authenticate
+--- PASS: TestServiceAccountProvider_Authenticate (0.00s)
+=== RUN   TestServiceAccountProvider_GetClient_InvalidFile
+--- PASS: TestServiceAccountProvider_GetClient_InvalidFile (0.00s)
+=== RUN   TestServiceAccountProvider_GetClient_EmptyFile
+--- PASS: TestServiceAccountProvider_GetClient_EmptyFile (0.00s)
+PASS
+coverage: 38.2% of statements
+ok  	github.com/mikefarmer/assistant-cli/internal/auth	1.383s	coverage: 38.2% of statements
+=== RUN   TestNewManager
+--- PASS: TestNewManager (0.00s)
+=== RUN   TestGetDefaults
+--- PASS: TestGetDefaults (0.00s)
+=== RUN   TestManagerLoad_Defaults
+--- PASS: TestManagerLoad_Defaults (0.00s)
+=== RUN   TestManagerLoadWithConfigFile
+--- PASS: TestManagerLoadWithConfigFile (0.00s)
+=== RUN   TestManagerLoadWithEnvironmentVariables
+--- PASS: TestManagerLoadWithEnvironmentVariables (0.00s)
+=== RUN   TestGetConfigFilePath
+--- PASS: TestGetConfigFilePath (0.00s)
+=== RUN   TestGenerateExampleConfig
+--- PASS: TestGenerateExampleConfig (0.00s)
+=== RUN   TestValidation_ValidConfig
+--- PASS: TestValidation_ValidConfig (0.00s)
+=== RUN   TestValidation_InvalidConfig
+--- PASS: TestValidation_InvalidConfig (0.00s)
+PASS
+coverage: 25.6% of statements
+ok  	github.com/mikefarmer/assistant-cli/internal/config	1.162s	coverage: 25.6% of statements
+=== RUN   TestNewFileHandler
+--- PASS: TestNewFileHandler (0.00s)
+=== RUN   TestNewFileHandlerWithOptions
+--- PASS: TestNewFileHandlerWithOptions (0.00s)
+=== RUN   TestFileHandler_SetPermissions
+--- PASS: TestFileHandler_SetPermissions (0.00s)
+=== RUN   TestFileHandler_WriteFile_Success
+--- PASS: TestFileHandler_WriteFile_Success (0.00s)
+=== RUN   TestFileHandler_WriteFile_CreateDirectories
+--- PASS: TestFileHandler_WriteFile_CreateDirectories (0.00s)
+=== RUN   TestFileHandler_WriteFile_NoCreateDirectories
+--- PASS: TestFileHandler_WriteFile_NoCreateDirectories (0.00s)
+=== RUN   TestFileHandler_WriteFile_OverwriteNever
+--- PASS: TestFileHandler_WriteFile_OverwriteNever (0.00s)
+=== RUN   TestFileHandler_WriteFile_OverwriteBackup
+--- PASS: TestFileHandler_WriteFile_OverwriteBackup (0.10s)
+=== RUN   TestFileHandler_validatePath
+=== RUN   TestFileHandler_validatePath/valid_filename
+=== RUN   TestFileHandler_validatePath/empty_filename
+=== RUN   TestFileHandler_validatePath/path_traversal
+=== RUN   TestFileHandler_validatePath/windows_path_traversal
+=== RUN   TestFileHandler_validatePath/executable_extension
+=== RUN   TestFileHandler_validatePath/batch_file
+=== RUN   TestFileHandler_validatePath/javascript_file
+=== RUN   TestFileHandler_validatePath/valid_nested_path
+--- PASS: TestFileHandler_validatePath (0.00s)
+    --- PASS: TestFileHandler_validatePath/valid_filename (0.00s)
+    --- PASS: TestFileHandler_validatePath/empty_filename (0.00s)
+    --- PASS: TestFileHandler_validatePath/path_traversal (0.00s)
+    --- PASS: TestFileHandler_validatePath/windows_path_traversal (0.00s)
+    --- PASS: TestFileHandler_validatePath/executable_extension (0.00s)
+    --- PASS: TestFileHandler_validatePath/batch_file (0.00s)
+    --- PASS: TestFileHandler_validatePath/javascript_file (0.00s)
+    --- PASS: TestFileHandler_validatePath/valid_nested_path (0.00s)
+=== RUN   TestFileHandler_validatePathSecurity_SystemDirectories
+=== RUN   TestFileHandler_validatePathSecurity_SystemDirectories//etc/passwd
+=== RUN   TestFileHandler_validatePathSecurity_SystemDirectories//bin/sh
+=== RUN   TestFileHandler_validatePathSecurity_SystemDirectories//usr/bin/something
+=== RUN   TestFileHandler_validatePathSecurity_SystemDirectories/C:\Windows\System32\cmd.exe
+=== RUN   TestFileHandler_validatePathSecurity_SystemDirectories/C:\Program_Files\malware.exe
+--- PASS: TestFileHandler_validatePathSecurity_SystemDirectories (0.00s)
+    --- PASS: TestFileHandler_validatePathSecurity_SystemDirectories//etc/passwd (0.00s)
+    --- PASS: TestFileHandler_validatePathSecurity_SystemDirectories//bin/sh (0.00s)
+    --- PASS: TestFileHandler_validatePathSecurity_SystemDirectories//usr/bin/something (0.00s)
+    --- PASS: TestFileHandler_validatePathSecurity_SystemDirectories/C:\Windows\System32\cmd.exe (0.00s)
+    --- PASS: TestFileHandler_validatePathSecurity_SystemDirectories/C:\Program_Files\malware.exe (0.00s)
+=== RUN   TestGetSafeFilename
+=== RUN   TestGetSafeFilename/simple_text
+=== RUN   TestGetSafeFilename/with_special_chars
+=== RUN   TestGetSafeFilename/very_long_text
+=== RUN   TestGetSafeFilename/empty_input
+=== RUN   TestGetSafeFilename/only_special_chars
+=== RUN   TestGetSafeFilename/mixed_valid/invalid
+=== RUN   TestGetSafeFilename/extension_with_dot
+=== RUN   TestGetSafeFilename/no_extension
+--- PASS: TestGetSafeFilename (0.00s)
+    --- PASS: TestGetSafeFilename/simple_text (0.00s)
+    --- PASS: TestGetSafeFilename/with_special_chars (0.00s)
+    --- PASS: TestGetSafeFilename/very_long_text (0.00s)
+    --- PASS: TestGetSafeFilename/empty_input (0.00s)
+    --- PASS: TestGetSafeFilename/only_special_chars (0.00s)
+    --- PASS: TestGetSafeFilename/mixed_valid/invalid (0.00s)
+    --- PASS: TestGetSafeFilename/extension_with_dot (0.00s)
+    --- PASS: TestGetSafeFilename/no_extension (0.00s)
+=== RUN   TestFileExists
+--- PASS: TestFileExists (0.00s)
+=== RUN   TestGetFileSize
+--- PASS: TestGetFileSize (0.00s)
+=== RUN   TestGenerateUniqueFilename
+--- PASS: TestGenerateUniqueFilename (0.00s)
+=== RUN   TestFileHandler_WriteFileStream
+--- PASS: TestFileHandler_WriteFileStream (0.00s)
+=== RUN   TestFileHandler_WriteFileStream_Append
+--- PASS: TestFileHandler_WriteFileStream_Append (0.00s)
+=== RUN   TestFileError_Error
+--- PASS: TestFileError_Error (0.00s)
+=== RUN   TestFileHandler_ensureDirectoryExists
+=== RUN   TestFileHandler_ensureDirectoryExists/empty_dir
+=== RUN   TestFileHandler_ensureDirectoryExists/current_dir
+=== RUN   TestFileHandler_ensureDirectoryExists/simple_subdir
+=== RUN   TestFileHandler_ensureDirectoryExists/nested_subdirs
+--- PASS: TestFileHandler_ensureDirectoryExists (0.00s)
+    --- PASS: TestFileHandler_ensureDirectoryExists/empty_dir (0.00s)
+    --- PASS: TestFileHandler_ensureDirectoryExists/current_dir (0.00s)
+    --- PASS: TestFileHandler_ensureDirectoryExists/simple_subdir (0.00s)
+    --- PASS: TestFileHandler_ensureDirectoryExists/nested_subdirs (0.00s)
+=== RUN   TestFileHandler_ensureDirectoryExists_FileExists
+--- PASS: TestFileHandler_ensureDirectoryExists_FileExists (0.00s)
+PASS
+coverage: 80.5% of statements
+ok  	github.com/mikefarmer/assistant-cli/internal/output	0.900s	coverage: 80.5% of statements
+=== RUN   TestNewAudioPlayer
+--- PASS: TestNewAudioPlayer (0.00s)
+=== RUN   TestAudioPlayer_GetPlayerInfo
+--- PASS: TestAudioPlayer_GetPlayerInfo (0.00s)
+=== RUN   TestIsSupported
+    audio_test.go:48: Audio playback supported: true (platform: darwin)
+--- PASS: TestIsSupported (0.00s)
+=== RUN   TestAudioPlayer_Play_FileNotExists
+--- PASS: TestAudioPlayer_Play_FileNotExists (0.00s)
+=== RUN   TestPlayFile_ConvenienceFunction
+--- PASS: TestPlayFile_ConvenienceFunction (0.00s)
+=== RUN   TestAudioPlayer_commandExists
+--- PASS: TestAudioPlayer_commandExists (0.00s)
+=== RUN   TestAudioPlayer_detectPlayer_MockPlatform
+    audio_test.go:95: Player detection result: <nil>
+    audio_test.go:98: Detected player: afplay with args: []
+--- PASS: TestAudioPlayer_detectPlayer_MockPlatform (0.00s)
+=== RUN   TestPlayerError
+--- PASS: TestPlayerError (0.00s)
+=== RUN   TestAudioPlayer_buildMacOSCommand
+--- PASS: TestAudioPlayer_buildMacOSCommand (0.00s)
+=== RUN   TestAudioPlayer_buildLinuxCommand
+    audio_test.go:133: Linux-specific test
+--- SKIP: TestAudioPlayer_buildLinuxCommand (0.00s)
+=== RUN   TestAudioPlayer_buildWindowsCommand
+    audio_test.go:150: Windows-specific test
+--- SKIP: TestAudioPlayer_buildWindowsCommand (0.00s)
+=== RUN   TestAudioPlayer_Integration_WithRealFile
+--- PASS: TestAudioPlayer_Integration_WithRealFile (0.00s)
+=== RUN   TestAudioPlayer_Play_DifferentExtensions
+=== RUN   TestAudioPlayer_Play_DifferentExtensions/test.mp3
+=== RUN   TestAudioPlayer_Play_DifferentExtensions/test.wav
+=== RUN   TestAudioPlayer_Play_DifferentExtensions/test.ogg
+=== RUN   TestAudioPlayer_Play_DifferentExtensions/test.m4a
+=== RUN   TestAudioPlayer_Play_DifferentExtensions/test.flac
+=== RUN   TestAudioPlayer_Play_DifferentExtensions/#00
+=== RUN   TestAudioPlayer_Play_DifferentExtensions/no_extension
+--- PASS: TestAudioPlayer_Play_DifferentExtensions (0.17s)
+    --- PASS: TestAudioPlayer_Play_DifferentExtensions/test.mp3 (0.00s)
+    --- PASS: TestAudioPlayer_Play_DifferentExtensions/test.wav (0.09s)
+    --- PASS: TestAudioPlayer_Play_DifferentExtensions/test.ogg (0.00s)
+    --- PASS: TestAudioPlayer_Play_DifferentExtensions/test.m4a (0.03s)
+    --- PASS: TestAudioPlayer_Play_DifferentExtensions/test.flac (0.03s)
+    --- PASS: TestAudioPlayer_Play_DifferentExtensions/#00 (0.00s)
+    --- PASS: TestAudioPlayer_Play_DifferentExtensions/no_extension (0.03s)
+PASS
+coverage: 42.6% of statements
+ok  	github.com/mikefarmer/assistant-cli/internal/player	0.581s	coverage: 42.6% of statements
+=== RUN   TestVoiceCache_GetVoices
+--- PASS: TestVoiceCache_GetVoices (0.00s)
+=== RUN   TestVoiceCache_GetVoices_Error
+--- PASS: TestVoiceCache_GetVoices_Error (0.00s)
+=== RUN   TestVoiceCache_TTLExpiration
+--- PASS: TestVoiceCache_TTLExpiration (0.00s)
+=== RUN   TestVoiceCache_GetHitRatio
+--- PASS: TestVoiceCache_GetHitRatio (0.00s)
+=== RUN   TestVoiceCache_Clear
+--- PASS: TestVoiceCache_Clear (0.00s)
+=== RUN   TestDefaultClientConfig
+--- PASS: TestDefaultClientConfig (0.00s)
+=== RUN   TestNewClient_RequiresAuthManager
+--- PASS: TestNewClient_RequiresAuthManager (0.00s)
+=== RUN   TestIsRetryableError
+=== RUN   TestIsRetryableError/unavailable_error_is_retryable
+=== RUN   TestIsRetryableError/deadline_exceeded_is_retryable
+=== RUN   TestIsRetryableError/resource_exhausted_is_retryable
+=== RUN   TestIsRetryableError/permission_denied_is_not_retryable
+=== RUN   TestIsRetryableError/invalid_argument_is_not_retryable
+=== RUN   TestIsRetryableError/non-grpc_error_is_not_retryable
+--- PASS: TestIsRetryableError (0.00s)
+    --- PASS: TestIsRetryableError/unavailable_error_is_retryable (0.00s)
+    --- PASS: TestIsRetryableError/deadline_exceeded_is_retryable (0.00s)
+    --- PASS: TestIsRetryableError/resource_exhausted_is_retryable (0.00s)
+    --- PASS: TestIsRetryableError/permission_denied_is_not_retryable (0.00s)
+    --- PASS: TestIsRetryableError/invalid_argument_is_not_retryable (0.00s)
+    --- PASS: TestIsRetryableError/non-grpc_error_is_not_retryable (0.00s)
+=== RUN   TestIsSSML
+=== RUN   TestIsSSML/valid_SSML
+=== RUN   TestIsSSML/plain_text
+=== RUN   TestIsSSML/text_starting_with_speak_but_not_SSML
+=== RUN   TestIsSSML/short_text
+=== RUN   TestIsSSML/empty_string
+--- PASS: TestIsSSML (0.00s)
+    --- PASS: TestIsSSML/valid_SSML (0.00s)
+    --- PASS: TestIsSSML/plain_text (0.00s)
+    --- PASS: TestIsSSML/text_starting_with_speak_but_not_SSML (0.00s)
+    --- PASS: TestIsSSML/short_text (0.00s)
+    --- PASS: TestIsSSML/empty_string (0.00s)
+=== RUN   TestGetAudioEncoding
+=== RUN   TestGetAudioEncoding/MP3
+=== RUN   TestGetAudioEncoding/LINEAR16
+=== RUN   TestGetAudioEncoding/OGG_OPUS
+=== RUN   TestGetAudioEncoding/MULAW
+=== RUN   TestGetAudioEncoding/ALAW
+=== RUN   TestGetAudioEncoding/PCM
+=== RUN   TestGetAudioEncoding/unknown
+--- PASS: TestGetAudioEncoding (0.00s)
+    --- PASS: TestGetAudioEncoding/MP3 (0.00s)
+    --- PASS: TestGetAudioEncoding/LINEAR16 (0.00s)
+    --- PASS: TestGetAudioEncoding/OGG_OPUS (0.00s)
+    --- PASS: TestGetAudioEncoding/MULAW (0.00s)
+    --- PASS: TestGetAudioEncoding/ALAW (0.00s)
+    --- PASS: TestGetAudioEncoding/PCM (0.00s)
+    --- PASS: TestGetAudioEncoding/unknown (0.00s)
+=== RUN   TestPerformanceMonitor_StartBenchmark
+--- PASS: TestPerformanceMonitor_StartBenchmark (0.01s)
+=== RUN   TestPerformanceMonitor_StartBenchmark_Failed
+--- PASS: TestPerformanceMonitor_StartBenchmark_Failed (0.01s)
+=== RUN   TestPerformanceMonitor_Disabled
+--- PASS: TestPerformanceMonitor_Disabled (0.00s)
+=== RUN   TestPerformanceMonitor_SummaryStats
+--- PASS: TestPerformanceMonitor_SummaryStats (0.05s)
+=== RUN   TestPerformanceMonitor_Reset
+--- PASS: TestPerformanceMonitor_Reset (0.00s)
+=== RUN   TestPerformanceMonitor_FormatReport
+--- PASS: TestPerformanceMonitor_FormatReport (0.01s)
+=== RUN   TestPerformanceMonitor_FormatReport_Disabled
+--- PASS: TestPerformanceMonitor_FormatReport_Disabled (0.00s)
+=== RUN   TestCalculatePercentile
+--- PASS: TestCalculatePercentile (0.00s)
+=== RUN   TestNewSynthesizer
+--- PASS: TestNewSynthesizer (0.00s)
+=== RUN   TestSynthesizeFromReader
+=== RUN   TestSynthesizeFromReader/valid_input
+=== RUN   TestSynthesizeFromReader/empty_input
+=== RUN   TestSynthesizeFromReader/whitespace_only
+=== RUN   TestSynthesizeFromReader/input_with_leading/trailing_whitespace
+--- PASS: TestSynthesizeFromReader (0.00s)
+    --- PASS: TestSynthesizeFromReader/valid_input (0.00s)
+    --- PASS: TestSynthesizeFromReader/empty_input (0.00s)
+    --- PASS: TestSynthesizeFromReader/whitespace_only (0.00s)
+    --- PASS: TestSynthesizeFromReader/input_with_leading/trailing_whitespace (0.00s)
+=== RUN   TestValidateRequest
+=== RUN   TestValidateRequest/valid_request
+=== RUN   TestValidateRequest/speaking_rate_too_low
+=== RUN   TestValidateRequest/speaking_rate_too_high
+=== RUN   TestValidateRequest/pitch_too_low
+=== RUN   TestValidateRequest/pitch_too_high
+=== RUN   TestValidateRequest/volume_gain_too_low
+=== RUN   TestValidateRequest/volume_gain_too_high
+=== RUN   TestValidateRequest/text_too_long
+=== RUN   TestValidateRequest/valid_SSML
+=== RUN   TestValidateRequest/invalid_SSML_-_no_closing_tag
+--- PASS: TestValidateRequest (0.00s)
+    --- PASS: TestValidateRequest/valid_request (0.00s)
+    --- PASS: TestValidateRequest/speaking_rate_too_low (0.00s)
+    --- PASS: TestValidateRequest/speaking_rate_too_high (0.00s)
+    --- PASS: TestValidateRequest/pitch_too_low (0.00s)
+    --- PASS: TestValidateRequest/pitch_too_high (0.00s)
+    --- PASS: TestValidateRequest/volume_gain_too_low (0.00s)
+    --- PASS: TestValidateRequest/volume_gain_too_high (0.00s)
+    --- PASS: TestValidateRequest/text_too_long (0.00s)
+    --- PASS: TestValidateRequest/valid_SSML (0.00s)
+    --- PASS: TestValidateRequest/invalid_SSML_-_no_closing_tag (0.00s)
+=== RUN   TestValidateSSML
+=== RUN   TestValidateSSML/valid_SSML
+=== RUN   TestValidateSSML/missing_opening_tag
+=== RUN   TestValidateSSML/missing_closing_tag
+=== RUN   TestValidateSSML/malicious_script_tag
+=== RUN   TestValidateSSML/malicious_iframe_tag
+=== RUN   TestValidateSSML/mismatched_tags
+=== RUN   TestValidateSSML/valid_with_break_tag
+--- PASS: TestValidateSSML (0.00s)
+    --- PASS: TestValidateSSML/valid_SSML (0.00s)
+    --- PASS: TestValidateSSML/missing_opening_tag (0.00s)
+    --- PASS: TestValidateSSML/missing_closing_tag (0.00s)
+    --- PASS: TestValidateSSML/malicious_script_tag (0.00s)
+    --- PASS: TestValidateSSML/malicious_iframe_tag (0.00s)
+    --- PASS: TestValidateSSML/mismatched_tags (0.00s)
+    --- PASS: TestValidateSSML/valid_with_break_tag (0.00s)
+=== RUN   TestGetAudioEncodingFromSynthesizer
+=== RUN   TestGetAudioEncodingFromSynthesizer/MP3
+=== RUN   TestGetAudioEncodingFromSynthesizer/mp3
+=== RUN   TestGetAudioEncodingFromSynthesizer/LINEAR16
+=== RUN   TestGetAudioEncodingFromSynthesizer/WAV
+=== RUN   TestGetAudioEncodingFromSynthesizer/OGG_OPUS
+=== RUN   TestGetAudioEncodingFromSynthesizer/OGG
+=== RUN   TestGetAudioEncodingFromSynthesizer/MULAW
+=== RUN   TestGetAudioEncodingFromSynthesizer/ALAW
+=== RUN   TestGetAudioEncodingFromSynthesizer/PCM
+=== RUN   TestGetAudioEncodingFromSynthesizer/unknown
+=== RUN   TestGetAudioEncodingFromSynthesizer/#00
+--- PASS: TestGetAudioEncodingFromSynthesizer (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/MP3 (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/mp3 (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/LINEAR16 (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/WAV (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/OGG_OPUS (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/OGG (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/MULAW (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/ALAW (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/PCM (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/unknown (0.00s)
+    --- PASS: TestGetAudioEncodingFromSynthesizer/#00 (0.00s)
+=== RUN   TestGetFileExtension
+=== RUN   TestGetFileExtension/MP3
+=== RUN   TestGetFileExtension/mp3
+=== RUN   TestGetFileExtension/LINEAR16
+=== RUN   TestGetFileExtension/WAV
+=== RUN   TestGetFileExtension/OGG_OPUS
+=== RUN   TestGetFileExtension/OGG
+=== RUN   TestGetFileExtension/MULAW
+=== RUN   TestGetFileExtension/ALAW
+=== RUN   TestGetFileExtension/PCM
+=== RUN   TestGetFileExtension/unknown
+=== RUN   TestGetFileExtension/#00
+--- PASS: TestGetFileExtension (0.00s)
+    --- PASS: TestGetFileExtension/MP3 (0.00s)
+    --- PASS: TestGetFileExtension/mp3 (0.00s)
+    --- PASS: TestGetFileExtension/LINEAR16 (0.00s)
+    --- PASS: TestGetFileExtension/WAV (0.00s)
+    --- PASS: TestGetFileExtension/OGG_OPUS (0.00s)
+    --- PASS: TestGetFileExtension/OGG (0.00s)
+    --- PASS: TestGetFileExtension/MULAW (0.00s)
+    --- PASS: TestGetFileExtension/ALAW (0.00s)
+    --- PASS: TestGetFileExtension/PCM (0.00s)
+    --- PASS: TestGetFileExtension/unknown (0.00s)
+    --- PASS: TestGetFileExtension/#00 (0.00s)
+=== RUN   TestSynthesize_NilRequest
+--- PASS: TestSynthesize_NilRequest (0.00s)
+=== RUN   TestSynthesize_EmptyText
+--- PASS: TestSynthesize_EmptyText (0.00s)
+=== RUN   TestSynthesizeFromReader_Integration
+--- PASS: TestSynthesizeFromReader_Integration (0.00s)
+PASS
+coverage: 52.5% of statements
+ok  	github.com/mikefarmer/assistant-cli/internal/tts	1.084s	coverage: 52.5% of statements
+=== RUN   TestNewInputProcessor
+--- PASS: TestNewInputProcessor (0.00s)
+=== RUN   TestNewInputProcessorWithLimit
+--- PASS: TestNewInputProcessorWithLimit (0.00s)
+=== RUN   TestInputProcessor_ReadText_Success
+=== RUN   TestInputProcessor_ReadText_Success/simple_text
+=== RUN   TestInputProcessor_ReadText_Success/multiline_text
+=== RUN   TestInputProcessor_ReadText_Success/text_with_spaces
+=== RUN   TestInputProcessor_ReadText_Success/unicode_text
+=== RUN   TestInputProcessor_ReadText_Success/empty_lines
+--- PASS: TestInputProcessor_ReadText_Success (0.00s)
+    --- PASS: TestInputProcessor_ReadText_Success/simple_text (0.00s)
+    --- PASS: TestInputProcessor_ReadText_Success/multiline_text (0.00s)
+    --- PASS: TestInputProcessor_ReadText_Success/text_with_spaces (0.00s)
+    --- PASS: TestInputProcessor_ReadText_Success/unicode_text (0.00s)
+    --- PASS: TestInputProcessor_ReadText_Success/empty_lines (0.00s)
+=== RUN   TestInputProcessor_ReadText_EmptyInput
+=== RUN   TestInputProcessor_ReadText_EmptyInput/completely_empty
+=== RUN   TestInputProcessor_ReadText_EmptyInput/only_whitespace
+=== RUN   TestInputProcessor_ReadText_EmptyInput/only_newlines
+--- PASS: TestInputProcessor_ReadText_EmptyInput (0.00s)
+    --- PASS: TestInputProcessor_ReadText_EmptyInput/completely_empty (0.00s)
+    --- PASS: TestInputProcessor_ReadText_EmptyInput/only_whitespace (0.00s)
+    --- PASS: TestInputProcessor_ReadText_EmptyInput/only_newlines (0.00s)
+=== RUN   TestInputProcessor_ReadText_TooLong
+--- PASS: TestInputProcessor_ReadText_TooLong (0.00s)
+=== RUN   TestInputProcessor_ReadText_InvalidUTF8
+--- PASS: TestInputProcessor_ReadText_InvalidUTF8 (0.00s)
+=== RUN   TestInputProcessor_ReadText_NilReader
+--- PASS: TestInputProcessor_ReadText_NilReader (0.00s)
+=== RUN   TestInputProcessor_CleanText
+=== RUN   TestInputProcessor_CleanText/remove_null_bytes
+=== RUN   TestInputProcessor_CleanText/normalize_line_endings
+=== RUN   TestInputProcessor_CleanText/trim_trailing_spaces
+=== RUN   TestInputProcessor_CleanText/reduce_excessive_blank_lines
+=== RUN   TestInputProcessor_CleanText/trim_overall_whitespace
+--- PASS: TestInputProcessor_CleanText (0.00s)
+    --- PASS: TestInputProcessor_CleanText/remove_null_bytes (0.00s)
+    --- PASS: TestInputProcessor_CleanText/normalize_line_endings (0.00s)
+    --- PASS: TestInputProcessor_CleanText/trim_trailing_spaces (0.00s)
+    --- PASS: TestInputProcessor_CleanText/reduce_excessive_blank_lines (0.00s)
+    --- PASS: TestInputProcessor_CleanText/trim_overall_whitespace (0.00s)
+=== RUN   TestInputProcessor_SplitByLength
+=== RUN   TestInputProcessor_SplitByLength/short_text
+=== RUN   TestInputProcessor_SplitByLength/split_at_word_boundary
+=== RUN   TestInputProcessor_SplitByLength/split_at_sentence_boundary
+=== RUN   TestInputProcessor_SplitByLength/force_split_long_word
+--- PASS: TestInputProcessor_SplitByLength (0.00s)
+    --- PASS: TestInputProcessor_SplitByLength/short_text (0.00s)
+    --- PASS: TestInputProcessor_SplitByLength/split_at_word_boundary (0.00s)
+    --- PASS: TestInputProcessor_SplitByLength/split_at_sentence_boundary (0.00s)
+    --- PASS: TestInputProcessor_SplitByLength/force_split_long_word (0.00s)
+=== RUN   TestInputProcessor_GetTextStats
+=== RUN   TestInputProcessor_GetTextStats/simple_text
+=== RUN   TestInputProcessor_GetTextStats/multiline_text
+=== RUN   TestInputProcessor_GetTextStats/unicode_text
+=== RUN   TestInputProcessor_GetTextStats/empty_text
+--- PASS: TestInputProcessor_GetTextStats (0.00s)
+    --- PASS: TestInputProcessor_GetTextStats/simple_text (0.00s)
+    --- PASS: TestInputProcessor_GetTextStats/multiline_text (0.00s)
+    --- PASS: TestInputProcessor_GetTextStats/unicode_text (0.00s)
+    --- PASS: TestInputProcessor_GetTextStats/empty_text (0.00s)
+=== RUN   TestInputProcessor_checkProblematicChars
+=== RUN   TestInputProcessor_checkProblematicChars/clean_text
+=== RUN   TestInputProcessor_checkProblematicChars/with_tabs_and_newlines
+=== RUN   TestInputProcessor_checkProblematicChars/with_null_byte
+=== RUN   TestInputProcessor_checkProblematicChars/excessive_control_chars
+=== RUN   TestInputProcessor_checkProblematicChars/few_control_chars
+--- PASS: TestInputProcessor_checkProblematicChars (0.00s)
+    --- PASS: TestInputProcessor_checkProblematicChars/clean_text (0.00s)
+    --- PASS: TestInputProcessor_checkProblematicChars/with_tabs_and_newlines (0.00s)
+    --- PASS: TestInputProcessor_checkProblematicChars/with_null_byte (0.00s)
+    --- PASS: TestInputProcessor_checkProblematicChars/excessive_control_chars (0.00s)
+    --- PASS: TestInputProcessor_checkProblematicChars/few_control_chars (0.00s)
+=== RUN   TestInputProcessor_validateText
+=== RUN   TestInputProcessor_validateText/valid_text
+=== RUN   TestInputProcessor_validateText/empty_text
+=== RUN   TestInputProcessor_validateText/whitespace_only
+=== RUN   TestInputProcessor_validateText/too_long
+=== RUN   TestInputProcessor_validateText/invalid_utf8
+=== RUN   TestInputProcessor_validateText/null_byte
+--- PASS: TestInputProcessor_validateText (0.00s)
+    --- PASS: TestInputProcessor_validateText/valid_text (0.00s)
+    --- PASS: TestInputProcessor_validateText/empty_text (0.00s)
+    --- PASS: TestInputProcessor_validateText/whitespace_only (0.00s)
+    --- PASS: TestInputProcessor_validateText/too_long (0.00s)
+    --- PASS: TestInputProcessor_validateText/invalid_utf8 (0.00s)
+    --- PASS: TestInputProcessor_validateText/null_byte (0.00s)
+=== RUN   TestInputError_Error
+=== RUN   TestInputError_Error/error_without_input
+=== RUN   TestInputError_Error/error_with_short_input
+=== RUN   TestInputError_Error/error_with_long_input
+--- PASS: TestInputError_Error (0.00s)
+    --- PASS: TestInputError_Error/error_without_input (0.00s)
+    --- PASS: TestInputError_Error/error_with_short_input (0.00s)
+    --- PASS: TestInputError_Error/error_with_long_input (0.00s)
+=== RUN   TestInputProcessor_findSplitPoint
+=== RUN   TestInputProcessor_findSplitPoint/text_shorter_than_max
+=== RUN   TestInputProcessor_findSplitPoint/split_at_period
+=== RUN   TestInputProcessor_findSplitPoint/split_at_space
+=== RUN   TestInputProcessor_findSplitPoint/no_good_split_point
+--- PASS: TestInputProcessor_findSplitPoint (0.00s)
+    --- PASS: TestInputProcessor_findSplitPoint/text_shorter_than_max (0.00s)
+    --- PASS: TestInputProcessor_findSplitPoint/split_at_period (0.00s)
+    --- PASS: TestInputProcessor_findSplitPoint/split_at_space (0.00s)
+    --- PASS: TestInputProcessor_findSplitPoint/no_good_split_point (0.00s)
+=== RUN   TestNewSSMLValidator
+--- PASS: TestNewSSMLValidator (0.00s)
+=== RUN   TestSSMLValidator_IsSSML
+=== RUN   TestSSMLValidator_IsSSML/plain_text
+=== RUN   TestSSMLValidator_IsSSML/SSML_with_speak_tag
+=== RUN   TestSSMLValidator_IsSSML/SSML_with_break
+=== RUN   TestSSMLValidator_IsSSML/HTML-like_but_not_SSML
+=== RUN   TestSSMLValidator_IsSSML/no_angle_brackets
+=== RUN   TestSSMLValidator_IsSSML/only_opening_bracket
+=== RUN   TestSSMLValidator_IsSSML/only_closing_bracket
+--- PASS: TestSSMLValidator_IsSSML (0.00s)
+    --- PASS: TestSSMLValidator_IsSSML/plain_text (0.00s)
+    --- PASS: TestSSMLValidator_IsSSML/SSML_with_speak_tag (0.00s)
+    --- PASS: TestSSMLValidator_IsSSML/SSML_with_break (0.00s)
+    --- PASS: TestSSMLValidator_IsSSML/HTML-like_but_not_SSML (0.00s)
+    --- PASS: TestSSMLValidator_IsSSML/no_angle_brackets (0.00s)
+    --- PASS: TestSSMLValidator_IsSSML/only_opening_bracket (0.00s)
+    --- PASS: TestSSMLValidator_IsSSML/only_closing_bracket (0.00s)
+=== RUN   TestSSMLValidator_ValidateSSML_PlainText
+--- PASS: TestSSMLValidator_ValidateSSML_PlainText (0.00s)
+=== RUN   TestSSMLValidator_ValidateSSML_ValidSSML
+=== RUN   TestSSMLValidator_ValidateSSML_ValidSSML/<speak>Hello_World</speak>
+=== RUN   TestSSMLValidator_ValidateSSML_ValidSSML/<speak><p>Hello</p><p>World</p></speak>
+=== RUN   TestSSMLValidator_ValidateSSML_ValidSSML/<speak>Hello_<break_time='1s'/>_World</speak>
+=== RUN   TestSSMLValidator_ValidateSSML_ValidSSML/<speak><emphasis_level='strong'>Important</emphasis></speak>
+=== RUN   TestSSMLValidator_ValidateSSML_ValidSSML/<speak><prosody_rate='slow'>Slow_speech</prosody></speak>
+=== RUN   TestSSMLValidator_ValidateSSML_ValidSSML/<speak><say-as_interpret-as='digits'>123</say-as></speak>
+=== RUN   TestSSMLValidator_ValidateSSML_ValidSSML/<speak><sub_alias='World_Wide_Web'>WWW</sub></speak>
+--- PASS: TestSSMLValidator_ValidateSSML_ValidSSML (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_ValidSSML/<speak>Hello_World</speak> (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_ValidSSML/<speak><p>Hello</p><p>World</p></speak> (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_ValidSSML/<speak>Hello_<break_time='1s'/>_World</speak> (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_ValidSSML/<speak><emphasis_level='strong'>Important</emphasis></speak> (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_ValidSSML/<speak><prosody_rate='slow'>Slow_speech</prosody></speak> (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_ValidSSML/<speak><say-as_interpret-as='digits'>123</say-as></speak> (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_ValidSSML/<speak><sub_alias='World_Wide_Web'>WWW</sub></speak> (0.00s)
+=== RUN   TestSSMLValidator_ValidateSSML_DangerousPatterns
+=== RUN   TestSSMLValidator_ValidateSSML_DangerousPatterns/script_tag
+=== RUN   TestSSMLValidator_ValidateSSML_DangerousPatterns/javascript_protocol
+=== RUN   TestSSMLValidator_ValidateSSML_DangerousPatterns/file_protocol
+=== RUN   TestSSMLValidator_ValidateSSML_DangerousPatterns/http_URL
+=== RUN   TestSSMLValidator_ValidateSSML_DangerousPatterns/XXE_attempt
+=== RUN   TestSSMLValidator_ValidateSSML_DangerousPatterns/system_command
+--- PASS: TestSSMLValidator_ValidateSSML_DangerousPatterns (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DangerousPatterns/script_tag (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DangerousPatterns/javascript_protocol (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DangerousPatterns/file_protocol (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DangerousPatterns/http_URL (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DangerousPatterns/XXE_attempt (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DangerousPatterns/system_command (0.00s)
+=== RUN   TestSSMLValidator_ValidateSSML_StructureErrors
+=== RUN   TestSSMLValidator_ValidateSSML_StructureErrors/unclosed_tag
+=== RUN   TestSSMLValidator_ValidateSSML_StructureErrors/mismatched_tags
+=== RUN   TestSSMLValidator_ValidateSSML_StructureErrors/unexpected_closing_tag
+=== RUN   TestSSMLValidator_ValidateSSML_StructureErrors/wrong_nesting
+--- PASS: TestSSMLValidator_ValidateSSML_StructureErrors (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_StructureErrors/unclosed_tag (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_StructureErrors/mismatched_tags (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_StructureErrors/unexpected_closing_tag (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_StructureErrors/wrong_nesting (0.00s)
+=== RUN   TestSSMLValidator_ValidateSSML_DisallowedTags
+=== RUN   TestSSMLValidator_ValidateSSML_DisallowedTags/script_tag
+=== RUN   TestSSMLValidator_ValidateSSML_DisallowedTags/div_tag
+=== RUN   TestSSMLValidator_ValidateSSML_DisallowedTags/iframe_tag
+=== RUN   TestSSMLValidator_ValidateSSML_DisallowedTags/img_tag
+--- PASS: TestSSMLValidator_ValidateSSML_DisallowedTags (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DisallowedTags/script_tag (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DisallowedTags/div_tag (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DisallowedTags/iframe_tag (0.00s)
+    --- PASS: TestSSMLValidator_ValidateSSML_DisallowedTags/img_tag (0.00s)
+=== RUN   TestSSMLValidator_ValidateSSML_AudioTag
+--- PASS: TestSSMLValidator_ValidateSSML_AudioTag (0.00s)
+=== RUN   TestSSMLValidator_validateProsodyAttributes
+=== RUN   TestSSMLValidator_validateProsodyAttributes/<prosody_rate='slow'>Hello</prosody>
+=== RUN   TestSSMLValidator_validateProsodyAttributes/<prosody_rate='50%'>Hello</prosody>
+=== RUN   TestSSMLValidator_validateProsodyAttributes/<prosody_rate='+10%'>Hello</prosody>
+=== RUN   TestSSMLValidator_validateProsodyAttributes/<prosody_pitch='high'>Hello</prosody>
+=== RUN   TestSSMLValidator_validateProsodyAttributes/<prosody_pitch='200Hz'>Hello</prosody>
+=== RUN   TestSSMLValidator_validateProsodyAttributes/<prosody_volume='loud'>Hello</prosody>
+=== RUN   TestSSMLValidator_validateProsodyAttributes/<prosody_volume='+6dB'>Hello</prosody>
+=== RUN   TestSSMLValidator_validateProsodyAttributes/invalid_rate
+=== RUN   TestSSMLValidator_validateProsodyAttributes/invalid_pitch
+=== RUN   TestSSMLValidator_validateProsodyAttributes/invalid_volume
+--- PASS: TestSSMLValidator_validateProsodyAttributes (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/<prosody_rate='slow'>Hello</prosody> (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/<prosody_rate='50%'>Hello</prosody> (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/<prosody_rate='+10%'>Hello</prosody> (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/<prosody_pitch='high'>Hello</prosody> (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/<prosody_pitch='200Hz'>Hello</prosody> (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/<prosody_volume='loud'>Hello</prosody> (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/<prosody_volume='+6dB'>Hello</prosody> (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/invalid_rate (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/invalid_pitch (0.00s)
+    --- PASS: TestSSMLValidator_validateProsodyAttributes/invalid_volume (0.00s)
+=== RUN   TestSSMLValidator_validateSayAsAttributes
+=== RUN   TestSSMLValidator_validateSayAsAttributes/<say-as_interpret-as='digits'>123</say-as>
+=== RUN   TestSSMLValidator_validateSayAsAttributes/<say-as_interpret-as='cardinal'>123</say-as>
+=== RUN   TestSSMLValidator_validateSayAsAttributes/<say-as_interpret-as='date'>2024-01-01</say-as>
+=== RUN   TestSSMLValidator_validateSayAsAttributes/<say-as_interpret-as='time'>12:30</say-as>
+=== RUN   TestSSMLValidator_validateSayAsAttributes/missing_interpret-as
+=== RUN   TestSSMLValidator_validateSayAsAttributes/invalid_interpret-as
+--- PASS: TestSSMLValidator_validateSayAsAttributes (0.00s)
+    --- PASS: TestSSMLValidator_validateSayAsAttributes/<say-as_interpret-as='digits'>123</say-as> (0.00s)
+    --- PASS: TestSSMLValidator_validateSayAsAttributes/<say-as_interpret-as='cardinal'>123</say-as> (0.00s)
+    --- PASS: TestSSMLValidator_validateSayAsAttributes/<say-as_interpret-as='date'>2024-01-01</say-as> (0.00s)
+    --- PASS: TestSSMLValidator_validateSayAsAttributes/<say-as_interpret-as='time'>12:30</say-as> (0.00s)
+    --- PASS: TestSSMLValidator_validateSayAsAttributes/missing_interpret-as (0.00s)
+    --- PASS: TestSSMLValidator_validateSayAsAttributes/invalid_interpret-as (0.00s)
+=== RUN   TestSSMLValidator_validateBreakAttributes
+=== RUN   TestSSMLValidator_validateBreakAttributes/<break_time='1s'/>
+=== RUN   TestSSMLValidator_validateBreakAttributes/<break_time='500ms'/>
+=== RUN   TestSSMLValidator_validateBreakAttributes/<break_time='2.5s'/>
+=== RUN   TestSSMLValidator_validateBreakAttributes/<break_strength='weak'/>
+=== RUN   TestSSMLValidator_validateBreakAttributes/<break_strength='x-strong'/>
+=== RUN   TestSSMLValidator_validateBreakAttributes/<break/>
+=== RUN   TestSSMLValidator_validateBreakAttributes/invalid_time_format
+=== RUN   TestSSMLValidator_validateBreakAttributes/time_too_long
+=== RUN   TestSSMLValidator_validateBreakAttributes/invalid_strength
+--- PASS: TestSSMLValidator_validateBreakAttributes (0.00s)
+    --- PASS: TestSSMLValidator_validateBreakAttributes/<break_time='1s'/> (0.00s)
+    --- PASS: TestSSMLValidator_validateBreakAttributes/<break_time='500ms'/> (0.00s)
+    --- PASS: TestSSMLValidator_validateBreakAttributes/<break_time='2.5s'/> (0.00s)
+    --- PASS: TestSSMLValidator_validateBreakAttributes/<break_strength='weak'/> (0.00s)
+    --- PASS: TestSSMLValidator_validateBreakAttributes/<break_strength='x-strong'/> (0.00s)
+    --- PASS: TestSSMLValidator_validateBreakAttributes/<break/> (0.00s)
+    --- PASS: TestSSMLValidator_validateBreakAttributes/invalid_time_format (0.00s)
+    --- PASS: TestSSMLValidator_validateBreakAttributes/time_too_long (0.00s)
+    --- PASS: TestSSMLValidator_validateBreakAttributes/invalid_strength (0.00s)
+=== RUN   TestSSMLValidator_isValidProsodyRate
+=== RUN   TestSSMLValidator_isValidProsodyRate/x-slow
+=== RUN   TestSSMLValidator_isValidProsodyRate/slow
+=== RUN   TestSSMLValidator_isValidProsodyRate/medium
+=== RUN   TestSSMLValidator_isValidProsodyRate/fast
+=== RUN   TestSSMLValidator_isValidProsodyRate/x-fast
+=== RUN   TestSSMLValidator_isValidProsodyRate/50%
+=== RUN   TestSSMLValidator_isValidProsodyRate/200%
+=== RUN   TestSSMLValidator_isValidProsodyRate/100%
+=== RUN   TestSSMLValidator_isValidProsodyRate/+10%
+=== RUN   TestSSMLValidator_isValidProsodyRate/-20%
+=== RUN   TestSSMLValidator_isValidProsodyRate/+50%
+=== RUN   TestSSMLValidator_isValidProsodyRate/invalid
+=== RUN   TestSSMLValidator_isValidProsodyRate/very-slow
+=== RUN   TestSSMLValidator_isValidProsodyRate/50
+=== RUN   TestSSMLValidator_isValidProsodyRate/+50
+=== RUN   TestSSMLValidator_isValidProsodyRate/200%%
+=== RUN   TestSSMLValidator_isValidProsodyRate/abc%
+--- PASS: TestSSMLValidator_isValidProsodyRate (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/x-slow (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/slow (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/medium (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/fast (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/x-fast (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/50% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/200% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/100% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/+10% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/-20% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/+50% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/invalid (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/very-slow (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/50 (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/+50 (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/200%% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyRate/abc% (0.00s)
+=== RUN   TestSSMLValidator_isValidProsodyPitch
+=== RUN   TestSSMLValidator_isValidProsodyPitch/x-low
+=== RUN   TestSSMLValidator_isValidProsodyPitch/low
+=== RUN   TestSSMLValidator_isValidProsodyPitch/medium
+=== RUN   TestSSMLValidator_isValidProsodyPitch/high
+=== RUN   TestSSMLValidator_isValidProsodyPitch/x-high
+=== RUN   TestSSMLValidator_isValidProsodyPitch/200Hz
+=== RUN   TestSSMLValidator_isValidProsodyPitch/440Hz
+=== RUN   TestSSMLValidator_isValidProsodyPitch/100Hz
+=== RUN   TestSSMLValidator_isValidProsodyPitch/+10%
+=== RUN   TestSSMLValidator_isValidProsodyPitch/-20%
+=== RUN   TestSSMLValidator_isValidProsodyPitch/+50%
+=== RUN   TestSSMLValidator_isValidProsodyPitch/invalid
+=== RUN   TestSSMLValidator_isValidProsodyPitch/very-high
+=== RUN   TestSSMLValidator_isValidProsodyPitch/200
+=== RUN   TestSSMLValidator_isValidProsodyPitch/Hz
+=== RUN   TestSSMLValidator_isValidProsodyPitch/200HZ
+=== RUN   TestSSMLValidator_isValidProsodyPitch/+Hz
+--- PASS: TestSSMLValidator_isValidProsodyPitch (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/x-low (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/low (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/medium (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/high (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/x-high (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/200Hz (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/440Hz (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/100Hz (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/+10% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/-20% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/+50% (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/invalid (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/very-high (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/200 (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/Hz (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/200HZ (0.00s)
+    --- PASS: TestSSMLValidator_isValidProsodyPitch/+Hz (0.00s)
+=== RUN   TestSSMLValidator_isValidBreakTime
+=== RUN   TestSSMLValidator_isValidBreakTime/1s
+=== RUN   TestSSMLValidator_isValidBreakTime/2.5s
+=== RUN   TestSSMLValidator_isValidBreakTime/0.5s
+=== RUN   TestSSMLValidator_isValidBreakTime/10s
+=== RUN   TestSSMLValidator_isValidBreakTime/100ms
+=== RUN   TestSSMLValidator_isValidBreakTime/1000ms
+=== RUN   TestSSMLValidator_isValidBreakTime/2500ms
+=== RUN   TestSSMLValidator_isValidBreakTime/invalid
+=== RUN   TestSSMLValidator_isValidBreakTime/1
+=== RUN   TestSSMLValidator_isValidBreakTime/s
+=== RUN   TestSSMLValidator_isValidBreakTime/1sec
+=== RUN   TestSSMLValidator_isValidBreakTime/100milliseconds
+=== RUN   TestSSMLValidator_isValidBreakTime/100000ms
+=== RUN   TestSSMLValidator_isValidBreakTime/100s
+--- PASS: TestSSMLValidator_isValidBreakTime (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/1s (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/2.5s (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/0.5s (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/10s (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/100ms (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/1000ms (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/2500ms (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/invalid (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/1 (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/s (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/1sec (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/100milliseconds (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/100000ms (0.00s)
+    --- PASS: TestSSMLValidator_isValidBreakTime/100s (0.00s)
+=== RUN   TestSSMLValidator_SanitizeText
+=== RUN   TestSSMLValidator_SanitizeText/plain_text
+=== RUN   TestSSMLValidator_SanitizeText/valid_SSML
+=== RUN   TestSSMLValidator_SanitizeText/remove_script_tag
+=== RUN   TestSSMLValidator_SanitizeText/remove_disallowed_tag
+--- PASS: TestSSMLValidator_SanitizeText (0.00s)
+    --- PASS: TestSSMLValidator_SanitizeText/plain_text (0.00s)
+    --- PASS: TestSSMLValidator_SanitizeText/valid_SSML (0.00s)
+    --- PASS: TestSSMLValidator_SanitizeText/remove_script_tag (0.00s)
+    --- PASS: TestSSMLValidator_SanitizeText/remove_disallowed_tag (0.00s)
+=== RUN   TestValidationError_Error
+=== RUN   TestValidationError_Error/error_without_position
+=== RUN   TestValidationError_Error/error_with_position
+--- PASS: TestValidationError_Error (0.00s)
+    --- PASS: TestValidationError_Error/error_without_position (0.00s)
+    --- PASS: TestValidationError_Error/error_with_position (0.00s)
+=== RUN   TestSSMLValidator_ComplexSSML
+--- PASS: TestSSMLValidator_ComplexSSML (0.00s)
+PASS
+coverage: 96.2% of statements
+ok  	github.com/mikefarmer/assistant-cli/pkg/utils	1.536s	coverage: 96.2% of statements
+FAIL

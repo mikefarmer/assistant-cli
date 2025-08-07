@@ -1,24 +1,38 @@
 package main
 
 import (
-	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/mikefarmer/assistant-cli/cmd"
 )
 
-func TestMain(t *testing.T) {
-	// Save original args and restore after test
-	oldArgs := os.Args
-	defer func() { os.Args = oldArgs }()
-
-	// Test that main doesn't panic with help flag
-	os.Args = []string{"assistant-cli", "--help"}
+func TestVersion(t *testing.T) {
+	// Test that version variable exists and can be set
+	if version == "" {
+		t.Error("version should not be empty")
+	}
 	
-	// We can't easily test main() directly since it calls os.Exit
-	// but we can ensure the command structure is properly set up
-	assert.NotPanics(t, func() {
-		// The actual main() would call this, but we can't test it directly
-		// because it calls os.Exit. This is mainly to ensure imports work.
-	})
+	// Test that version is properly set to default value
+	if version != "dev" {
+		t.Errorf("expected version to be 'dev', got '%s'", version)
+	}
+}
+
+func TestSetVersion(t *testing.T) {
+	// Test that we can set version through cmd package
+	originalVersion := version
+	testVersion := "test-version"
+	
+	// Reset version to original value after test
+	defer func() {
+		version = originalVersion
+		cmd.SetVersion(originalVersion)
+	}()
+	
+	// Set test version
+	version = testVersion
+	cmd.SetVersion(testVersion)
+	
+	// This test mainly ensures the SetVersion function doesn't panic
+	// The actual verification would require accessing the cmd package's internal state
 }
