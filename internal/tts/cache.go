@@ -23,11 +23,11 @@ type VoiceCache struct {
 }
 
 type CacheStats struct {
-	mu         sync.RWMutex
-	hits       int64
-	misses     int64
-	evictions  int64
-	totalSize  int64
+	mu        sync.RWMutex
+	hits      int64
+	misses    int64
+	evictions int64
+	totalSize int64
 }
 
 type VoiceListClient interface {
@@ -39,15 +39,15 @@ func NewVoiceCache(client VoiceListClient) *VoiceCache {
 		entries: make(map[string]*CacheEntry),
 		client:  client,
 	}
-	
+
 	go cache.cleanupExpired()
-	
+
 	return cache
 }
 
 func (vc *VoiceCache) GetVoices(ctx context.Context, languageCode string) ([]*texttospeechpb.Voice, error) {
 	cacheKey := fmt.Sprintf("voices:%s", languageCode)
-	
+
 	vc.mu.RLock()
 	if entry, exists := vc.entries[cacheKey]; exists && !vc.isExpired(entry) {
 		vc.mu.RUnlock()
@@ -55,14 +55,14 @@ func (vc *VoiceCache) GetVoices(ctx context.Context, languageCode string) ([]*te
 		return entry.Data, nil
 	}
 	vc.mu.RUnlock()
-	
+
 	vc.recordMiss()
-	
+
 	voices, err := vc.client.ListVoices(ctx, languageCode)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	vc.mu.Lock()
 	vc.entries[cacheKey] = &CacheEntry{
 		Data:      voices,
@@ -70,7 +70,7 @@ func (vc *VoiceCache) GetVoices(ctx context.Context, languageCode string) ([]*te
 		TTL:       15 * time.Minute, // Cache voices for 15 minutes
 	}
 	vc.mu.Unlock()
-	
+
 	return voices, nil
 }
 
@@ -81,7 +81,7 @@ func (vc *VoiceCache) isExpired(entry *CacheEntry) bool {
 func (vc *VoiceCache) cleanupExpired() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for range ticker.C {
 		vc.mu.Lock()
 		now := time.Now()
@@ -116,11 +116,11 @@ func (vc *VoiceCache) recordEviction() {
 func (vc *VoiceCache) GetStats() CacheStats {
 	vc.stats.mu.RLock()
 	defer vc.stats.mu.RUnlock()
-	
+
 	vc.mu.RLock()
 	totalSize := int64(len(vc.entries))
 	vc.mu.RUnlock()
-	
+
 	return CacheStats{
 		hits:      vc.stats.hits,
 		misses:    vc.stats.misses,
@@ -132,18 +132,18 @@ func (vc *VoiceCache) GetStats() CacheStats {
 func (vc *VoiceCache) Clear() {
 	vc.mu.Lock()
 	defer vc.mu.Unlock()
-	
+
 	vc.entries = make(map[string]*CacheEntry)
 }
 
 func (vc *VoiceCache) GetHitRatio() float64 {
 	vc.stats.mu.RLock()
 	defer vc.stats.mu.RUnlock()
-	
+
 	total := vc.stats.hits + vc.stats.misses
 	if total == 0 {
 		return 0.0
 	}
-	
+
 	return float64(vc.stats.hits) / float64(total)
 }

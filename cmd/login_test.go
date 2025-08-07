@@ -50,7 +50,7 @@ func TestLoginCommand(t *testing.T) {
 func TestLoginCommandFlags(t *testing.T) {
 	// Test that the login command has all expected flags
 	flags := []string{"method", "api-key", "service-account", "client-id", "client-secret", "force", "validate"}
-	
+
 	for _, flag := range flags {
 		t.Run("flag_"+flag, func(t *testing.T) {
 			buf := new(bytes.Buffer)
@@ -75,13 +75,13 @@ func TestDetermineAuthMethod(t *testing.T) {
 	origServiceFile := loginServiceFile
 	origClientID := loginClientID
 	origClientSecret := loginClientSecret
-	
+
 	// Save original env vars
 	origEnvAPIKey := os.Getenv("ASSISTANT_CLI_API_KEY")
 	origEnvServiceFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 	origEnvClientID := os.Getenv("ASSISTANT_CLI_OAUTH2_CLIENT_ID")
 	origEnvClientSecret := os.Getenv("ASSISTANT_CLI_OAUTH2_CLIENT_SECRET")
-	
+
 	// Cleanup function
 	defer func() {
 		loginMethod = origMethod
@@ -89,7 +89,7 @@ func TestDetermineAuthMethod(t *testing.T) {
 		loginServiceFile = origServiceFile
 		loginClientID = origClientID
 		loginClientSecret = origClientSecret
-		
+
 		// Restore env vars
 		setOrUnsetEnv("ASSISTANT_CLI_API_KEY", origEnvAPIKey)
 		setOrUnsetEnv("GOOGLE_APPLICATION_CREDENTIALS", origEnvServiceFile)
@@ -98,18 +98,18 @@ func TestDetermineAuthMethod(t *testing.T) {
 	}()
 
 	tests := []struct {
-		name           string
-		method         string
-		apiKey         string
-		serviceFile    string
-		clientID       string
-		clientSecret   string
-		envAPIKey      string
-		envServiceFile string
-		envClientID    string
+		name            string
+		method          string
+		apiKey          string
+		serviceFile     string
+		clientID        string
+		clientSecret    string
+		envAPIKey       string
+		envServiceFile  string
+		envClientID     string
 		envClientSecret string
-		expected       auth.AuthMethod
-		expectError    bool
+		expected        auth.AuthMethod
+		expectError     bool
 	}{
 		{
 			name:     "explicit API key method",
@@ -173,7 +173,7 @@ func TestDetermineAuthMethod(t *testing.T) {
 			loginServiceFile = tt.serviceFile
 			loginClientID = tt.clientID
 			loginClientSecret = tt.clientSecret
-			
+
 			// Set environment variables
 			setOrUnsetEnv("ASSISTANT_CLI_API_KEY", tt.envAPIKey)
 			setOrUnsetEnv("GOOGLE_APPLICATION_CREDENTIALS", tt.envServiceFile)
@@ -181,12 +181,12 @@ func TestDetermineAuthMethod(t *testing.T) {
 			setOrUnsetEnv("ASSISTANT_CLI_OAUTH2_CLIENT_SECRET", tt.envClientSecret)
 
 			// Only test non-interactive paths (skip promptForAuthMethod cases)
-			if tt.method != "" || tt.apiKey != "" || tt.serviceFile != "" || 
-			   (tt.clientID != "" && tt.clientSecret != "") || tt.envAPIKey != "" || 
-			   tt.envServiceFile != "" || (tt.envClientID != "" && tt.envClientSecret != "") {
-				
+			if tt.method != "" || tt.apiKey != "" || tt.serviceFile != "" ||
+				(tt.clientID != "" && tt.clientSecret != "") || tt.envAPIKey != "" ||
+				tt.envServiceFile != "" || (tt.envClientID != "" && tt.envClientSecret != "") {
+
 				method, err := determineAuthMethod()
-				
+
 				if tt.expectError {
 					assert.Error(t, err)
 				} else {
@@ -204,7 +204,7 @@ func TestCreateAuthConfig(t *testing.T) {
 	origServiceFile := loginServiceFile
 	origClientID := loginClientID
 	origClientSecret := loginClientSecret
-	
+
 	defer func() {
 		loginAPIKey = origAPIKey
 		loginServiceFile = origServiceFile
@@ -287,15 +287,15 @@ func TestPromptForServiceAccountFile(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Test the tilde expansion logic separately since we can't easily mock user input
 			input := tt.input
-			
+
 			// Test tilde expansion
 			if strings.HasPrefix(input, "~/") {
 				home, _ := os.UserHomeDir()
 				input = filepath.Join(home, input[2:])
 			}
-			
+
 			result := strings.TrimSpace(input)
-			
+
 			if tt.name == "regular path" {
 				assert.Equal(t, tt.expected, result)
 			} else if tt.name == "path with spaces" {
@@ -323,9 +323,9 @@ func TestPerformAuthentication(t *testing.T) {
 			// Create a minimal auth manager for testing
 			authConfig := auth.DefaultAuthConfig()
 			authManager := auth.NewAuthManager(authConfig)
-			
+
 			err := performAuthentication(context.TODO(), authManager, tt.method)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				if tt.method == auth.AuthMethod(999) {
@@ -377,7 +377,7 @@ func TestLoginFlagDefaults(t *testing.T) {
 	assert.NoError(t, err)
 
 	output := buf.String()
-	
+
 	// Check that important flags are present
 	assert.Contains(t, output, "--method")
 	assert.Contains(t, output, "--api-key")
@@ -394,7 +394,7 @@ func TestValidateAuthentication(t *testing.T) {
 		// Create a minimal auth manager
 		authConfig := auth.DefaultAuthConfig()
 		authManager := auth.NewAuthManager(authConfig)
-		
+
 		// This will fail because no valid auth is configured, but we can test error handling
 		err := validateAuthentication(context.TODO(), authManager, auth.AuthMethodAPIKey)
 		assert.Error(t, err)

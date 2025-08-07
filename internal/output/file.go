@@ -22,10 +22,10 @@ type FileHandler struct {
 type OverwriteMode int
 
 const (
-	OverwriteNever OverwriteMode = iota // Never overwrite existing files
-	OverwriteAlways                     // Always overwrite existing files
-	OverwritePrompt                     // Prompt user for confirmation
-	OverwriteBackup                     // Create backup before overwriting
+	OverwriteNever  OverwriteMode = iota // Never overwrite existing files
+	OverwriteAlways                      // Always overwrite existing files
+	OverwritePrompt                      // Prompt user for confirmation
+	OverwriteBackup                      // Create backup before overwriting
 )
 
 // FileError represents file operation errors
@@ -45,12 +45,12 @@ func (e *FileError) Unwrap() error {
 
 // FileInfo contains information about a written file
 type FileInfo struct {
-	Path         string    `json:"path"`
-	Size         int64     `json:"size"`
-	Created      time.Time `json:"created"`
-	Overwritten  bool      `json:"overwritten"`
-	BackupPath   string    `json:"backup_path,omitempty"`
-	Permissions  string    `json:"permissions"`
+	Path        string    `json:"path"`
+	Size        int64     `json:"size"`
+	Created     time.Time `json:"created"`
+	Overwritten bool      `json:"overwritten"`
+	BackupPath  string    `json:"backup_path,omitempty"`
+	Permissions string    `json:"permissions"`
 }
 
 // NewFileHandler creates a new file handler with default settings
@@ -92,33 +92,33 @@ func (h *FileHandler) WriteFile(filename string, data []byte) (*FileInfo, error)
 			Err:       err,
 		}
 	}
-	
+
 	// Create directories if needed
 	if h.createDirs {
-		if err := h.ensureDirectoryExists(filepath.Dir(safePath)); err != nil {
+		if dirErr := h.ensureDirectoryExists(filepath.Dir(safePath)); dirErr != nil {
 			return nil, &FileError{
 				Operation: "directory_creation",
 				Path:      safePath,
-				Err:       err,
+				Err:       dirErr,
 			}
 		}
 	}
-	
+
 	// Handle existing file
 	info, err := h.handleExistingFile(safePath)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Write the file
-	if err := os.WriteFile(safePath, data, h.filePermissions); err != nil {
+	if writeErr := os.WriteFile(safePath, data, h.filePermissions); writeErr != nil {
 		return nil, &FileError{
 			Operation: "write",
 			Path:      safePath,
-			Err:       err,
+			Err:       writeErr,
 		}
 	}
-	
+
 	// Get file stats
 	stat, err := os.Stat(safePath)
 	if err != nil {
@@ -132,7 +132,7 @@ func (h *FileHandler) WriteFile(filename string, data []byte) (*FileInfo, error)
 			Permissions: h.filePermissions.String(),
 		}, nil
 	}
-	
+
 	return &FileInfo{
 		Path:        safePath,
 		Size:        stat.Size(),
@@ -154,33 +154,33 @@ func (h *FileHandler) WriteFileStream(filename string, data []byte, append bool)
 			Err:       err,
 		}
 	}
-	
+
 	// Create directories if needed
 	if h.createDirs {
-		if err := h.ensureDirectoryExists(filepath.Dir(safePath)); err != nil {
+		if dirCreateErr := h.ensureDirectoryExists(filepath.Dir(safePath)); dirCreateErr != nil {
 			return nil, &FileError{
 				Operation: "directory_creation",
 				Path:      safePath,
-				Err:       err,
+				Err:       dirCreateErr,
 			}
 		}
 	}
-	
+
 	flags := os.O_CREATE | os.O_WRONLY
 	if append {
 		flags |= os.O_APPEND
 	} else {
 		flags |= os.O_TRUNC
-		
+
 		// Handle existing file for non-append mode
-		info, err := h.handleExistingFile(safePath)
-		if err != nil {
-			return nil, err
+		info, handleErr := h.handleExistingFile(safePath)
+		if handleErr != nil {
+			return nil, handleErr
 		}
 		// Store backup info for later use
 		_ = info
 	}
-	
+
 	file, err := os.OpenFile(safePath, flags, h.filePermissions)
 	if err != nil {
 		return nil, &FileError{
@@ -190,7 +190,7 @@ func (h *FileHandler) WriteFileStream(filename string, data []byte, append bool)
 		}
 	}
 	defer file.Close()
-	
+
 	written, err := file.Write(data)
 	if err != nil {
 		return nil, &FileError{
@@ -199,7 +199,7 @@ func (h *FileHandler) WriteFileStream(filename string, data []byte, append bool)
 			Err:       err,
 		}
 	}
-	
+
 	// Get file stats
 	stat, err := file.Stat()
 	if err != nil {
@@ -210,7 +210,7 @@ func (h *FileHandler) WriteFileStream(filename string, data []byte, append bool)
 			Permissions: h.filePermissions.String(),
 		}, nil
 	}
-	
+
 	return &FileInfo{
 		Path:        safePath,
 		Size:        stat.Size(),
@@ -224,25 +224,25 @@ func (h *FileHandler) validatePath(filename string) (string, error) {
 	if filename == "" {
 		return "", fmt.Errorf("filename cannot be empty")
 	}
-	
+
 	// Clean the path to remove any .. or . components
 	cleaned := filepath.Clean(filename)
-	
+
 	// Prevent directory traversal attacks
 	if strings.Contains(cleaned, "..") {
 		return "", fmt.Errorf("path traversal not allowed: %s", filename)
 	}
-	
+
 	// Make it relative to base directory if it's not absolute
 	if !filepath.IsAbs(cleaned) {
 		cleaned = filepath.Join(h.baseDir, cleaned)
 	}
-	
+
 	// Additional security checks
 	if err := h.validatePathSecurity(cleaned); err != nil {
 		return "", err
 	}
-	
+
 	return cleaned, nil
 }
 
@@ -254,33 +254,33 @@ func (h *FileHandler) validatePathSecurity(path string) error {
 		".vbs", ".vbe", ".js", ".jse", ".wsf", ".wsh",
 		".msc", ".cpl", ".dll", ".sys",
 	}
-	
+
 	ext := strings.ToLower(filepath.Ext(path))
 	for _, prohibited := range prohibitedExtensions {
 		if ext == prohibited {
 			return fmt.Errorf("file extension not allowed: %s", ext)
 		}
 	}
-	
+
 	// Check for system directories (Unix/Linux)
 	prohibitedPaths := []string{
 		"/etc/", "/bin/", "/sbin/", "/usr/bin/", "/usr/sbin/",
 		"/var/log/", "/proc/", "/sys/", "/dev/",
 	}
-	
+
 	for _, prohibited := range prohibitedPaths {
 		if strings.HasPrefix(path, prohibited) {
 			return fmt.Errorf("access to system directory not allowed: %s", prohibited)
 		}
 	}
-	
+
 	// Windows system directories
 	if len(path) >= 3 && path[1] == ':' {
 		winProhibited := []string{
 			"C:\\Windows\\", "C:\\Program Files\\", "C:\\Program Files (x86)\\",
 			"C:\\System32\\", "C:\\SysWOW64\\",
 		}
-		
+
 		upperPath := strings.ToUpper(path)
 		for _, prohibited := range winProhibited {
 			if strings.HasPrefix(upperPath, strings.ToUpper(prohibited)) {
@@ -288,7 +288,7 @@ func (h *FileHandler) validatePathSecurity(path string) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -297,7 +297,7 @@ func (h *FileHandler) ensureDirectoryExists(dir string) error {
 	if dir == "" || dir == "." {
 		return nil
 	}
-	
+
 	// Check if directory already exists
 	if stat, err := os.Stat(dir); err == nil {
 		if !stat.IsDir() {
@@ -307,19 +307,19 @@ func (h *FileHandler) ensureDirectoryExists(dir string) error {
 	} else if !os.IsNotExist(err) {
 		return fmt.Errorf("failed to check directory: %v", err)
 	}
-	
+
 	// Create directory with appropriate permissions
 	if err := os.MkdirAll(dir, h.dirPermissions); err != nil {
 		return fmt.Errorf("failed to create directory %s: %v", dir, err)
 	}
-	
+
 	return nil
 }
 
 // handleExistingFile handles existing files based on overwrite mode
 func (h *FileHandler) handleExistingFile(path string) (*FileInfo, error) {
 	info := &FileInfo{Path: path}
-	
+
 	// Check if file exists
 	stat, err := os.Stat(path)
 	if os.IsNotExist(err) {
@@ -328,7 +328,7 @@ func (h *FileHandler) handleExistingFile(path string) (*FileInfo, error) {
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to check file: %v", err)
 	}
-	
+
 	// File exists, handle based on mode
 	switch h.overwriteMode {
 	case OverwriteNever:
@@ -337,11 +337,11 @@ func (h *FileHandler) handleExistingFile(path string) (*FileInfo, error) {
 			Path:      path,
 			Err:       fmt.Errorf("file already exists and overwrite is disabled"),
 		}
-		
+
 	case OverwriteAlways:
 		info.Overwritten = true
 		return info, nil
-		
+
 	case OverwritePrompt:
 		// For CLI tools, we'll treat this as "never" for safety
 		// In a more sophisticated implementation, you could add actual prompting
@@ -350,7 +350,7 @@ func (h *FileHandler) handleExistingFile(path string) (*FileInfo, error) {
 			Path:      path,
 			Err:       fmt.Errorf("file already exists, user confirmation required"),
 		}
-		
+
 	case OverwriteBackup:
 		backupPath, err := h.createBackup(path, stat)
 		if err != nil {
@@ -363,7 +363,7 @@ func (h *FileHandler) handleExistingFile(path string) (*FileInfo, error) {
 		info.Overwritten = true
 		info.BackupPath = backupPath
 		return info, nil
-		
+
 	default:
 		return nil, &FileError{
 			Operation: "overwrite_check",
@@ -377,7 +377,7 @@ func (h *FileHandler) handleExistingFile(path string) (*FileInfo, error) {
 func (h *FileHandler) createBackup(originalPath string, stat fs.FileInfo) (string, error) {
 	timestamp := stat.ModTime().Format("20060102_150405")
 	backupPath := fmt.Sprintf("%s.backup_%s", originalPath, timestamp)
-	
+
 	// Ensure backup path doesn't exist (avoid collisions)
 	counter := 1
 	for {
@@ -390,17 +390,17 @@ func (h *FileHandler) createBackup(originalPath string, stat fs.FileInfo) (strin
 			return "", fmt.Errorf("too many backup files, cannot create backup")
 		}
 	}
-	
+
 	// Copy original file to backup location
 	originalData, err := os.ReadFile(originalPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to read original file for backup: %v", err)
 	}
-	
+
 	if err := os.WriteFile(backupPath, originalData, stat.Mode()); err != nil {
 		return "", fmt.Errorf("failed to create backup file: %v", err)
 	}
-	
+
 	return backupPath, nil
 }
 
@@ -423,23 +423,23 @@ func GetSafeFilename(input, extension string) string {
 			return -1 // Remove character
 		}
 	}, input)
-	
+
 	// Trim and limit length
 	safe = strings.Trim(safe, "_.-")
 	if len(safe) > 100 {
 		safe = safe[:100]
 	}
-	
+
 	// Ensure we have something
 	if safe == "" {
 		safe = "output"
 	}
-	
+
 	// Add extension if provided
 	if extension != "" && !strings.HasPrefix(extension, ".") {
 		extension = "." + extension
 	}
-	
+
 	return safe + extension
 }
 
@@ -463,21 +463,21 @@ func GenerateUniqueFilename(basePath string) string {
 	if !FileExists(basePath) {
 		return basePath
 	}
-	
+
 	dir := filepath.Dir(basePath)
 	filename := filepath.Base(basePath)
 	ext := filepath.Ext(filename)
 	nameWithoutExt := strings.TrimSuffix(filename, ext)
-	
+
 	counter := 1
 	for {
 		newFilename := fmt.Sprintf("%s_%d%s", nameWithoutExt, counter, ext)
 		newPath := filepath.Join(dir, newFilename)
-		
+
 		if !FileExists(newPath) {
 			return newPath
 		}
-		
+
 		counter++
 		if counter > 10000 {
 			// Safety valve to prevent infinite loops

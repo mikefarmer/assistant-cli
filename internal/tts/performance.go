@@ -2,6 +2,7 @@ package tts
 
 import (
 	"fmt"
+	"math"
 	"runtime"
 	"sync"
 	"time"
@@ -25,13 +26,13 @@ type Benchmark struct {
 }
 
 type SystemMetrics struct {
-	mu                sync.RWMutex
-	memStats          runtime.MemStats
-	lastGCTime        time.Time
-	totalAllocations  uint64
-	peakMemoryUsage   uint64
-	goroutineCount    int
-	gcPauseTotal      time.Duration
+	mu               sync.RWMutex
+	memStats         runtime.MemStats
+	lastGCTime       time.Time
+	totalAllocations uint64
+	peakMemoryUsage  uint64
+	goroutineCount   int
+	gcPauseTotal     time.Duration
 }
 
 func NewPerformanceMonitor(enabled bool) *PerformanceMonitor {
@@ -40,33 +41,38 @@ func NewPerformanceMonitor(enabled bool) *PerformanceMonitor {
 		startupTime: time.Now(),
 		benchmarks:  make([]Benchmark, 0),
 	}
-	
+
 	if enabled {
 		go pm.collectSystemMetrics()
 	}
-	
+
 	return pm
 }
 
 func (pm *PerformanceMonitor) collectSystemMetrics() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
-	
+
 	for range ticker.C {
 		if !pm.enabled {
 			return
 		}
-		
+
 		pm.systemMetrics.mu.Lock()
 		runtime.ReadMemStats(&pm.systemMetrics.memStats)
 		pm.systemMetrics.goroutineCount = runtime.NumGoroutine()
-		
+
 		if pm.systemMetrics.memStats.Alloc > pm.systemMetrics.peakMemoryUsage {
 			pm.systemMetrics.peakMemoryUsage = pm.systemMetrics.memStats.Alloc
 		}
-		
+
 		pm.systemMetrics.totalAllocations = pm.systemMetrics.memStats.TotalAlloc
-		pm.systemMetrics.gcPauseTotal = time.Duration(pm.systemMetrics.memStats.PauseTotalNs)
+		// Convert uint64 to int64 safely for time.Duration
+		if pm.systemMetrics.memStats.PauseTotalNs <= math.MaxInt64 {
+			pm.systemMetrics.gcPauseTotal = time.Duration(pm.systemMetrics.memStats.PauseTotalNs)
+		} else {
+			pm.systemMetrics.gcPauseTotal = time.Duration(math.MaxInt64)
+		}
 		pm.systemMetrics.mu.Unlock()
 	}
 }
@@ -75,17 +81,29 @@ func (pm *PerformanceMonitor) StartBenchmark(name string) func(success bool, err
 	if !pm.enabled {
 		return func(bool, string) {}
 	}
-	
+
 	start := time.Now()
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
-	startMem := int64(m.Alloc)
-	
+	// Convert uint64 to int64 safely
+	var startMem int64
+	if m.Alloc <= math.MaxInt64 {
+		startMem = int64(m.Alloc)
+	} else {
+		startMem = math.MaxInt64
+	}
+
 	return func(success bool, errorMsg string) {
 		duration := time.Since(start)
 		runtime.ReadMemStats(&m)
-		endMem := int64(m.Alloc)
-		
+		// Convert uint64 to int64 safely
+		var endMem int64
+		if m.Alloc <= math.MaxInt64 {
+			endMem = int64(m.Alloc)
+		} else {
+			endMem = math.MaxInt64
+		}
+
 		benchmark := Benchmark{
 			Name:        name,
 			Duration:    duration,
@@ -94,7 +112,7 @@ func (pm *PerformanceMonitor) StartBenchmark(name string) func(success bool, err
 			MemoryUsage: endMem - startMem,
 			ErrorMsg:    errorMsg,
 		}
-		
+
 		pm.mu.Lock()
 		pm.benchmarks = append(pm.benchmarks, benchmark)
 		if len(pm.benchmarks) > 1000 {
@@ -108,22 +126,29 @@ func (pm *PerformanceMonitor) GetReport() PerformanceReport {
 	if !pm.enabled {
 		return PerformanceReport{Enabled: false}
 	}
-	
+
 	pm.mu.RLock()
 	benchmarksCopy := make([]Benchmark, len(pm.benchmarks))
 	copy(benchmarksCopy, pm.benchmarks)
 	pm.mu.RUnlock()
-	
+
 	pm.systemMetrics.mu.RLock()
-	systemMetrics := pm.systemMetrics
+	systemMetrics := SystemMetrics{
+		memStats:         pm.systemMetrics.memStats,
+		lastGCTime:       pm.systemMetrics.lastGCTime,
+		totalAllocations: pm.systemMetrics.totalAllocations,
+		peakMemoryUsage:  pm.systemMetrics.peakMemoryUsage,
+		goroutineCount:   pm.systemMetrics.goroutineCount,
+		gcPauseTotal:     pm.systemMetrics.gcPauseTotal,
+	}
 	pm.systemMetrics.mu.RUnlock()
-	
+
 	return PerformanceReport{
-		Enabled:         pm.enabled,
-		Uptime:          time.Since(pm.startupTime),
-		Benchmarks:      benchmarksCopy,
-		SystemMetrics:   systemMetrics,
-		SummaryStats:    pm.calculateSummaryStats(benchmarksCopy),
+		Enabled:       pm.enabled,
+		Uptime:        time.Since(pm.startupTime),
+		Benchmarks:    benchmarksCopy,
+		SystemMetrics: systemMetrics,
+		SummaryStats:  pm.calculateSummaryStats(benchmarksCopy),
 	}
 }
 
@@ -136,55 +161,55 @@ type PerformanceReport struct {
 }
 
 type SummaryStats struct {
-	TotalRequests       int
-	SuccessfulRequests  int
-	FailedRequests      int
-	AverageLatency      time.Duration
-	P50Latency          time.Duration
-	P90Latency          time.Duration
-	P99Latency          time.Duration
-	RequestsPerSecond   float64
-	AverageMemoryUsage  int64
-	PeakMemoryUsage     int64
-	SuccessRate         float64
+	TotalRequests      int
+	SuccessfulRequests int
+	FailedRequests     int
+	AverageLatency     time.Duration
+	P50Latency         time.Duration
+	P90Latency         time.Duration
+	P99Latency         time.Duration
+	RequestsPerSecond  float64
+	AverageMemoryUsage int64
+	PeakMemoryUsage    int64
+	SuccessRate        float64
 }
 
 func (pm *PerformanceMonitor) calculateSummaryStats(benchmarks []Benchmark) SummaryStats {
 	if len(benchmarks) == 0 {
 		return SummaryStats{}
 	}
-	
+
 	var totalLatency time.Duration
 	var totalMemory int64
 	var peakMemory int64
 	var successful int
 	var failed int
 	durations := make([]time.Duration, len(benchmarks))
-	
+
 	for i, b := range benchmarks {
 		durations[i] = b.Duration
 		totalLatency += b.Duration
 		totalMemory += b.MemoryUsage
-		
+
 		if b.MemoryUsage > peakMemory {
 			peakMemory = b.MemoryUsage
 		}
-		
+
 		if b.Success {
 			successful++
 		} else {
 			failed++
 		}
 	}
-	
+
 	total := len(benchmarks)
 	avgLatency := totalLatency / time.Duration(total)
 	avgMemory := totalMemory / int64(total)
 	successRate := float64(successful) / float64(total) * 100
-	
+
 	uptime := time.Since(pm.startupTime)
 	rps := float64(total) / uptime.Seconds()
-	
+
 	return SummaryStats{
 		TotalRequests:      total,
 		SuccessfulRequests: successful,
@@ -204,11 +229,11 @@ func calculatePercentile(durations []time.Duration, percentile int) time.Duratio
 	if len(durations) == 0 {
 		return 0
 	}
-	
+
 	// Simple percentile calculation - sort and find index
 	sorted := make([]time.Duration, len(durations))
 	copy(sorted, durations)
-	
+
 	// Simple insertion sort for small arrays
 	for i := 1; i < len(sorted); i++ {
 		key := sorted[i]
@@ -219,7 +244,7 @@ func calculatePercentile(durations []time.Duration, percentile int) time.Duratio
 		}
 		sorted[j+1] = key
 	}
-	
+
 	index := (percentile * (len(sorted) - 1)) / 100
 	return sorted[index]
 }
@@ -229,7 +254,7 @@ func (pm *PerformanceMonitor) FormatReport() string {
 	if !report.Enabled {
 		return "Performance monitoring is disabled"
 	}
-	
+
 	return fmt.Sprintf(`
 Performance Report
 ==================
@@ -281,7 +306,7 @@ func (pm *PerformanceMonitor) Reset() {
 	if !pm.enabled {
 		return
 	}
-	
+
 	pm.mu.Lock()
 	pm.benchmarks = make([]Benchmark, 0)
 	pm.startupTime = time.Now()

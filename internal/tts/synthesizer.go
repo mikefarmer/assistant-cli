@@ -11,6 +11,12 @@ import (
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 )
 
+// Audio format constants
+const (
+	formatWAV = "WAV"
+	formatOGG = "OGG"
+)
+
 // TTSClient interface for testability
 type TTSClient interface {
 	Synthesize(ctx context.Context, text string, voice *texttospeechpb.VoiceSelectionParams,
@@ -56,7 +62,7 @@ func (s *Synthesizer) SynthesizeFromReader(ctx context.Context, reader io.Reader
 
 	text := string(textData)
 	text = strings.TrimSpace(text)
-	
+
 	if text == "" {
 		return nil, fmt.Errorf("input text is empty")
 	}
@@ -97,10 +103,10 @@ func (s *Synthesizer) Synthesize(ctx context.Context, req *SynthesizeRequest) (*
 
 	audioEncoding := s.getAudioEncoding(req.AudioFormat)
 	audio := &texttospeechpb.AudioConfig{
-		AudioEncoding: audioEncoding,
-		SpeakingRate:  req.SpeakingRate,
-		Pitch:         req.Pitch,
-		VolumeGainDb:  req.VolumeGain,
+		AudioEncoding:    audioEncoding,
+		SpeakingRate:     req.SpeakingRate,
+		Pitch:            req.Pitch,
+		VolumeGainDb:     req.VolumeGain,
 		EffectsProfileId: []string{"headphone-class-device"},
 	}
 
@@ -154,17 +160,17 @@ func (s *Synthesizer) validateRequest(req *SynthesizeRequest) error {
 
 func (s *Synthesizer) getAudioEncoding(format string) texttospeechpb.AudioEncoding {
 	switch strings.ToUpper(format) {
-	case "LINEAR16", "WAV":
+	case audioEncodingLINEAR16, formatWAV:
 		return texttospeechpb.AudioEncoding_LINEAR16
-	case "OGG_OPUS", "OGG":
+	case audioEncodingOGGOpus, formatOGG:
 		return texttospeechpb.AudioEncoding_OGG_OPUS
-	case "MULAW":
+	case audioEncodingMULAW:
 		return texttospeechpb.AudioEncoding_MULAW
-	case "ALAW":
+	case audioEncodingALAW:
 		return texttospeechpb.AudioEncoding_ALAW
-	case "PCM":
+	case audioEncodingPCM:
 		return texttospeechpb.AudioEncoding_PCM
-	case "MP3":
+	case audioEncodingMP3:
 		fallthrough
 	default:
 		return texttospeechpb.AudioEncoding_MP3
@@ -189,7 +195,7 @@ func (s *Synthesizer) saveToFile(audioData []byte, outputFile string, format str
 		}
 	}
 
-	if err := os.WriteFile(outputFile, audioData, 0644); err != nil {
+	if err := os.WriteFile(outputFile, audioData, 0600); err != nil {
 		return "", fmt.Errorf("failed to write audio file: %w", err)
 	}
 
@@ -203,17 +209,17 @@ func (s *Synthesizer) saveToFile(audioData []byte, outputFile string, format str
 
 func (s *Synthesizer) getFileExtension(format string) string {
 	switch strings.ToUpper(format) {
-	case "LINEAR16", "WAV":
+	case audioEncodingLINEAR16, formatWAV:
 		return "wav"
-	case "OGG_OPUS", "OGG":
+	case audioEncodingOGGOpus, formatOGG:
 		return "ogg"
-	case "MULAW":
+	case audioEncodingMULAW:
 		return "mulaw"
-	case "ALAW":
+	case audioEncodingALAW:
 		return "alaw"
-	case "PCM":
+	case audioEncodingPCM:
 		return "pcm"
-	case "MP3":
+	case audioEncodingMP3:
 		fallthrough
 	default:
 		return "mp3"

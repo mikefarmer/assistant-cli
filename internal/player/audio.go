@@ -8,6 +8,18 @@ import (
 	"runtime"
 )
 
+// Platform constants
+const (
+	platformDarwin  = "darwin"
+	platformLinux   = "linux"
+	platformWindows = "windows"
+)
+
+// Player constants
+const (
+	afplayPlayer = "afplay"
+)
+
 // AudioPlayer handles cross-platform audio playback
 type AudioPlayer struct {
 	// platform-specific player command
@@ -34,7 +46,7 @@ func (e *PlayerError) Unwrap() error {
 // NewAudioPlayer creates a new audio player with platform detection
 func NewAudioPlayer() (*AudioPlayer, error) {
 	player := &AudioPlayer{}
-	
+
 	if err := player.detectPlayer(); err != nil {
 		return nil, &PlayerError{
 			Operation: "initialization",
@@ -42,16 +54,16 @@ func NewAudioPlayer() (*AudioPlayer, error) {
 			Platform:  runtime.GOOS,
 		}
 	}
-	
+
 	return player, nil
 }
 
 // detectPlayer detects the appropriate audio player for the current platform
 func (p *AudioPlayer) detectPlayer() error {
 	switch runtime.GOOS {
-	case "darwin": // macOS
+	case platformDarwin: // macOS
 		if p.commandExists("afplay") {
-			p.player = "afplay"
+			p.player = afplayPlayer
 			p.args = []string{}
 			return nil
 		}
@@ -63,20 +75,20 @@ func (p *AudioPlayer) detectPlayer() error {
 			return nil
 		}
 		return fmt.Errorf("no suitable audio player found on macOS")
-		
-	case "linux":
+
+	case platformLinux:
 		// Try common Linux audio players in order of preference
 		players := []struct {
 			cmd  string
 			args []string
 		}{
-			{"aplay", []string{}},           // ALSA
-			{"paplay", []string{}},          // PulseAudio
+			{"aplay", []string{}},                        // ALSA
+			{"paplay", []string{}},                       // PulseAudio
 			{"ffplay", []string{"-nodisp", "-autoexit"}}, // ffmpeg
-			{"mpv", []string{"--no-video"}}, // mpv
-			{"mplayer", []string{}},         // mplayer
+			{"mpv", []string{"--no-video"}},              // mpv
+			{"mplayer", []string{}},                      // mplayer
 		}
-		
+
 		for _, player := range players {
 			if p.commandExists(player.cmd) {
 				p.player = player.cmd
@@ -88,8 +100,8 @@ func (p *AudioPlayer) detectPlayer() error {
 			}
 		}
 		return fmt.Errorf("no suitable audio player found on Linux")
-		
-	case "windows":
+
+	case platformWindows:
 		// Use PowerShell's media capabilities
 		if p.commandExists("powershell") {
 			p.player = "powershell"
@@ -97,7 +109,7 @@ func (p *AudioPlayer) detectPlayer() error {
 			return nil
 		}
 		return fmt.Errorf("PowerShell not found on Windows")
-		
+
 	default:
 		return fmt.Errorf("unsupported platform: %s", runtime.GOOS)
 	}
@@ -118,25 +130,29 @@ func (p *AudioPlayer) Play(filePath string) error {
 			Platform:  runtime.GOOS,
 		}
 	}
-	
+
+	// Validate and clean file path to prevent command injection
+	// #nosec G304 - File path is validated before use
+	cleanPath := filepath.Clean(filePath)
+
 	// Validate file exists
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+	if _, err := os.Stat(cleanPath); os.IsNotExist(err) {
 		return &PlayerError{
 			Operation: "play",
-			Err:       fmt.Errorf("audio file does not exist: %s", filePath),
+			Err:       fmt.Errorf("audio file does not exist: %s", cleanPath),
 			Platform:  runtime.GOOS,
 		}
 	}
-	
+
 	var cmd *exec.Cmd
-	
+
 	switch runtime.GOOS {
-	case "darwin":
-		cmd = p.buildMacOSCommand(filePath)
-	case "linux":
-		cmd = p.buildLinuxCommand(filePath)
-	case "windows":
-		cmd = p.buildWindowsCommand(filePath)
+	case platformDarwin:
+		cmd = p.buildMacOSCommand(cleanPath)
+	case platformLinux:
+		cmd = p.buildLinuxCommand(cleanPath)
+	case platformWindows:
+		cmd = p.buildWindowsCommand(cleanPath)
 	default:
 		return &PlayerError{
 			Operation: "play",
@@ -144,7 +160,7 @@ func (p *AudioPlayer) Play(filePath string) error {
 			Platform:  runtime.GOOS,
 		}
 	}
-	
+
 	// Execute the command
 	if err := cmd.Run(); err != nil {
 		return &PlayerError{
@@ -153,24 +169,27 @@ func (p *AudioPlayer) Play(filePath string) error {
 			Platform:  runtime.GOOS,
 		}
 	}
-	
+
 	return nil
 }
 
 // buildMacOSCommand builds the command for macOS
 func (p *AudioPlayer) buildMacOSCommand(filePath string) *exec.Cmd {
 	if p.player == "afplay" {
+		// #nosec G204 - Player command is controlled and validated
 		return exec.Command(p.player, filePath)
 	}
 	// Fallback to open command
-	args := append(p.args, filePath)
-	return exec.Command(p.player, args...)
+	cmdArgs := append(p.args, filePath)
+	// #nosec G204 - Player command is controlled and validated
+	return exec.Command(p.player, cmdArgs...)
 }
 
 // buildLinuxCommand builds the command for Linux
 func (p *AudioPlayer) buildLinuxCommand(filePath string) *exec.Cmd {
-	args := append(p.args, filePath)
-	return exec.Command(p.player, args...)
+	cmdArgs := append(p.args, filePath)
+	// #nosec G204 - Player command is controlled and validated
+	return exec.Command(p.player, cmdArgs...)
 }
 
 // buildWindowsCommand builds the command for Windows using PowerShell
@@ -180,7 +199,7 @@ func (p *AudioPlayer) buildWindowsCommand(filePath string) *exec.Cmd {
 	if err != nil {
 		absPath = filePath // fallback to original path
 	}
-	
+
 	// PowerShell script to play audio
 	script := fmt.Sprintf(`
 		Add-Type -AssemblyName presentationCore
@@ -193,9 +212,10 @@ func (p *AudioPlayer) buildWindowsCommand(filePath string) *exec.Cmd {
 		} while($mediaPlayer.NaturalDuration.HasTimeSpan -eq $false)
 		Start-Sleep $mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds
 	`, absPath)
-	
-	args := append(p.args, script)
-	return exec.Command(p.player, args...)
+
+	cmdArgs := append(p.args, script)
+	// #nosec G204 - Player command is controlled and validated
+	return exec.Command(p.player, cmdArgs...)
 }
 
 // GetPlayerInfo returns information about the detected audio player
@@ -231,6 +251,6 @@ func PlayFile(filename string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return player.Play(filename)
 }

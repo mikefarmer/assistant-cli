@@ -130,6 +130,7 @@ The `AuthManager` in `internal/auth/manager.go` coordinates between these method
 ## Development Guidelines
 
 - **Use the latest version of Go**: Always use the most recent stable Go version to leverage the latest language features and performance improvements.
+- **Always use golangci-lint for linting**
 
 ## Testing Strategy
 

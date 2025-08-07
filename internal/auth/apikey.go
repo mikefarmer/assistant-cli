@@ -23,7 +23,7 @@ func NewAPIKeyProvider(apiKey string) *APIKeyProvider {
 	if apiKey == "" {
 		apiKey = os.Getenv("ASSISTANT_CLI_API_KEY")
 	}
-	
+
 	return &APIKeyProvider{
 		apiKey: apiKey,
 	}
@@ -87,11 +87,11 @@ func (p *APIKeyProvider) isValidAPIKey(apiKey string) bool {
 	// Basic validation - Google Cloud API keys typically start with "AIza" and are 39 characters long
 	// However, this can vary, so we'll do minimal validation
 	apiKey = strings.TrimSpace(apiKey)
-	
+
 	if len(apiKey) < 20 {
 		return false
 	}
-	
+
 	// Check for common prefixes (this is not exhaustive but covers most cases)
 	validPrefixes := []string{"AIza", "BIza", "CIza", "DIza"}
 	for _, prefix := range validPrefixes {
@@ -99,7 +99,7 @@ func (p *APIKeyProvider) isValidAPIKey(apiKey string) bool {
 			return len(apiKey) >= 35 && len(apiKey) <= 50
 		}
 	}
-	
+
 	// If it doesn't match common patterns but is reasonable length, allow it
 	// This handles edge cases and future API key formats
 	return len(apiKey) >= 20 && len(apiKey) <= 100

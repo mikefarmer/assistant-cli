@@ -30,13 +30,13 @@ credentials securely for future use.`,
 }
 
 var (
-	loginMethod        string
-	loginAPIKey        string
-	loginServiceFile   string
-	loginClientID      string
-	loginClientSecret  string
-	loginForce         bool
-	loginValidate      bool
+	loginMethod       string
+	loginAPIKey       string
+	loginServiceFile  string
+	loginClientID     string
+	loginClientSecret string
+	loginForce        bool
+	loginValidate     bool
 )
 
 func init() {
@@ -59,6 +59,7 @@ func runLogin(cmd *cobra.Command, args []string) {
 	method, err := determineAuthMethod()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error determining authentication method: %v\n", err)
+		cancel() // Ensure context is canceled before exit
 		os.Exit(1)
 	}
 
@@ -73,7 +74,7 @@ func runLogin(cmd *cobra.Command, args []string) {
 	// Check if already authenticated (unless force is specified)
 	if !loginForce && authManager.IsConfigured() {
 		fmt.Println("Already authenticated. Use --force to re-authenticate.")
-		
+
 		if loginValidate {
 			fmt.Println("Validating existing authentication...")
 			if err := validateAuthentication(ctx, authManager, method); err != nil {
@@ -191,14 +192,14 @@ func createAuthConfig(method auth.AuthMethod) auth.AuthConfig {
 		} else if config.APIKey == "" {
 			config.APIKey = promptForAPIKey()
 		}
-		
+
 	case auth.AuthMethodServiceAccount:
 		if loginServiceFile != "" {
 			config.ServiceAccountFile = loginServiceFile
 		} else if config.ServiceAccountFile == "" {
 			config.ServiceAccountFile = promptForServiceAccountFile()
 		}
-		
+
 	case auth.AuthMethodOAuth2:
 		if loginClientID != "" {
 			config.OAuth2ClientID = loginClientID
@@ -218,7 +219,7 @@ func createAuthConfig(method auth.AuthMethod) auth.AuthConfig {
 func promptForAPIKey() string {
 	fmt.Print("\nEnter your Google Cloud API key: ")
 	var apiKey string
-	fmt.Scanln(&apiKey)
+	_, _ = fmt.Scanln(&apiKey)
 	return strings.TrimSpace(apiKey)
 }
 
@@ -226,14 +227,14 @@ func promptForAPIKey() string {
 func promptForServiceAccountFile() string {
 	fmt.Print("\nEnter path to service account JSON file: ")
 	var filePath string
-	fmt.Scanln(&filePath)
-	
+	_, _ = fmt.Scanln(&filePath)
+
 	// Expand tilde to home directory
 	if strings.HasPrefix(filePath, "~/") {
 		home, _ := os.UserHomeDir()
 		filePath = filepath.Join(home, filePath[2:])
 	}
-	
+
 	return strings.TrimSpace(filePath)
 }
 
@@ -241,13 +242,13 @@ func promptForServiceAccountFile() string {
 func promptForOAuth2Credentials(config *auth.AuthConfig) {
 	if config.OAuth2ClientID == "" {
 		fmt.Print("\nEnter OAuth2 Client ID: ")
-		fmt.Scanln(&config.OAuth2ClientID)
+		_, _ = fmt.Scanln(&config.OAuth2ClientID)
 		config.OAuth2ClientID = strings.TrimSpace(config.OAuth2ClientID)
 	}
-	
+
 	if config.OAuth2ClientSecret == "" {
 		fmt.Print("Enter OAuth2 Client Secret: ")
-		fmt.Scanln(&config.OAuth2ClientSecret)
+		_, _ = fmt.Scanln(&config.OAuth2ClientSecret)
 		config.OAuth2ClientSecret = strings.TrimSpace(config.OAuth2ClientSecret)
 	}
 }
@@ -261,29 +262,28 @@ func performAuthentication(ctx context.Context, authManager *auth.AuthManager, m
 			return fmt.Errorf("API key is not properly configured")
 		}
 		return nil
-		
+
 	case auth.AuthMethodServiceAccount:
 		// Service account authentication requires file validation
 		if !authManager.IsConfigured() {
 			return fmt.Errorf("service account file is not properly configured")
 		}
 		return nil
-		
+
 	case auth.AuthMethodOAuth2:
 		// OAuth2 requires the full flow
 		// The auth manager will handle the OAuth2 flow when we try to get a client
 		_, err := authManager.GetClient(ctx)
 		return err
-		
+
 	default:
 		return fmt.Errorf("unsupported authentication method: %s", method)
 	}
 }
 
 // validateAuthentication validates the authentication by making a test API call
-func validateAuthentication(ctx context.Context, authManager *auth.AuthManager, method auth.AuthMethod) error {
-	_ = method // Method parameter not used in current implementation
-	
+func validateAuthentication(ctx context.Context, authManager *auth.AuthManager, _ auth.AuthMethod) error {
+
 	// Get a client - this will trigger authentication if needed
 	client, err := authManager.GetClient(ctx)
 	if err != nil {
@@ -306,16 +306,16 @@ func validateAuthentication(ctx context.Context, authManager *auth.AuthManager, 
 func saveAuthConfig(authConfig auth.AuthConfig, method auth.AuthMethod) error {
 	// Set configuration values in viper
 	viper.Set("auth.method", method.String())
-	
+
 	switch method {
 	case auth.AuthMethodAPIKey:
 		// Don't save API key to config file for security
 		// User should use environment variable or command line flag
 		fmt.Println("Note: API key not saved to config file. Use ASSISTANT_CLI_API_KEY environment variable.")
-		
+
 	case auth.AuthMethodServiceAccount:
 		viper.Set("auth.service_account_file", authConfig.ServiceAccountFile)
-		
+
 	case auth.AuthMethodOAuth2:
 		// Don't save client credentials to config file for security
 		// OAuth2 tokens are saved separately by the OAuth2 provider

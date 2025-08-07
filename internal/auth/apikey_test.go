@@ -42,7 +42,7 @@ func TestAPIKeyProvider_IsConfigured(t *testing.T) {
 		{"empty key", "", false},
 		{"too short", "AIza123", false},
 		{"wrong prefix", "XIza1234567890123456789012345678901234", true}, // Valid due to fallback (20-100 chars)
-		{"no prefix", "1234567890123456789012345678901234567890", true}, // Valid due to fallback (20-100 chars)
+		{"no prefix", "1234567890123456789012345678901234567890", true},  // Valid due to fallback (20-100 chars)
 	}
 
 	for _, tc := range testCases {

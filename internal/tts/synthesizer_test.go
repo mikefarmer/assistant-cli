@@ -14,7 +14,7 @@ import (
 func TestNewSynthesizer(t *testing.T) {
 	client := &Client{}
 	synth := NewSynthesizer(client)
-	
+
 	assert.NotNil(t, synth)
 	assert.Equal(t, client, synth.client)
 }
@@ -49,24 +49,24 @@ func TestSynthesizeFromReader(t *testing.T) {
 			expectError: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockClient := &mockTTSClient{
 				synthesizeResponse: []byte("audio_data"),
 			}
 			synth := &Synthesizer{client: mockClient}
-			
+
 			reader := strings.NewReader(tt.input)
 			req := &SynthesizeRequest{
 				SpeakingRate: 1.0,
 				Pitch:        0.0,
 				VolumeGain:   0.0,
 			}
-			
+
 			ctx := context.Background()
 			resp, err := synth.SynthesizeFromReader(ctx, reader, req)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				if tt.errorMsg != "" {
@@ -83,7 +83,7 @@ func TestSynthesizeFromReader(t *testing.T) {
 
 func TestValidateRequest(t *testing.T) {
 	synth := &Synthesizer{}
-	
+
 	tests := []struct {
 		name        string
 		req         *SynthesizeRequest
@@ -199,11 +199,11 @@ func TestValidateRequest(t *testing.T) {
 			errorMsg:    "SSML must end with </speak> tag",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := synth.validateRequest(tt.req)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				if tt.errorMsg != "" {
@@ -264,11 +264,11 @@ func TestValidateSSML(t *testing.T) {
 			expectError: false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := validateSSML(tt.ssml)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				if tt.errorMsg != "" {
@@ -283,7 +283,7 @@ func TestValidateSSML(t *testing.T) {
 
 func TestGetAudioEncodingFromSynthesizer(t *testing.T) {
 	synth := &Synthesizer{}
-	
+
 	tests := []struct {
 		format   string
 		expected texttospeechpb.AudioEncoding
@@ -300,7 +300,7 @@ func TestGetAudioEncodingFromSynthesizer(t *testing.T) {
 		{"unknown", texttospeechpb.AudioEncoding_MP3},
 		{"", texttospeechpb.AudioEncoding_MP3},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.format, func(t *testing.T) {
 			result := synth.getAudioEncoding(tt.format)
@@ -311,7 +311,7 @@ func TestGetAudioEncodingFromSynthesizer(t *testing.T) {
 
 func TestGetFileExtension(t *testing.T) {
 	synth := &Synthesizer{}
-	
+
 	tests := []struct {
 		format   string
 		expected string
@@ -328,7 +328,7 @@ func TestGetFileExtension(t *testing.T) {
 		{"unknown", "mp3"},
 		{"", "mp3"},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.format, func(t *testing.T) {
 			result := synth.getFileExtension(tt.format)
@@ -339,10 +339,10 @@ func TestGetFileExtension(t *testing.T) {
 
 func TestSynthesize_NilRequest(t *testing.T) {
 	synth := &Synthesizer{}
-	
+
 	ctx := context.Background()
 	resp, err := synth.Synthesize(ctx, nil)
-	
+
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "synthesis request cannot be nil")
 	assert.Nil(t, resp)
@@ -350,14 +350,14 @@ func TestSynthesize_NilRequest(t *testing.T) {
 
 func TestSynthesize_EmptyText(t *testing.T) {
 	synth := &Synthesizer{}
-	
+
 	req := &SynthesizeRequest{
 		Text: "",
 	}
-	
+
 	ctx := context.Background()
 	resp, err := synth.Synthesize(ctx, req)
-	
+
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "text cannot be empty")
 	assert.Nil(t, resp)
@@ -388,12 +388,12 @@ func TestSynthesizeFromReader_Integration(t *testing.T) {
 	mockClient := &mockTTSClient{
 		synthesizeResponse: []byte("mock_audio_data"),
 	}
-	
+
 	synth := &Synthesizer{client: mockClient}
-	
+
 	input := "Hello, this is a test!"
 	reader := bytes.NewBufferString(input)
-	
+
 	req := &SynthesizeRequest{
 		Voice:        "en-US-Wavenet-D",
 		LanguageCode: "en-US",
@@ -402,10 +402,10 @@ func TestSynthesizeFromReader_Integration(t *testing.T) {
 		VolumeGain:   0.0,
 		AudioFormat:  "MP3",
 	}
-	
+
 	ctx := context.Background()
 	resp, err := synth.SynthesizeFromReader(ctx, reader, req)
-	
+
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, []byte("mock_audio_data"), resp.AudioData)

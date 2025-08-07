@@ -14,7 +14,7 @@ import (
 
 func TestDefaultClientConfig(t *testing.T) {
 	config := DefaultClientConfig()
-	
+
 	assert.Equal(t, "en-US-Wavenet-D", config.Voice)
 	assert.Equal(t, "en-US", config.LanguageCode)
 	assert.Equal(t, 1.0, config.SpeakingRate)
@@ -28,9 +28,9 @@ func TestDefaultClientConfig(t *testing.T) {
 
 func TestNewClient_RequiresAuthManager(t *testing.T) {
 	ctx := context.Background()
-	
+
 	client, err := NewClient(ctx, nil, nil)
-	
+
 	assert.Nil(t, client)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "auth manager is required")
@@ -73,11 +73,11 @@ func TestIsRetryableError(t *testing.T) {
 			expected: false,
 		},
 	}
-	
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := isRetryableError(tt.err)
-			assert.Equal(t, tt.expected, result)
+
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			result := isRetryableError(testCase.err)
+			assert.Equal(t, testCase.expected, result)
 		})
 	}
 }
@@ -114,11 +114,11 @@ func TestIsSSML(t *testing.T) {
 			expected: false,
 		},
 	}
-	
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := isSSML(tt.text)
-			assert.Equal(t, tt.expected, result)
+
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			result := isSSML(testCase.text)
+			assert.Equal(t, testCase.expected, result)
 		})
 	}
 }
@@ -136,23 +136,14 @@ func TestGetAudioEncoding(t *testing.T) {
 		{"PCM", texttospeechpb.AudioEncoding_PCM},
 		{"unknown", texttospeechpb.AudioEncoding_MP3},
 	}
-	
-	for _, tt := range tests {
-		t.Run(tt.encoding, func(t *testing.T) {
+
+	for _, testCase := range tests {
+		t.Run(testCase.encoding, func(t *testing.T) {
 			config := DefaultClientConfig()
-			config.AudioEncoding = tt.encoding
-			
+			config.AudioEncoding = testCase.encoding
+
 			// Just test the enum mapping without client creation
-			require.NotEmpty(t, tt.expected.String())
+			require.NotEmpty(t, testCase.expected.String())
 		})
 	}
-}
-
-type mockAuthManager struct {
-	clientOptions []interface{}
-	err           error
-}
-
-func (m *mockAuthManager) GetClientOptions() ([]interface{}, error) {
-	return m.clientOptions, m.err
 }

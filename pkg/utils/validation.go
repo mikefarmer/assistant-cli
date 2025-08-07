@@ -32,14 +32,14 @@ func (e *ValidationError) Error() string {
 // NewSSMLValidator creates a new SSML validator with default settings
 func NewSSMLValidator() *SSMLValidator {
 	validator := &SSMLValidator{
-		allowedTags: make(map[string]bool),
+		allowedTags:       make(map[string]bool),
 		dangerousPatterns: make([]*regexp.Regexp, 0),
 	}
-	
+
 	// Initialize with safe SSML tags
 	validator.initializeAllowedTags()
 	validator.initializeDangerousPatterns()
-	
+
 	return validator
 }
 
@@ -47,19 +47,19 @@ func NewSSMLValidator() *SSMLValidator {
 func (v *SSMLValidator) initializeAllowedTags() {
 	// Google Cloud TTS supported SSML tags (safe subset)
 	safeTags := []string{
-		"speak",     // Root element
-		"p",         // Paragraph
-		"s",         // Sentence
-		"break",     // Pause
-		"emphasis",  // Emphasis
-		"prosody",   // Prosody (rate, pitch, volume)
-		"say-as",    // Say-as (interpret-as)
-		"sub",       // Substitute
-		"mark",      // Mark (for timing)
-		"audio",     // Audio (with restrictions)
-		"desc",      // Description
+		"speak",    // Root element
+		"p",        // Paragraph
+		"s",        // Sentence
+		"break",    // Pause
+		"emphasis", // Emphasis
+		"prosody",  // Prosody (rate, pitch, volume)
+		"say-as",   // Say-as (interpret-as)
+		"sub",      // Substitute
+		"mark",     // Mark (for timing)
+		"audio",    // Audio (with restrictions)
+		"desc",     // Description
 	}
-	
+
 	for _, tag := range safeTags {
 		v.allowedTags[tag] = true
 	}
@@ -76,32 +76,32 @@ func (v *SSMLValidator) initializeDangerousPatterns() {
 		`(?i)onload\s*=`,
 		`(?i)onerror\s*=`,
 		`(?i)onclick\s*=`,
-		
+
 		// File system access attempts
 		`(?i)file://`,
 		`(?i)\.\.[\\/]`,
 		`(?i)[\\\/]etc[\\/]`,
 		`(?i)[\\\/]proc[\\/]`,
-		
+
 		// Network access attempts
 		`(?i)http://`,
 		`(?i)https://`,
 		`(?i)ftp://`,
-		
+
 		// System command injection
 		`(?i)system\s*\(`,
 		`(?i)exec\s*\(`,
 		`(?i)eval\s*\(`,
-		
+
 		// XML External Entity (XXE) attempts
 		`(?i)<!ENTITY`,
 		`(?i)<!DOCTYPE.*ENTITY`,
 		`(?i)&[a-zA-Z][a-zA-Z0-9]*;.*SYSTEM`,
-		
+
 		// Excessive nesting (potential DoS)
 		`(<[^>]+>){50,}`, // More than 50 nested tags
 	}
-	
+
 	for _, pattern := range dangerousRegexps {
 		if regex, err := regexp.Compile(pattern); err == nil {
 			v.dangerousPatterns = append(v.dangerousPatterns, regex)
@@ -121,27 +121,27 @@ func (v *SSMLValidator) ValidateSSML(text string) error {
 		// Not SSML, no validation needed
 		return nil
 	}
-	
+
 	// Check for dangerous patterns first
 	if err := v.checkDangerousPatterns(text); err != nil {
 		return err
 	}
-	
+
 	// Validate SSML structure
 	if err := v.validateSSMLStructure(text); err != nil {
 		return err
 	}
-	
+
 	// Validate allowed tags
 	if err := v.validateAllowedTags(text); err != nil {
 		return err
 	}
-	
+
 	// Validate tag nesting and attributes
 	if err := v.validateTagAttributes(text); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -165,19 +165,19 @@ func (v *SSMLValidator) validateSSMLStructure(text string) error {
 	// Basic XML well-formedness check
 	tagStack := make([]string, 0)
 	tagRegex := regexp.MustCompile(`<(/?)([a-zA-Z][a-zA-Z0-9-]*)[^/>]*(/?)>`)
-	
+
 	matches := tagRegex.FindAllStringSubmatch(text, -1)
-	
+
 	for _, match := range matches {
 		isClosing := match[1] == "/"
 		tagName := match[2]
 		isSelfClosing := match[3] == "/"
-		
+
 		if isSelfClosing {
 			// Self-closing tag, no stack manipulation needed
 			continue
 		}
-		
+
 		if isClosing {
 			// Closing tag
 			if len(tagStack) == 0 {
@@ -187,7 +187,7 @@ func (v *SSMLValidator) validateSSMLStructure(text string) error {
 					Input:   match[0],
 				}
 			}
-			
+
 			// Check if it matches the most recent opening tag
 			if tagStack[len(tagStack)-1] != tagName {
 				return &ValidationError{
@@ -196,7 +196,7 @@ func (v *SSMLValidator) validateSSMLStructure(text string) error {
 					Input:   match[0],
 				}
 			}
-			
+
 			// Pop from stack
 			tagStack = tagStack[:len(tagStack)-1]
 		} else {
@@ -204,7 +204,7 @@ func (v *SSMLValidator) validateSSMLStructure(text string) error {
 			tagStack = append(tagStack, tagName)
 		}
 	}
-	
+
 	// Check for unclosed tags
 	if len(tagStack) > 0 {
 		return &ValidationError{
@@ -212,7 +212,7 @@ func (v *SSMLValidator) validateSSMLStructure(text string) error {
 			Message: fmt.Sprintf("unclosed tag: %s", tagStack[len(tagStack)-1]),
 		}
 	}
-	
+
 	return nil
 }
 
@@ -220,7 +220,7 @@ func (v *SSMLValidator) validateSSMLStructure(text string) error {
 func (v *SSMLValidator) validateAllowedTags(text string) error {
 	tagRegex := regexp.MustCompile(`<(?:/?([a-zA-Z][a-zA-Z0-9-]*)[^>]*)/?>`)
 	matches := tagRegex.FindAllStringSubmatch(text, -1)
-	
+
 	for _, match := range matches {
 		tagName := strings.ToLower(match[1])
 		if !v.allowedTags[tagName] {
@@ -231,7 +231,7 @@ func (v *SSMLValidator) validateAllowedTags(text string) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -241,22 +241,22 @@ func (v *SSMLValidator) validateTagAttributes(text string) error {
 	if err := v.validateProsodyAttributes(text); err != nil {
 		return err
 	}
-	
+
 	// Validate say-as tag attributes
 	if err := v.validateSayAsAttributes(text); err != nil {
 		return err
 	}
-	
+
 	// Validate break tag attributes
 	if err := v.validateBreakAttributes(text); err != nil {
 		return err
 	}
-	
+
 	// Validate audio tag attributes (with security restrictions)
 	if err := v.validateAudioAttributes(text); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -264,59 +264,83 @@ func (v *SSMLValidator) validateTagAttributes(text string) error {
 func (v *SSMLValidator) validateProsodyAttributes(text string) error {
 	prosodyRegex := regexp.MustCompile(`<prosody\s+([^>]+)>`)
 	matches := prosodyRegex.FindAllStringSubmatch(text, -1)
-	
+
 	for _, match := range matches {
-		attrs := match[1]
-		
-		// Validate rate attribute
-		if strings.Contains(attrs, "rate=") {
-			rateRegex := regexp.MustCompile(`rate=["']?([^"'\s>]+)["']?`)
-			rateMatch := rateRegex.FindStringSubmatch(attrs)
-			if rateMatch != nil {
-				rate := rateMatch[1]
-				if !v.isValidProsodyRate(rate) {
-					return &ValidationError{
-						Type:    "attribute",
-						Message: fmt.Sprintf("invalid prosody rate: %s", rate),
-						Input:   match[0],
-					}
-				}
-			}
+		if err := v.validateSingleProsodyTag(match); err != nil {
+			return err
 		}
-		
-		// Validate pitch attribute
-		if strings.Contains(attrs, "pitch=") {
-			pitchRegex := regexp.MustCompile(`pitch=["']?([^"'\s>]+)["']?`)
-			pitchMatch := pitchRegex.FindStringSubmatch(attrs)
-			if pitchMatch != nil {
-				pitch := pitchMatch[1]
-				if !v.isValidProsodyPitch(pitch) {
-					return &ValidationError{
-						Type:    "attribute",
-						Message: fmt.Sprintf("invalid prosody pitch: %s", pitch),
-						Input:   match[0],
-					}
-				}
-			}
-		}
-		
-		// Validate volume attribute
-		if strings.Contains(attrs, "volume=") {
-			volumeRegex := regexp.MustCompile(`volume=["']?([^"'\s>]+)["']?`)
-			volumeMatch := volumeRegex.FindStringSubmatch(attrs)
-			if volumeMatch != nil {
-				volume := volumeMatch[1]
-				if !v.isValidProsodyVolume(volume) {
-					return &ValidationError{
-						Type:    "attribute",
-						Message: fmt.Sprintf("invalid prosody volume: %s", volume),
-						Input:   match[0],
-					}
-				}
+	}
+
+	return nil
+}
+
+func (v *SSMLValidator) validateSingleProsodyTag(match []string) error {
+	attrs := match[1]
+	tag := match[0]
+
+	if err := v.validateProsodyRate(attrs, tag); err != nil {
+		return err
+	}
+	if err := v.validateProsodyPitch(attrs, tag); err != nil {
+		return err
+	}
+	return v.validateProsodyVolume(attrs, tag)
+}
+
+func (v *SSMLValidator) validateProsodyRate(attrs, tag string) error {
+	if !strings.Contains(attrs, "rate=") {
+		return nil
+	}
+	rateRegex := regexp.MustCompile(`rate=["']?([^"'\s>]+)["']?`)
+	rateMatch := rateRegex.FindStringSubmatch(attrs)
+	if rateMatch != nil {
+		rate := rateMatch[1]
+		if !v.isValidProsodyRate(rate) {
+			return &ValidationError{
+				Type:    "attribute",
+				Message: fmt.Sprintf("invalid prosody rate: %s", rate),
+				Input:   tag,
 			}
 		}
 	}
-	
+	return nil
+}
+
+func (v *SSMLValidator) validateProsodyPitch(attrs, tag string) error {
+	if !strings.Contains(attrs, "pitch=") {
+		return nil
+	}
+	pitchRegex := regexp.MustCompile(`pitch=["']?([^"'\s>]+)["']?`)
+	pitchMatch := pitchRegex.FindStringSubmatch(attrs)
+	if pitchMatch != nil {
+		pitch := pitchMatch[1]
+		if !v.isValidProsodyPitch(pitch) {
+			return &ValidationError{
+				Type:    "attribute",
+				Message: fmt.Sprintf("invalid prosody pitch: %s", pitch),
+				Input:   tag,
+			}
+		}
+	}
+	return nil
+}
+
+func (v *SSMLValidator) validateProsodyVolume(attrs, tag string) error {
+	if !strings.Contains(attrs, "volume=") {
+		return nil
+	}
+	volumeRegex := regexp.MustCompile(`volume=["']?([^"'\s>]+)["']?`)
+	volumeMatch := volumeRegex.FindStringSubmatch(attrs)
+	if volumeMatch != nil {
+		volume := volumeMatch[1]
+		if !v.isValidProsodyVolume(volume) {
+			return &ValidationError{
+				Type:    "attribute",
+				Message: fmt.Sprintf("invalid prosody volume: %s", volume),
+				Input:   tag,
+			}
+		}
+	}
 	return nil
 }
 
@@ -325,31 +349,31 @@ func (v *SSMLValidator) validateSayAsAttributes(text string) error {
 	// Match say-as tags with or without attributes
 	sayAsRegex := regexp.MustCompile(`<say-as(\s+[^>]+)?>`)
 	matches := sayAsRegex.FindAllStringSubmatch(text, -1)
-	
+
 	validInterpretAs := map[string]bool{
-		"characters":     true,
-		"spell-out":      true,
-		"cardinal":       true,
-		"number":         true,
-		"ordinal":        true,
-		"digits":         true,
-		"fraction":       true,
-		"unit":           true,
-		"date":           true,
-		"time":           true,
-		"telephone":      true,
-		"address":        true,
-		"expletive":      true,
-		"bleep":          true,
+		"characters": true,
+		"spell-out":  true,
+		"cardinal":   true,
+		"number":     true,
+		"ordinal":    true,
+		"digits":     true,
+		"fraction":   true,
+		"unit":       true,
+		"date":       true,
+		"time":       true,
+		"telephone":  true,
+		"address":    true,
+		"expletive":  true,
+		"bleep":      true,
 	}
-	
+
 	for _, match := range matches {
 		attrs := match[1] // This will be empty string if no attributes
-		
+
 		// interpret-as is required for say-as
 		interpretRegex := regexp.MustCompile(`interpret-as=["']?([^"'\s>]+)["']?`)
 		interpretMatch := interpretRegex.FindStringSubmatch(attrs)
-		
+
 		if interpretMatch == nil {
 			return &ValidationError{
 				Type:    "attribute",
@@ -357,7 +381,7 @@ func (v *SSMLValidator) validateSayAsAttributes(text string) error {
 				Input:   match[0],
 			}
 		}
-		
+
 		interpretAs := interpretMatch[1]
 		if !validInterpretAs[interpretAs] {
 			return &ValidationError{
@@ -367,7 +391,7 @@ func (v *SSMLValidator) validateSayAsAttributes(text string) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -375,52 +399,72 @@ func (v *SSMLValidator) validateSayAsAttributes(text string) error {
 func (v *SSMLValidator) validateBreakAttributes(text string) error {
 	breakRegex := regexp.MustCompile(`<break\s+([^>]+)/?>`)
 	matches := breakRegex.FindAllStringSubmatch(text, -1)
-	
+
 	for _, match := range matches {
-		attrs := match[1]
-		
-		// Validate time attribute if present
-		if strings.Contains(attrs, "time=") {
-			timeRegex := regexp.MustCompile(`time=["']?([^"'\s>]+)["']?`)
-			timeMatch := timeRegex.FindStringSubmatch(attrs)
-			if timeMatch != nil {
-				timeValue := timeMatch[1]
-				if !v.isValidBreakTime(timeValue) {
-					return &ValidationError{
-						Type:    "attribute",
-						Message: fmt.Sprintf("invalid break time: %s", timeValue),
-						Input:   match[0],
-					}
-				}
-			}
+		if err := v.validateSingleBreakTag(match); err != nil {
+			return err
 		}
-		
-		// Validate strength attribute if present
-		if strings.Contains(attrs, "strength=") {
-			strengthRegex := regexp.MustCompile(`strength=["']?([^"'\s>]+)["']?`)
-			strengthMatch := strengthRegex.FindStringSubmatch(attrs)
-			if strengthMatch != nil {
-				strength := strengthMatch[1]
-				validStrengths := []string{"none", "x-weak", "weak", "medium", "strong", "x-strong"}
-				isValid := false
-				for _, valid := range validStrengths {
-					if strength == valid {
-						isValid = true
-						break
-					}
-				}
-				if !isValid {
-					return &ValidationError{
-						Type:    "attribute",
-						Message: fmt.Sprintf("invalid break strength: %s", strength),
-						Input:   match[0],
-					}
-				}
+	}
+
+	return nil
+}
+
+func (v *SSMLValidator) validateSingleBreakTag(match []string) error {
+	attrs := match[1]
+	tag := match[0]
+
+	if err := v.validateBreakTime(attrs, tag); err != nil {
+		return err
+	}
+	return v.validateBreakStrength(attrs, tag)
+}
+
+func (v *SSMLValidator) validateBreakTime(attrs, tag string) error {
+	if !strings.Contains(attrs, "time=") {
+		return nil
+	}
+	timeRegex := regexp.MustCompile(`time=["']?([^"'\s>]+)["']?`)
+	timeMatch := timeRegex.FindStringSubmatch(attrs)
+	if timeMatch != nil {
+		timeValue := timeMatch[1]
+		if !v.isValidBreakTime(timeValue) {
+			return &ValidationError{
+				Type:    "attribute",
+				Message: fmt.Sprintf("invalid break time: %s", timeValue),
+				Input:   tag,
 			}
 		}
 	}
-	
 	return nil
+}
+
+func (v *SSMLValidator) validateBreakStrength(attrs, tag string) error {
+	if !strings.Contains(attrs, "strength=") {
+		return nil
+	}
+	strengthRegex := regexp.MustCompile(`strength=["']?([^"'\s>]+)["']?`)
+	strengthMatch := strengthRegex.FindStringSubmatch(attrs)
+	if strengthMatch != nil {
+		strength := strengthMatch[1]
+		if !v.isValidBreakStrength(strength) {
+			return &ValidationError{
+				Type:    "attribute",
+				Message: fmt.Sprintf("invalid break strength: %s", strength),
+				Input:   tag,
+			}
+		}
+	}
+	return nil
+}
+
+func (v *SSMLValidator) isValidBreakStrength(strength string) bool {
+	validStrengths := []string{"none", "x-weak", "weak", "medium", "strong", "x-strong"}
+	for _, valid := range validStrengths {
+		if strength == valid {
+			return true
+		}
+	}
+	return false
 }
 
 // validateAudioAttributes validates audio tag attributes with security restrictions
@@ -428,7 +472,7 @@ func (v *SSMLValidator) validateAudioAttributes(text string) error {
 	// For security, we'll be very restrictive with audio tags
 	audioRegex := regexp.MustCompile(`<audio\s+([^>]+)>`)
 	matches := audioRegex.FindAllStringSubmatch(text, -1)
-	
+
 	for _, match := range matches {
 		// For security, reject all audio tags
 		return &ValidationError{
@@ -437,7 +481,7 @@ func (v *SSMLValidator) validateAudioAttributes(text string) error {
 			Input:   match[0],
 		}
 	}
-	
+
 	return nil
 }
 
@@ -450,13 +494,13 @@ func (v *SSMLValidator) isValidProsodyRate(rate string) bool {
 			return true
 		}
 	}
-	
+
 	// Check for percentage values (e.g., "50%", "200%")
 	percentRegex := regexp.MustCompile(`^\d+%$`)
 	if percentRegex.MatchString(rate) {
 		return true
 	}
-	
+
 	// Check for relative values (e.g., "+10%", "-20%")
 	relativeRegex := regexp.MustCompile(`^[+-]\d+%$`)
 	return relativeRegex.MatchString(rate)
@@ -470,13 +514,13 @@ func (v *SSMLValidator) isValidProsodyPitch(pitch string) bool {
 			return true
 		}
 	}
-	
+
 	// Check for Hz values (e.g., "200Hz")
 	hzRegex := regexp.MustCompile(`^\d+Hz$`)
 	if hzRegex.MatchString(pitch) {
 		return true
 	}
-	
+
 	// Check for relative values
 	relativeRegex := regexp.MustCompile(`^[+-]\d+%$`)
 	return relativeRegex.MatchString(pitch)
@@ -490,7 +534,7 @@ func (v *SSMLValidator) isValidProsodyVolume(volume string) bool {
 			return true
 		}
 	}
-	
+
 	// Check for dB values (e.g., "+6dB", "-3dB")
 	dbRegex := regexp.MustCompile(`^[+-]?\d+dB$`)
 	return dbRegex.MatchString(volume)
@@ -503,7 +547,7 @@ func (v *SSMLValidator) isValidBreakTime(timeValue string) bool {
 	if !timeRegex.MatchString(timeValue) {
 		return false
 	}
-	
+
 	// Additional validation: reasonable time limits (max 10 seconds)
 	if strings.HasSuffix(timeValue, "ms") {
 		// Milliseconds - max 10000ms (10s)
@@ -524,7 +568,7 @@ func (v *SSMLValidator) isValidBreakTime(timeValue string) bool {
 		if len(matches) > 1 {
 			numberPart := matches[1]
 			beforeDecimal := strings.Split(numberPart, ".")[0]
-			
+
 			// Check if it's more than 10 seconds
 			if len(beforeDecimal) > 2 {
 				return false // More than 99 seconds
@@ -537,7 +581,7 @@ func (v *SSMLValidator) isValidBreakTime(timeValue string) bool {
 			}
 		}
 	}
-	
+
 	return true
 }
 
@@ -547,18 +591,18 @@ func (v *SSMLValidator) SanitizeText(text string) string {
 		// Not SSML, just clean up basic issues
 		return strings.TrimSpace(text)
 	}
-	
+
 	// Remove dangerous patterns
 	sanitized := text
 	for _, pattern := range v.dangerousPatterns {
 		sanitized = pattern.ReplaceAllString(sanitized, "")
 	}
-	
+
 	// Remove disallowed tags and their content
 	// First handle script tags specifically (remove content too)
 	scriptRegex := regexp.MustCompile(`(?i)<script[^>]*>.*?</script>`)
 	sanitized = scriptRegex.ReplaceAllString(sanitized, "")
-	
+
 	// Then remove other disallowed tags
 	tagRegex := regexp.MustCompile(`<(/?)([a-zA-Z][a-zA-Z0-9-]*)[^>]*(/?)>`)
 	sanitized = tagRegex.ReplaceAllStringFunc(sanitized, func(match string) string {
@@ -571,6 +615,6 @@ func (v *SSMLValidator) SanitizeText(text string) string {
 		}
 		return "" // Remove disallowed tags
 	})
-	
+
 	return strings.TrimSpace(sanitized)
 }

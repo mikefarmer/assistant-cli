@@ -14,6 +14,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Test constants
+const (
+	parentDir = ".."
+)
+
 // Integration tests for the assistant-cli binary
 // These tests build and run the actual CLI binary
 
@@ -27,16 +32,16 @@ func TestCLIBuild(t *testing.T) {
 	// Build the CLI binary
 	tempDir := t.TempDir()
 	buildCmd := exec.Command("go", "build", "-o", filepath.Join(tempDir, "assistant-cli-test"), "main.go")
-	buildCmd.Dir = ".." // Set working directory to project root
-	
+	buildCmd.Dir = parentDir // Set working directory to project root
+
 	err := buildCmd.Run()
 	require.NoError(t, err, "Failed to build CLI binary")
-	
+
 	// Clean up
 	defer func() {
 		os.Remove(filepath.Join(tempDir, "assistant-cli-test"))
 	}()
-	
+
 	// Test that binary was created
 	binaryPath := filepath.Join(tempDir, "assistant-cli-test")
 	assert.FileExists(t, binaryPath)
@@ -138,9 +143,9 @@ func TestCLIConfigCommands(t *testing.T) {
 
 		// Validation may fail due to missing auth, but command should run
 		outputStr := string(output)
-		assert.True(t, 
+		assert.True(t,
 			strings.Contains(outputStr, "Configuration validation passed") ||
-			strings.Contains(outputStr, "Configuration validation failed"),
+				strings.Contains(outputStr, "Configuration validation failed"),
 			"Should show validation result")
 	})
 
@@ -170,10 +175,10 @@ func TestCLISynthesizeNoAuth(t *testing.T) {
 		defer cancel()
 
 		cmd := exec.CommandContext(ctx, binary, "synthesize", "--output", "test.mp3")
-		
+
 		// Provide some test input
 		cmd.Stdin = strings.NewReader("Hello, world!")
-		
+
 		output, err := cmd.CombinedOutput()
 
 		// Should fail due to missing authentication
@@ -207,7 +212,7 @@ func TestCLILoginNoCredentials(t *testing.T) {
 		defer cancel()
 
 		cmd := exec.CommandContext(ctx, binary, "login")
-		
+
 		// This will likely hang waiting for user input, so we'll test with a method
 		// that doesn't require interactive input but will fail validation
 		cmd = exec.CommandContext(ctx, binary, "login", "--method", "apikey", "--api-key", "invalid-key", "--validate=false")
@@ -217,8 +222,8 @@ func TestCLILoginNoCredentials(t *testing.T) {
 		outputStr := string(output)
 		assert.True(t,
 			strings.Contains(outputStr, "Authentication completed") ||
-			strings.Contains(outputStr, "authentication failed") ||
-			strings.Contains(outputStr, "API key is not properly configured"),
+				strings.Contains(outputStr, "authentication failed") ||
+				strings.Contains(outputStr, "API key is not properly configured"),
 			"Should show clear authentication status")
 	})
 }
@@ -239,33 +244,33 @@ func TestCLIVersion(t *testing.T) {
 
 	assert.NoError(t, err, "Version command should succeed")
 	assert.Contains(t, string(output), "assistant-cli version")
-	
+
 	// Should contain either "dev" or a version number
 	outputStr := string(output)
 	assert.True(t,
-		strings.Contains(outputStr, "dev") || 
-		strings.Contains(outputStr, "v") ||
-		strings.Contains(outputStr, "."),
+		strings.Contains(outputStr, "dev") ||
+			strings.Contains(outputStr, "v") ||
+			strings.Contains(outputStr, "."),
 		"Should contain version information")
 }
 
 // buildTestBinary builds the CLI binary for testing and returns the path
 func buildTestBinary(t *testing.T) string {
 	t.Helper()
-	
+
 	tempDir := t.TempDir()
 	binaryPath := filepath.Join(tempDir, "assistant-cli-test")
-	
+
 	// Build the binary
 	buildCmd := exec.Command("go", "build", "-o", binaryPath, "main.go")
-	buildCmd.Dir = ".." // Set working directory to project root
-	
+	buildCmd.Dir = parentDir // Set working directory to project root
+
 	var stderr bytes.Buffer
 	buildCmd.Stderr = &stderr
-	
+
 	err := buildCmd.Run()
 	require.NoError(t, err, "Failed to build CLI binary: %s", stderr.String())
-	
+
 	return binaryPath
 }
 
@@ -323,16 +328,16 @@ func BenchmarkCLIHelp(b *testing.B) {
 
 func buildTestBinaryForBench(b *testing.B) string {
 	b.Helper()
-	
+
 	tempDir := b.TempDir()
 	binaryPath := filepath.Join(tempDir, "assistant-cli-bench")
-	
+
 	buildCmd := exec.Command("go", "build", "-o", binaryPath, "main.go")
-	buildCmd.Dir = ".." // Set working directory to project root
+	buildCmd.Dir = parentDir // Set working directory to project root
 	err := buildCmd.Run()
 	if err != nil {
 		b.Fatalf("Failed to build CLI binary: %v", err)
 	}
-	
+
 	return binaryPath
 }

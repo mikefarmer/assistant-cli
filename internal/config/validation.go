@@ -35,55 +35,55 @@ func (ve ValidationErrors) Error() string {
 // ValidateComprehensive performs comprehensive validation of the configuration
 func (m *Manager) ValidateComprehensive() error {
 	var errors ValidationErrors
-	
+
 	config := m.config
-	
+
 	// Validate Auth configuration
 	if authErrors := m.validateAuth(&config.Auth); authErrors != nil {
 		errors = append(errors, authErrors...)
 	}
-	
+
 	// Validate TTS configuration
 	if ttsErrors := m.validateTTS(&config.TTS); ttsErrors != nil {
 		errors = append(errors, ttsErrors...)
 	}
-	
+
 	// Validate Output configuration
 	if outputErrors := m.validateOutput(&config.Output); outputErrors != nil {
 		errors = append(errors, outputErrors...)
 	}
-	
+
 	// Validate Playback configuration
 	if playbackErrors := m.validatePlayback(&config.Playback); playbackErrors != nil {
 		errors = append(errors, playbackErrors...)
 	}
-	
+
 	// Validate Input configuration
 	if inputErrors := m.validateInput(&config.Input); inputErrors != nil {
 		errors = append(errors, inputErrors...)
 	}
-	
+
 	// Validate Logging configuration
 	if loggingErrors := m.validateLogging(&config.Logging); loggingErrors != nil {
 		errors = append(errors, loggingErrors...)
 	}
-	
+
 	// Validate App configuration
 	if appErrors := m.validateApp(&config.App); appErrors != nil {
 		errors = append(errors, appErrors...)
 	}
-	
+
 	if len(errors) > 0 {
 		return errors
 	}
-	
+
 	return nil
 }
 
 // validateAuth validates authentication configuration
 func (m *Manager) validateAuth(auth *AuthConfig) []*ValidationError {
 	var errors []*ValidationError
-	
+
 	// Validate method
 	validMethods := []string{"auto", "apikey", "serviceaccount", "oauth2"}
 	if auth.Method != "" && !contains(validMethods, auth.Method) {
@@ -93,7 +93,7 @@ func (m *Manager) validateAuth(auth *AuthConfig) []*ValidationError {
 			Message: fmt.Sprintf("must be one of: %s", strings.Join(validMethods, ", ")),
 		})
 	}
-	
+
 	// Validate service account file if specified
 	if auth.ServiceAccountFile != "" {
 		if !filepath.IsAbs(auth.ServiceAccountFile) && !strings.HasPrefix(auth.ServiceAccountFile, "~") {
@@ -103,7 +103,7 @@ func (m *Manager) validateAuth(auth *AuthConfig) []*ValidationError {
 				Message: "must be an absolute path",
 			})
 		}
-		
+
 		if _, err := os.Stat(expandPath(auth.ServiceAccountFile)); os.IsNotExist(err) {
 			errors = append(errors, &ValidationError{
 				Field:   "auth.service_account_file",
@@ -112,7 +112,7 @@ func (m *Manager) validateAuth(auth *AuthConfig) []*ValidationError {
 			})
 		}
 	}
-	
+
 	// Validate OAuth2 token file if specified
 	if auth.OAuth2TokenFile != "" {
 		dir := filepath.Dir(expandPath(auth.OAuth2TokenFile))
@@ -124,7 +124,7 @@ func (m *Manager) validateAuth(auth *AuthConfig) []*ValidationError {
 			})
 		}
 	}
-	
+
 	// Validate timeout
 	if auth.Timeout < 0 {
 		errors = append(errors, &ValidationError{
@@ -140,7 +140,7 @@ func (m *Manager) validateAuth(auth *AuthConfig) []*ValidationError {
 			Message: "timeout too long (max 5 minutes)",
 		})
 	}
-	
+
 	// Validate retry attempts
 	if auth.RetryAttempts < 0 || auth.RetryAttempts > 10 {
 		errors = append(errors, &ValidationError{
@@ -149,14 +149,14 @@ func (m *Manager) validateAuth(auth *AuthConfig) []*ValidationError {
 			Message: "must be between 0 and 10",
 		})
 	}
-	
+
 	return errors
 }
 
 // validateTTS validates TTS configuration
 func (m *Manager) validateTTS(tts *TTSConfig) []*ValidationError {
 	var errors []*ValidationError
-	
+
 	// Validate language (required)
 	if tts.Language == "" {
 		errors = append(errors, &ValidationError{
@@ -171,7 +171,7 @@ func (m *Manager) validateTTS(tts *TTSConfig) []*ValidationError {
 			Message: "invalid language code format (expected format: en-US)",
 		})
 	}
-	
+
 	// Validate speaking rate
 	if tts.SpeakingRate < 0.25 || tts.SpeakingRate > 4.0 {
 		errors = append(errors, &ValidationError{
@@ -180,7 +180,7 @@ func (m *Manager) validateTTS(tts *TTSConfig) []*ValidationError {
 			Message: "must be between 0.25 and 4.0",
 		})
 	}
-	
+
 	// Validate pitch
 	if tts.Pitch < -20.0 || tts.Pitch > 20.0 {
 		errors = append(errors, &ValidationError{
@@ -189,7 +189,7 @@ func (m *Manager) validateTTS(tts *TTSConfig) []*ValidationError {
 			Message: "must be between -20.0 and 20.0",
 		})
 	}
-	
+
 	// Validate volume gain
 	if tts.VolumeGain < -96.0 || tts.VolumeGain > 16.0 {
 		errors = append(errors, &ValidationError{
@@ -198,7 +198,7 @@ func (m *Manager) validateTTS(tts *TTSConfig) []*ValidationError {
 			Message: "must be between -96.0 and 16.0",
 		})
 	}
-	
+
 	// Validate audio encoding
 	validEncodings := []string{"MP3", "LINEAR16", "OGG_OPUS", "MULAW", "ALAW", "PCM"}
 	if tts.AudioEncoding != "" && !contains(validEncodings, tts.AudioEncoding) {
@@ -208,7 +208,7 @@ func (m *Manager) validateTTS(tts *TTSConfig) []*ValidationError {
 			Message: fmt.Sprintf("must be one of: %s", strings.Join(validEncodings, ", ")),
 		})
 	}
-	
+
 	// Validate timeout
 	if tts.Timeout < 0 {
 		errors = append(errors, &ValidationError{
@@ -224,7 +224,7 @@ func (m *Manager) validateTTS(tts *TTSConfig) []*ValidationError {
 			Message: "timeout too long (max 10 minutes)",
 		})
 	}
-	
+
 	// Validate max retries
 	if tts.MaxRetries < 0 || tts.MaxRetries > 10 {
 		errors = append(errors, &ValidationError{
@@ -233,14 +233,14 @@ func (m *Manager) validateTTS(tts *TTSConfig) []*ValidationError {
 			Message: "must be between 0 and 10",
 		})
 	}
-	
+
 	return errors
 }
 
 // validateOutput validates output configuration
 func (m *Manager) validateOutput(output *OutputConfig) []*ValidationError {
 	var errors []*ValidationError
-	
+
 	// Validate default path
 	if output.DefaultPath != "" {
 		// Check if it's a valid path format
@@ -252,7 +252,7 @@ func (m *Manager) validateOutput(output *OutputConfig) []*ValidationError {
 			})
 		}
 	}
-	
+
 	// Validate format
 	validFormats := []string{"MP3", "LINEAR16", "WAV", "OGG_OPUS", "MULAW", "ALAW", "PCM"}
 	if output.Format != "" && !contains(validFormats, output.Format) {
@@ -262,7 +262,7 @@ func (m *Manager) validateOutput(output *OutputConfig) []*ValidationError {
 			Message: fmt.Sprintf("must be one of: %s", strings.Join(validFormats, ", ")),
 		})
 	}
-	
+
 	// Validate overwrite mode
 	validModes := []string{"never", "always", "prompt", "backup"}
 	if output.OverwriteMode != "" && !contains(validModes, output.OverwriteMode) {
@@ -272,7 +272,7 @@ func (m *Manager) validateOutput(output *OutputConfig) []*ValidationError {
 			Message: fmt.Sprintf("must be one of: %s", strings.Join(validModes, ", ")),
 		})
 	}
-	
+
 	// Validate file permissions
 	if output.FilePermissions != "" {
 		if err := validateOctalPermissions(output.FilePermissions); err != nil {
@@ -283,7 +283,7 @@ func (m *Manager) validateOutput(output *OutputConfig) []*ValidationError {
 			})
 		}
 	}
-	
+
 	// Validate directory permissions
 	if output.DirPermissions != "" {
 		if err := validateOctalPermissions(output.DirPermissions); err != nil {
@@ -294,7 +294,7 @@ func (m *Manager) validateOutput(output *OutputConfig) []*ValidationError {
 			})
 		}
 	}
-	
+
 	// Validate max filename length
 	if output.MaxFilenameLength < 10 || output.MaxFilenameLength > 255 {
 		errors = append(errors, &ValidationError{
@@ -303,14 +303,14 @@ func (m *Manager) validateOutput(output *OutputConfig) []*ValidationError {
 			Message: "must be between 10 and 255",
 		})
 	}
-	
+
 	return errors
 }
 
 // validatePlayback validates playback configuration
 func (m *Manager) validatePlayback(playback *PlaybackConfig) []*ValidationError {
 	var errors []*ValidationError
-	
+
 	// Validate volume
 	if playback.Volume < 0.0 || playback.Volume > 1.0 {
 		errors = append(errors, &ValidationError{
@@ -319,7 +319,7 @@ func (m *Manager) validatePlayback(playback *PlaybackConfig) []*ValidationError 
 			Message: "must be between 0.0 and 1.0",
 		})
 	}
-	
+
 	// Validate player if specified
 	if playback.Player != "" {
 		// Check if it's a valid command (basic validation)
@@ -331,14 +331,14 @@ func (m *Manager) validatePlayback(playback *PlaybackConfig) []*ValidationError 
 			})
 		}
 	}
-	
+
 	return errors
 }
 
 // validateInput validates input configuration
 func (m *Manager) validateInput(input *InputConfig) []*ValidationError {
 	var errors []*ValidationError
-	
+
 	// Validate max length
 	if input.MaxLength <= 0 || input.MaxLength > 100000 {
 		errors = append(errors, &ValidationError{
@@ -347,7 +347,7 @@ func (m *Manager) validateInput(input *InputConfig) []*ValidationError {
 			Message: "must be between 1 and 100000",
 		})
 	}
-	
+
 	// Validate buffer size
 	if input.BufferSize < 1024 || input.BufferSize > 65536 {
 		errors = append(errors, &ValidationError{
@@ -356,14 +356,14 @@ func (m *Manager) validateInput(input *InputConfig) []*ValidationError {
 			Message: "must be between 1024 and 65536",
 		})
 	}
-	
+
 	return errors
 }
 
 // validateLogging validates logging configuration
 func (m *Manager) validateLogging(logging *LoggingConfig) []*ValidationError {
 	var errors []*ValidationError
-	
+
 	// Validate level
 	validLevels := []string{"debug", "info", "warn", "error"}
 	if logging.Level != "" && !contains(validLevels, logging.Level) {
@@ -373,7 +373,7 @@ func (m *Manager) validateLogging(logging *LoggingConfig) []*ValidationError {
 			Message: fmt.Sprintf("must be one of: %s", strings.Join(validLevels, ", ")),
 		})
 	}
-	
+
 	// Validate format
 	validFormats := []string{"text", "json"}
 	if logging.Format != "" && !contains(validFormats, logging.Format) {
@@ -383,7 +383,7 @@ func (m *Manager) validateLogging(logging *LoggingConfig) []*ValidationError {
 			Message: fmt.Sprintf("must be one of: %s", strings.Join(validFormats, ", ")),
 		})
 	}
-	
+
 	// Validate output
 	if logging.Output != "" && logging.Output != "stdout" && logging.Output != "stderr" {
 		// If it's not stdout/stderr, treat it as a file path
@@ -397,14 +397,14 @@ func (m *Manager) validateLogging(logging *LoggingConfig) []*ValidationError {
 			})
 		}
 	}
-	
+
 	return errors
 }
 
 // validateApp validates app configuration
 func (m *Manager) validateApp(app *AppConfig) []*ValidationError {
 	var errors []*ValidationError
-	
+
 	// Validate config version format
 	if app.ConfigVersion != "" {
 		if !isValidSemanticVersion(app.ConfigVersion) {
@@ -415,7 +415,7 @@ func (m *Manager) validateApp(app *AppConfig) []*ValidationError {
 			})
 		}
 	}
-	
+
 	// Validate update check interval
 	if app.UpdateCheckInterval < 0 {
 		errors = append(errors, &ValidationError{
@@ -431,7 +431,7 @@ func (m *Manager) validateApp(app *AppConfig) []*ValidationError {
 			Message: "minimum interval is 1 hour",
 		})
 	}
-	
+
 	return errors
 }
 
@@ -469,11 +469,11 @@ func validateOctalPermissions(perms string) error {
 	if len(perms) != 4 || !strings.HasPrefix(perms, "0") {
 		return fmt.Errorf("must be 4-digit octal (e.g., 0644)")
 	}
-	
+
 	if _, err := strconv.ParseUint(perms, 8, 32); err != nil {
 		return fmt.Errorf("invalid octal format")
 	}
-	
+
 	return nil
 }
 

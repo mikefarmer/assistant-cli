@@ -56,42 +56,77 @@ Examples:
 	synthesizeCmd.Flags().BoolVar(&listVoices, "list-voices", false, "List available voices for the language")
 
 	// Bind flags to viper for backward compatibility
-	viper.BindPFlag("tts.voice", synthesizeCmd.Flags().Lookup("voice"))
-	viper.BindPFlag("tts.language", synthesizeCmd.Flags().Lookup("language"))
-	viper.BindPFlag("tts.speaking_rate", synthesizeCmd.Flags().Lookup("speed"))
-	viper.BindPFlag("tts.pitch", synthesizeCmd.Flags().Lookup("pitch"))
-	viper.BindPFlag("tts.volume_gain", synthesizeCmd.Flags().Lookup("volume"))
-	viper.BindPFlag("output.default_path", synthesizeCmd.Flags().Lookup("output"))
-	viper.BindPFlag("output.format", synthesizeCmd.Flags().Lookup("format"))
-	viper.BindPFlag("playback.auto_play", synthesizeCmd.Flags().Lookup("play"))
-	
+	_ = viper.BindPFlag("tts.voice", synthesizeCmd.Flags().Lookup("voice"))
+	_ = viper.BindPFlag("tts.language", synthesizeCmd.Flags().Lookup("language"))
+	_ = viper.BindPFlag("tts.speaking_rate", synthesizeCmd.Flags().Lookup("speed"))
+	_ = viper.BindPFlag("tts.pitch", synthesizeCmd.Flags().Lookup("pitch"))
+	_ = viper.BindPFlag("tts.volume_gain", synthesizeCmd.Flags().Lookup("volume"))
+	_ = viper.BindPFlag("output.default_path", synthesizeCmd.Flags().Lookup("output"))
+	_ = viper.BindPFlag("output.format", synthesizeCmd.Flags().Lookup("format"))
+	_ = viper.BindPFlag("playback.auto_play", synthesizeCmd.Flags().Lookup("play"))
+
 	return synthesizeCmd
 }
 
 func runSynthesize(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
+	cfg := GetConfig().Get()
 
-	// Get the global configuration
-	configManager := GetConfig()
-	cfg := configManager.Get()
+	authManager, err := setupAuthentication(ctx, cfg.Auth)
+	if err != nil {
+		return err
+	}
 
-	// Convert config.AuthConfig to auth.AuthConfig
-	authConfig := convertToAuthConfig(cfg.Auth)
+	ttsConfig := createTTSConfig(cfg.TTS)
+	ttsClient, err := createTTSClient(ctx, authManager, ttsConfig)
+	if err != nil {
+		return err
+	}
+	defer ttsClient.Close()
 
+	if listVoices {
+		return handleListVoices(ctx, ttsClient, languageCode)
+	}
+
+	text, err := processInput(cfg.Input)
+	if err != nil {
+		return err
+	}
+
+	req := createSynthesizeRequest(ttsConfig, text, cfg.Output)
+	resp, err := tts.NewSynthesizer(ttsClient).SynthesizeText(ctx, text, req)
+	if err != nil {
+		return fmt.Errorf("synthesis failed: %w", err)
+	}
+
+	printSynthesisResults(resp)
+
+	if playAudio || cfg.Playback.AutoPlay {
+		handleAudioPlayback(resp.OutputFile)
+	}
+
+	return nil
+}
+
+func setupAuthentication(ctx context.Context, authCfg config.AuthConfig) (*auth.AuthManager, error) {
+	authConfig := convertToAuthConfig(authCfg)
 	authManager := auth.NewAuthManager(authConfig)
 
 	if err := authManager.Validate(ctx); err != nil {
-		return fmt.Errorf("authentication failed: %w\nRun 'assistant-cli login' to set up authentication", err)
+		return nil, fmt.Errorf("authentication failed: %w\nRun 'assistant-cli login' to set up authentication", err)
 	}
 
-	// Create TTS config from configuration, with command line overrides
+	return authManager, nil
+}
+
+func createTTSConfig(ttsCfg config.TTSConfig) *tts.ClientConfig {
 	ttsConfig := &tts.ClientConfig{
-		Voice:         cfg.TTS.Voice,
-		LanguageCode:  cfg.TTS.Language,
-		SpeakingRate:  cfg.TTS.SpeakingRate,
-		Pitch:         cfg.TTS.Pitch,
-		VolumeGain:    cfg.TTS.VolumeGain,
-		AudioEncoding: cfg.TTS.AudioEncoding,
+		Voice:         ttsCfg.Voice,
+		LanguageCode:  ttsCfg.Language,
+		SpeakingRate:  ttsCfg.SpeakingRate,
+		Pitch:         ttsCfg.Pitch,
+		VolumeGain:    ttsCfg.VolumeGain,
+		AudioEncoding: ttsCfg.AudioEncoding,
 	}
 
 	// Override with command line flags if provided
@@ -114,82 +149,79 @@ func runSynthesize(cmd *cobra.Command, args []string) error {
 		ttsConfig.AudioEncoding = audioFormat
 	}
 
+	return ttsConfig
+}
+
+func createTTSClient(ctx context.Context, authManager *auth.AuthManager, ttsConfig *tts.ClientConfig) (*tts.Client, error) {
 	ttsClient, err := tts.NewClient(ctx, authManager, ttsConfig)
 	if err != nil {
-		return fmt.Errorf("failed to create TTS client: %w", err)
+		return nil, fmt.Errorf("failed to create TTS client: %w", err)
 	}
-	defer ttsClient.Close()
+	return ttsClient, nil
+}
 
-	if listVoices {
-		return handleListVoices(ctx, ttsClient, languageCode)
+func processInput(inputCfg config.InputConfig) (string, error) {
+	fmt.Fprintln(os.Stderr, "Reading text from STDIN...")
+
+	inputProcessor := utils.NewInputProcessorWithConfig(os.Stdin, inputCfg.MaxLength)
+	text, err := inputProcessor.ReadText()
+	if err != nil {
+		return "", fmt.Errorf("failed to read input: %w", err)
 	}
 
-	synthesizer := tts.NewSynthesizer(ttsClient)
+	if inputCfg.EnableSSMLSecurity {
+		validator := utils.NewSSMLValidator()
+		if validationErr := validator.ValidateSSML(text); validationErr != nil {
+			return "", fmt.Errorf("input validation failed: %w", validationErr)
+		}
+	}
 
-	req := &tts.SynthesizeRequest{
+	if inputCfg.ShowStats {
+		stats := inputProcessor.GetTextStats(text)
+		fmt.Fprintf(os.Stderr, "✓ Input processed: %s\n", stats.String())
+	}
+
+	return text, nil
+}
+
+const defaultOutputFile = "output.mp3"
+
+func createSynthesizeRequest(ttsConfig *tts.ClientConfig, text string, outputCfg config.OutputConfig) *tts.SynthesizeRequest {
+	resolvedOutputFile := resolveOutputFile(text, outputCfg)
+
+	return &tts.SynthesizeRequest{
 		Voice:        ttsConfig.Voice,
 		LanguageCode: ttsConfig.LanguageCode,
 		SpeakingRate: ttsConfig.SpeakingRate,
 		Pitch:        ttsConfig.Pitch,
 		VolumeGain:   ttsConfig.VolumeGain,
-		OutputFile:   outputFile,
+		OutputFile:   resolvedOutputFile,
 		AudioFormat:  audioFormat,
 	}
+}
 
-	fmt.Fprintln(os.Stderr, "Reading text from STDIN...")
-	
-	// Use enhanced input processing with configuration-based settings
-	inputProcessor := utils.NewInputProcessorWithConfig(os.Stdin, cfg.Input.MaxLength)
-	text, err := inputProcessor.ReadText()
-	if err != nil {
-		return fmt.Errorf("failed to read input: %w", err)
+func resolveOutputFile(text string, outputCfg config.OutputConfig) string {
+	if outputFile == defaultOutputFile && outputCfg.AutoFilename {
+		return output.GetSafeFilename(text[:min(50, len(text))], audioFormat)
+	} else if outputFile == defaultOutputFile {
+		return outputCfg.DefaultPath + "/output." + strings.ToLower(audioFormat)
 	}
-	
-	// Validate SSML content if enabled in configuration
-	if cfg.Input.EnableSSMLSecurity {
-		validator := utils.NewSSMLValidator()
-		if err := validator.ValidateSSML(text); err != nil {
-			return fmt.Errorf("input validation failed: %w", err)
-		}
-	}
-	
-	// Display input statistics if enabled in configuration
-	if cfg.Input.ShowStats {
-		stats := inputProcessor.GetTextStats(text)
-		fmt.Fprintf(os.Stderr, "✓ Input processed: %s\n", stats.String())
-	}
-	
-	// Handle output file path based on configuration
-	if outputFile == "output.mp3" && cfg.Output.AutoFilename {
-		// Create a filename based on first few words of input
-		safeFilename := output.GetSafeFilename(text[:min(50, len(text))], audioFormat)
-		outputFile = safeFilename
-	} else if outputFile == "output.mp3" {
-		// Use default path from configuration
-		outputFile = cfg.Output.DefaultPath + "/output." + strings.ToLower(audioFormat)
-	}
-	
-	req.OutputFile = outputFile
-	
-	resp, err := synthesizer.SynthesizeText(ctx, text, req)
-	if err != nil {
-		return fmt.Errorf("synthesis failed: %w", err)
-	}
+	return outputFile
+}
 
+func printSynthesisResults(resp *tts.SynthesizeResponse) {
 	fmt.Fprintf(os.Stderr, "✓ Audio synthesized successfully\n")
 	fmt.Fprintf(os.Stderr, "  Output: %s\n", resp.OutputFile)
 	fmt.Fprintf(os.Stderr, "  Format: %s\n", resp.Format)
 	fmt.Fprintf(os.Stderr, "  Size: %d bytes\n", resp.Size)
+}
 
-	if playAudio || cfg.Playback.AutoPlay {
-		if err := playAudioFile(resp.OutputFile); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: Failed to play audio: %v\n", err)
-		} else {
-			fmt.Fprintln(os.Stderr, "✓ Audio played successfully")
-		}
+func handleAudioPlayback(filePath string) {
+	if err := playAudioFile(filePath); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: Failed to play audio: %v\n", err)
+	} else {
+		fmt.Fprintln(os.Stderr, "✓ Audio played successfully")
 	}
-
-	return nil
 }
 
 func handleListVoices(ctx context.Context, client *tts.Client, lang string) error {
@@ -199,7 +231,7 @@ func handleListVoices(ctx context.Context, client *tts.Client, lang string) erro
 	}
 
 	fmt.Printf("Available voices for language '%s':\n\n", lang)
-	
+
 	for _, voice := range voices {
 		var gender string
 		switch voice.SsmlGender {
@@ -212,7 +244,7 @@ func handleListVoices(ctx context.Context, client *tts.Client, lang string) erro
 		default:
 			gender = "Unspecified"
 		}
-		
+
 		fmt.Printf("  %s\n", voice.Name)
 		fmt.Printf("    Gender: %s\n", gender)
 		fmt.Printf("    Languages: %v\n", voice.LanguageCodes)
@@ -227,22 +259,22 @@ func playAudioFile(filePath string) error {
 	if !player.IsSupported() {
 		return fmt.Errorf("audio playback is not supported on this platform")
 	}
-	
+
 	// Create audio player
 	audioPlayer, err := player.NewAudioPlayer()
 	if err != nil {
 		return fmt.Errorf("failed to initialize audio player: %w", err)
 	}
-	
+
 	// Get player info for debugging
 	info := audioPlayer.GetPlayerInfo()
 	fmt.Fprintf(os.Stderr, "Playing audio with %s on %s...\n", info.Command, info.Platform)
-	
+
 	// Play the audio file
 	if err := audioPlayer.Play(filePath); err != nil {
 		return fmt.Errorf("failed to play audio: %w", err)
 	}
-	
+
 	return nil
 }
 

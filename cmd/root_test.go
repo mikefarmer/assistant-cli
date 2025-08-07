@@ -10,28 +10,28 @@ import (
 
 func TestRootCommand(t *testing.T) {
 	tests := []struct {
-		name        string
-		args        []string
-		wantErr     bool
-		wantOutput  string
+		name       string
+		args       []string
+		wantErr    bool
+		wantOutput string
 	}{
 		{
-			name:        "help flag",
-			args:        []string{"--help"},
-			wantErr:     false,
-			wantOutput:  "A personal assistant CLI tool with various capabilities",
+			name:       "help flag",
+			args:       []string{"--help"},
+			wantErr:    false,
+			wantOutput: "A personal assistant CLI tool with various capabilities",
 		},
 		{
-			name:        "version flag",
-			args:        []string{"--version"},
-			wantErr:     false,
-			wantOutput:  "assistant-cli version",
+			name:       "version flag",
+			args:       []string{"--version"},
+			wantErr:    false,
+			wantOutput: "assistant-cli version",
 		},
 		{
-			name:        "no args shows help",
-			args:        []string{},
-			wantErr:     false,
-			wantOutput:  "A personal assistant CLI tool",
+			name:       "no args shows help",
+			args:       []string{},
+			wantErr:    false,
+			wantOutput: "A personal assistant CLI tool",
 		},
 	}
 
@@ -44,7 +44,7 @@ func TestRootCommand(t *testing.T) {
 			rootCmd.SetArgs(tt.args)
 
 			err := rootCmd.Execute()
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -66,17 +66,17 @@ func TestInitConfig(t *testing.T) {
 
 func TestRootCommandStructure(t *testing.T) {
 	rootCmd := NewRootCmd()
-	
+
 	// Test command properties
 	assert.Equal(t, "assistant-cli", rootCmd.Use)
 	assert.Contains(t, rootCmd.Short, "personal assistant")
 	assert.NotEmpty(t, rootCmd.Long)
-	
+
 	// Test persistent flags
 	configFlag := rootCmd.PersistentFlags().Lookup("config")
 	assert.NotNil(t, configFlag)
 	assert.Equal(t, "config file (default is $HOME/.assistant-cli.yaml)", configFlag.Usage)
-	
+
 	// Test that version is set
 	assert.True(t, rootCmd.Version != "")
 }

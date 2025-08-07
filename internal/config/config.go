@@ -11,26 +11,39 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Authentication method constants
+const (
+	authMethodAuto           = "auto"
+	authMethodAPIKey         = "apikey"
+	authMethodServiceAccount = "serviceaccount"
+	authMethodOAuth2         = "oauth2"
+)
+
+// Language constants
+const (
+	languageEnUS = "en-US"
+)
+
 // Config represents the complete configuration structure for the assistant-cli
 type Config struct {
 	// Authentication settings
 	Auth AuthConfig `mapstructure:"auth" yaml:"auth" json:"auth"`
-	
+
 	// Text-to-Speech settings
 	TTS TTSConfig `mapstructure:"tts" yaml:"tts" json:"tts"`
-	
+
 	// Output settings
 	Output OutputConfig `mapstructure:"output" yaml:"output" json:"output"`
-	
+
 	// Playback settings
 	Playback PlaybackConfig `mapstructure:"playback" yaml:"playback" json:"playback"`
-	
+
 	// Input processing settings
 	Input InputConfig `mapstructure:"input" yaml:"input" json:"input"`
-	
+
 	// Logging settings
 	Logging LoggingConfig `mapstructure:"logging" yaml:"logging" json:"logging"`
-	
+
 	// General application settings
 	App AppConfig `mapstructure:"app" yaml:"app" json:"app"`
 }
@@ -39,25 +52,25 @@ type Config struct {
 type AuthConfig struct {
 	// Preferred authentication method: "apikey", "serviceaccount", "oauth2", "auto"
 	Method string `mapstructure:"method" yaml:"method" json:"method" validate:"oneof=apikey serviceaccount oauth2 auto"`
-	
+
 	// API Key for authentication (prefer environment variable)
 	APIKey string `mapstructure:"api_key" yaml:"api_key,omitempty" json:"api_key,omitempty"`
-	
+
 	// Path to service account JSON file
 	ServiceAccountFile string `mapstructure:"service_account_file" yaml:"service_account_file,omitempty"`
-	
+
 	// OAuth2 client ID (prefer environment variable)
 	OAuth2ClientID string `mapstructure:"oauth2_client_id" yaml:"oauth2_client_id,omitempty"`
-	
+
 	// OAuth2 client secret (prefer environment variable)
 	OAuth2ClientSecret string `mapstructure:"oauth2_client_secret" yaml:"oauth2_client_secret,omitempty"`
-	
+
 	// OAuth2 token file path
 	OAuth2TokenFile string `mapstructure:"oauth2_token_file" yaml:"oauth2_token_file,omitempty"`
-	
+
 	// Connection timeout for authentication
 	Timeout time.Duration `mapstructure:"timeout" yaml:"timeout" json:"timeout"`
-	
+
 	// Number of retry attempts for authentication
 	RetryAttempts int `mapstructure:"retry_attempts" yaml:"retry_attempts" json:"retry_attempts" validate:"min=0,max=10"`
 }
@@ -66,31 +79,31 @@ type AuthConfig struct {
 type TTSConfig struct {
 	// Default voice name (e.g., "en-US-Wavenet-D")
 	Voice string `mapstructure:"voice" yaml:"voice" json:"voice"`
-	
+
 	// Default language code (e.g., "en-US")
 	Language string `mapstructure:"language" yaml:"language" json:"language" validate:"required"`
-	
+
 	// Speaking rate (0.25 to 4.0)
 	SpeakingRate float64 `mapstructure:"speaking_rate" yaml:"speaking_rate" validate:"min=0.25,max=4.0"`
-	
+
 	// Voice pitch (-20.0 to 20.0)
 	Pitch float64 `mapstructure:"pitch" yaml:"pitch" json:"pitch" validate:"min=-20,max=20"`
-	
+
 	// Volume gain in dB (-96.0 to 16.0)
 	VolumeGain float64 `mapstructure:"volume_gain" yaml:"volume_gain" json:"volume_gain" validate:"min=-96,max=16"`
-	
+
 	// Audio encoding format
 	AudioEncoding string `mapstructure:"audio_encoding" yaml:"audio_encoding"`
-	
+
 	// Effects profile ID
 	EffectsProfile []string `mapstructure:"effects_profile" yaml:"effects_profile" json:"effects_profile"`
-	
+
 	// Request timeout
 	Timeout time.Duration `mapstructure:"timeout" yaml:"timeout" json:"timeout"`
-	
+
 	// Maximum retry attempts
 	MaxRetries int `mapstructure:"max_retries" yaml:"max_retries" json:"max_retries" validate:"min=0,max=10"`
-	
+
 	// Enable SSML validation
 	EnableSSMLValidation bool `mapstructure:"enable_ssml_validation" yaml:"enable_ssml_validation"`
 }
@@ -99,25 +112,25 @@ type TTSConfig struct {
 type OutputConfig struct {
 	// Default output directory
 	DefaultPath string `mapstructure:"default_path" yaml:"default_path" json:"default_path"`
-	
+
 	// Default audio format
 	Format string `mapstructure:"format" yaml:"format" validate:"oneof=MP3 LINEAR16 WAV OGG_OPUS MULAW ALAW PCM"`
-	
+
 	// File overwrite behavior: "never", "always", "prompt", "backup"
 	OverwriteMode string `mapstructure:"overwrite_mode" yaml:"overwrite_mode" validate:"oneof=never always prompt backup"`
-	
+
 	// File permissions (octal)
 	FilePermissions string `mapstructure:"file_permissions" yaml:"file_permissions" json:"file_permissions"`
-	
+
 	// Directory permissions (octal)
 	DirPermissions string `mapstructure:"dir_permissions" yaml:"dir_permissions" json:"dir_permissions"`
-	
+
 	// Enable automatic filename generation
 	AutoFilename bool `mapstructure:"auto_filename" yaml:"auto_filename" json:"auto_filename"`
-	
+
 	// Maximum filename length
 	MaxFilenameLength int `mapstructure:"max_filename_length" yaml:"max_filename_length" validate:"min=10,max=255"`
-	
+
 	// Create directories automatically
 	CreateDirs bool `mapstructure:"create_dirs" yaml:"create_dirs" json:"create_dirs"`
 }
@@ -126,16 +139,16 @@ type OutputConfig struct {
 type PlaybackConfig struct {
 	// Automatically play audio after synthesis
 	AutoPlay bool `mapstructure:"auto_play" yaml:"auto_play" json:"auto_play"`
-	
+
 	// Preferred audio player (auto-detected if empty)
 	Player string `mapstructure:"player" yaml:"player" json:"player"`
-	
+
 	// Player arguments
 	PlayerArgs []string `mapstructure:"player_args" yaml:"player_args" json:"player_args"`
-	
+
 	// Volume level (0.0 to 1.0)
 	Volume float64 `mapstructure:"volume" yaml:"volume" json:"volume" validate:"min=0,max=1"`
-	
+
 	// Enable fallback players
 	EnableFallback bool `mapstructure:"enable_fallback" yaml:"enable_fallback" json:"enable_fallback"`
 }
@@ -144,19 +157,19 @@ type PlaybackConfig struct {
 type InputConfig struct {
 	// Maximum text length for processing
 	MaxLength int `mapstructure:"max_length" yaml:"max_length" json:"max_length" validate:"min=1,max=100000"`
-	
+
 	// Buffer size for reading input
 	BufferSize int `mapstructure:"buffer_size" yaml:"buffer_size" json:"buffer_size" validate:"min=1024,max=65536"`
-	
+
 	// Enable automatic text cleaning
 	AutoClean bool `mapstructure:"auto_clean" yaml:"auto_clean" json:"auto_clean"`
-	
+
 	// Enable input validation
 	EnableValidation bool `mapstructure:"enable_validation" yaml:"enable_validation" json:"enable_validation"`
-	
+
 	// Enable SSML security validation
 	EnableSSMLSecurity bool `mapstructure:"enable_ssml_security" yaml:"enable_ssml_security" json:"enable_ssml_security"`
-	
+
 	// Show input statistics
 	ShowStats bool `mapstructure:"show_stats" yaml:"show_stats" json:"show_stats"`
 }
@@ -165,19 +178,19 @@ type InputConfig struct {
 type LoggingConfig struct {
 	// Log level: "debug", "info", "warn", "error"
 	Level string `mapstructure:"level" yaml:"level" json:"level" validate:"oneof=debug info warn error"`
-	
+
 	// Log format: "text", "json"
 	Format string `mapstructure:"format" yaml:"format" json:"format" validate:"oneof=text json"`
-	
+
 	// Log output: "stdout", "stderr", or file path
 	Output string `mapstructure:"output" yaml:"output" json:"output"`
-	
+
 	// Enable timestamps in logs
 	Timestamps bool `mapstructure:"timestamps" yaml:"timestamps" json:"timestamps"`
-	
+
 	// Enable caller information in logs
 	Caller bool `mapstructure:"caller" yaml:"caller" json:"caller"`
-	
+
 	// Enable performance logging
 	Performance bool `mapstructure:"performance" yaml:"performance" json:"performance"`
 }
@@ -186,34 +199,34 @@ type LoggingConfig struct {
 type AppConfig struct {
 	// Application name
 	Name string `mapstructure:"name" yaml:"name" json:"name"`
-	
+
 	// Configuration file version (for migration)
 	ConfigVersion string `mapstructure:"config_version" yaml:"config_version" json:"config_version"`
-	
+
 	// Enable color output
 	ColorOutput bool `mapstructure:"color_output" yaml:"color_output" json:"color_output"`
-	
+
 	// Enable progress indicators
 	ShowProgress bool `mapstructure:"show_progress" yaml:"show_progress" json:"show_progress"`
-	
+
 	// Quiet mode (minimal output)
 	Quiet bool `mapstructure:"quiet" yaml:"quiet" json:"quiet"`
-	
+
 	// Verbose mode (detailed output)
 	Verbose bool `mapstructure:"verbose" yaml:"verbose" json:"verbose"`
-	
+
 	// Check for updates
 	CheckUpdates bool `mapstructure:"check_updates" yaml:"check_updates" json:"check_updates"`
-	
+
 	// Update check interval
 	UpdateCheckInterval time.Duration `mapstructure:"update_check_interval" yaml:"update_check_interval"`
 }
 
 // Manager handles configuration loading, validation, and management
 type Manager struct {
-	config           *Config
-	viper            *viper.Viper
-	configFileIsSet  bool
+	config          *Config
+	viper           *viper.Viper
+	configFileIsSet bool
 }
 
 // NewManager creates a new configuration manager
@@ -259,12 +272,12 @@ func GetDefaults() *Config {
 			EnableFallback: true,
 		},
 		Input: InputConfig{
-			MaxLength:           5000,
-			BufferSize:          4096,
-			AutoClean:           true,
-			EnableValidation:    true,
-			EnableSSMLSecurity:  true,
-			ShowStats:           false,
+			MaxLength:          5000,
+			BufferSize:         4096,
+			AutoClean:          true,
+			EnableValidation:   true,
+			EnableSSMLSecurity: true,
+			ShowStats:          false,
 		},
 		Logging: LoggingConfig{
 			Level:       "info",
@@ -303,25 +316,25 @@ func (m *Manager) Load() error {
 	// Set defaults
 	defaults := GetDefaults()
 	m.setDefaults(defaults)
-	
+
 	// Configure viper
 	m.viper.SetEnvPrefix("ASSISTANT_CLI")
 	m.viper.AutomaticEnv()
 	m.viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	
+
 	// Only set config search paths if no specific config file was set
 	if !m.configFileIsSet {
 		// Set config file search paths
 		m.viper.SetConfigName(".assistant-cli")
 		m.viper.SetConfigType("yaml")
-		
+
 		// Add search paths
 		if home, err := os.UserHomeDir(); err == nil {
 			m.viper.AddConfigPath(home)
 		}
 		m.viper.AddConfigPath(".")
 	}
-	
+
 	// Try to read config file
 	if err := m.viper.ReadInConfig(); err != nil {
 		// Config file not found is not an error
@@ -329,17 +342,17 @@ func (m *Manager) Load() error {
 			return fmt.Errorf("error reading config file: %w", err)
 		}
 	}
-	
+
 	// Unmarshal into config struct
 	if err := m.viper.Unmarshal(m.config); err != nil {
 		return fmt.Errorf("error unmarshaling config: %w", err)
 	}
-	
+
 	// Validate configuration
 	if err := m.Validate(); err != nil {
 		return fmt.Errorf("configuration validation failed: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -354,87 +367,84 @@ func (m *Manager) setDefaultsRecursive(prefix string, v reflect.Value, t reflect
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
 		fieldType := t.Field(i)
-		
-		// Get the mapstructure tag
-		tag := fieldType.Tag.Get("mapstructure")
-		if tag == "" {
-			continue
+
+		m.processField(prefix, field, fieldType)
+	}
+}
+
+func (m *Manager) processField(prefix string, field reflect.Value, fieldType reflect.StructField) {
+	// Get the mapstructure tag
+	tag := fieldType.Tag.Get("mapstructure")
+	if tag == "" {
+		return
+	}
+
+	key := m.buildKey(prefix, tag)
+	m.setFieldDefault(key, field, fieldType)
+}
+
+func (m *Manager) buildKey(prefix, tag string) string {
+	if prefix != "" {
+		return prefix + "." + tag
+	}
+	return tag
+}
+
+func (m *Manager) setFieldDefault(key string, field reflect.Value, fieldType reflect.StructField) {
+	// Handle different field types
+	switch field.Kind() {
+	case reflect.Struct:
+		// Recursively handle nested structs
+		m.setDefaultsRecursive(key, field, fieldType.Type)
+	case reflect.String:
+		m.setStringDefault(key, field)
+	case reflect.Int, reflect.Int64:
+		m.setIntDefault(key, field, fieldType)
+	case reflect.Float64:
+		m.setFloatDefault(key, field)
+	case reflect.Bool:
+		m.viper.SetDefault(key, field.Bool())
+	case reflect.Slice:
+		m.setSliceDefault(key, field)
+	}
+}
+
+func (m *Manager) setStringDefault(key string, field reflect.Value) {
+	if field.String() != "" {
+		m.viper.SetDefault(key, field.String())
+	}
+}
+
+func (m *Manager) setIntDefault(key string, field reflect.Value, fieldType reflect.StructField) {
+	if field.Int() != 0 {
+		if fieldType.Type == reflect.TypeOf(time.Duration(0)) {
+			// Handle time.Duration specially
+			m.viper.SetDefault(key, field.Interface())
+		} else {
+			m.viper.SetDefault(key, field.Int())
 		}
-		
-		key := tag
-		if prefix != "" {
-			key = prefix + "." + tag
-		}
-		
-		// Handle different field types
-		switch field.Kind() {
-		case reflect.Struct:
-			// Recursively handle nested structs
-			m.setDefaultsRecursive(key, field, fieldType.Type)
-		case reflect.String:
-			if field.String() != "" {
-				m.viper.SetDefault(key, field.String())
-			}
-		case reflect.Int, reflect.Int64:
-			if field.Int() != 0 {
-				if fieldType.Type == reflect.TypeOf(time.Duration(0)) {
-					// Handle time.Duration specially
-					m.viper.SetDefault(key, field.Interface())
-				} else {
-					m.viper.SetDefault(key, field.Int())
-				}
-			}
-		case reflect.Float64:
-			if field.Float() != 0.0 {
-				m.viper.SetDefault(key, field.Float())
-			}
-		case reflect.Bool:
-			m.viper.SetDefault(key, field.Bool())
-		case reflect.Slice:
-			if !field.IsNil() && field.Len() > 0 {
-				m.viper.SetDefault(key, field.Interface())
-			}
-		}
+	}
+}
+
+func (m *Manager) setFloatDefault(key string, field reflect.Value) {
+	if field.Float() != 0.0 {
+		m.viper.SetDefault(key, field.Float())
+	}
+}
+
+func (m *Manager) setSliceDefault(key string, field reflect.Value) {
+	if !field.IsNil() && field.Len() > 0 {
+		m.viper.SetDefault(key, field.Interface())
 	}
 }
 
 // Validate validates the configuration
 func (m *Manager) Validate() error {
-	// Basic validation - more comprehensive validation can be added using a validation library
-	config := m.config
-	
-	// Validate auth method
-	if config.Auth.Method != "" && config.Auth.Method != "auto" && 
-		config.Auth.Method != "apikey" && config.Auth.Method != "serviceaccount" && 
-		config.Auth.Method != "oauth2" {
-		return fmt.Errorf("invalid auth method: %s", config.Auth.Method)
+	// Use the comprehensive validation from ValidateComprehensive
+	// but return a simple error instead of ValidationErrors
+	if err := m.ValidateComprehensive(); err != nil {
+		return err
 	}
-	
-	// Validate TTS settings
-	if config.TTS.SpeakingRate < 0.25 || config.TTS.SpeakingRate > 4.0 {
-		return fmt.Errorf("invalid speaking rate: %f (must be between 0.25 and 4.0)", config.TTS.SpeakingRate)
-	}
-	
-	if config.TTS.Pitch < -20.0 || config.TTS.Pitch > 20.0 {
-		return fmt.Errorf("invalid pitch: %f (must be between -20.0 and 20.0)", config.TTS.Pitch)
-	}
-	
-	if config.TTS.VolumeGain < -96.0 || config.TTS.VolumeGain > 16.0 {
-		return fmt.Errorf("invalid volume gain: %f (must be between -96.0 and 16.0)", config.TTS.VolumeGain)
-	}
-	
-	// Validate output settings
-	if config.Output.OverwriteMode != "" && config.Output.OverwriteMode != "never" && 
-		config.Output.OverwriteMode != "always" && config.Output.OverwriteMode != "prompt" && 
-		config.Output.OverwriteMode != "backup" {
-		return fmt.Errorf("invalid overwrite mode: %s", config.Output.OverwriteMode)
-	}
-	
-	// Validate input settings
-	if config.Input.MaxLength <= 0 || config.Input.MaxLength > 100000 {
-		return fmt.Errorf("invalid max input length: %d (must be between 1 and 100000)", config.Input.MaxLength)
-	}
-	
 	return nil
 }
 
@@ -442,7 +452,6 @@ func (m *Manager) Validate() error {
 func (m *Manager) Get() *Config {
 	return m.config
 }
-
 
 // GetConfigFilePath returns the path of the config file being used
 func (m *Manager) GetConfigFilePath() string {
@@ -454,13 +463,13 @@ func (m *Manager) SaveConfig(path string) error {
 	if path == "" {
 		path = m.getDefaultConfigPath()
 	}
-	
+
 	// Ensure directory exists
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("failed to create config directory: %w", err)
 	}
-	
+
 	return m.viper.WriteConfigAs(path)
 }
 

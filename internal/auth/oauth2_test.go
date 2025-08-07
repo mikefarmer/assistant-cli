@@ -84,7 +84,7 @@ func TestOAuth2Provider_loadToken(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			provider := NewOAuth2Provider("client-id", "client-secret", tc.tokenFile)
 			err := provider.loadToken()
-			
+
 			if tc.expectErr {
 				assert.Error(t, err)
 			} else {

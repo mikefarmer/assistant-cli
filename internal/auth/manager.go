@@ -36,12 +36,12 @@ func (a AuthMethod) String() string {
 
 // AuthConfig holds the configuration for authentication
 type AuthConfig struct {
-	Method              AuthMethod
-	APIKey              string
-	ServiceAccountFile  string
-	OAuth2ClientID      string
-	OAuth2ClientSecret  string
-	OAuth2TokenFile     string
+	Method             AuthMethod
+	APIKey             string
+	ServiceAccountFile string
+	OAuth2ClientID     string
+	OAuth2ClientSecret string
+	OAuth2TokenFile    string
 }
 
 // AuthProvider interface defines the contract for authentication providers
@@ -187,11 +187,11 @@ func (am *AuthManager) Validate(ctx context.Context) error {
 // DefaultAuthConfig returns a default authentication configuration
 func DefaultAuthConfig() AuthConfig {
 	return AuthConfig{
-		Method:              AuthMethodAPIKey,
-		APIKey:              os.Getenv("ASSISTANT_CLI_API_KEY"),
-		ServiceAccountFile:  os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
-		OAuth2ClientID:      os.Getenv("ASSISTANT_CLI_OAUTH2_CLIENT_ID"),
-		OAuth2ClientSecret:  os.Getenv("ASSISTANT_CLI_OAUTH2_CLIENT_SECRET"),
-		OAuth2TokenFile:     os.Getenv("ASSISTANT_CLI_OAUTH2_TOKEN_FILE"),
+		Method:             AuthMethodAPIKey,
+		APIKey:             os.Getenv("ASSISTANT_CLI_API_KEY"),
+		ServiceAccountFile: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+		OAuth2ClientID:     os.Getenv("ASSISTANT_CLI_OAUTH2_CLIENT_ID"),
+		OAuth2ClientSecret: os.Getenv("ASSISTANT_CLI_OAUTH2_CLIENT_SECRET"),
+		OAuth2TokenFile:    os.Getenv("ASSISTANT_CLI_OAUTH2_TOKEN_FILE"),
 	}
 }

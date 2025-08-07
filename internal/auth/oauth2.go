@@ -84,7 +84,7 @@ func (p *OAuth2Provider) GetClient(ctx context.Context) (*texttospeech.Client, e
 
 	// Create HTTP client with OAuth2 token
 	httpClient := p.config.Client(ctx, token)
-	
+
 	// Create TTS client with OAuth2 HTTP client
 	client, err := texttospeech.NewClient(ctx, option.WithHTTPClient(httpClient))
 	if err != nil {
@@ -226,7 +226,10 @@ func (p *OAuth2Provider) performOAuth2Flow(ctx context.Context) error {
 	code := make(chan string)
 	errCh := make(chan error)
 
-	server := &http.Server{Addr: ":8080"}
+	server := &http.Server{
+		Addr:              ":8080",
+		ReadHeaderTimeout: 15 * time.Second,
+	}
 	http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		// Check state parameter
 		if r.FormValue("state") != state {
@@ -246,7 +249,7 @@ func (p *OAuth2Provider) performOAuth2Flow(ctx context.Context) error {
 		// Send success response
 		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`<html><body><h1>Authorization successful!</h1><p>You can close this window and return to the terminal.</p></body></html>`))
+		_, _ = w.Write([]byte(`<html><body><h1>Authorization successful!</h1><p>You can close this window and return to the terminal.</p></body></html>`))
 
 		code <- authCode
 	})
@@ -267,13 +270,15 @@ func (p *OAuth2Provider) performOAuth2Flow(ctx context.Context) error {
 		// Exchange code for token
 		token, err := p.config.Exchange(ctx, authCode)
 		if err != nil {
-			server.Shutdown(ctx)
+			if shutdownErr := server.Shutdown(ctx); shutdownErr != nil {
+				fmt.Fprintf(os.Stderr, "Warning: server shutdown error: %v\n", shutdownErr)
+			}
 			return fmt.Errorf("failed to exchange authorization code: %w", err)
 		}
 
 		p.token = token
-		server.Shutdown(ctx)
-		
+		_ = server.Shutdown(ctx) // Ignore shutdown errors in cleanup
+
 		// Save token
 		if err := p.saveToken(); err != nil {
 			return fmt.Errorf("failed to save token: %w", err)
@@ -283,11 +288,11 @@ func (p *OAuth2Provider) performOAuth2Flow(ctx context.Context) error {
 		return nil
 
 	case err := <-errCh:
-		server.Shutdown(ctx)
+		_ = server.Shutdown(ctx) // Ignore shutdown errors in cleanup
 		return fmt.Errorf("OAuth2 flow failed: %w", err)
 
 	case <-ctx.Done():
-		server.Shutdown(ctx)
+		_ = server.Shutdown(ctx) // Ignore shutdown errors in cleanup
 		return fmt.Errorf("OAuth2 flow canceled: %w", ctx.Err())
 	}
 }
@@ -322,6 +327,7 @@ func (p *OAuth2Provider) RevokeToken(ctx context.Context) error {
 
 	// Revoke token with Google
 	revokeURL := fmt.Sprintf("https://oauth2.googleapis.com/revoke?token=%s", url.QueryEscape(p.token.AccessToken))
+	// #nosec G107 - URL is constructed with Google's official revoke endpoint
 	resp, err := http.Post(revokeURL, "application/x-www-form-urlencoded", nil)
 	if err != nil {
 		return fmt.Errorf("failed to revoke token: %w", err)

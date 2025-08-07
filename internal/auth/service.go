@@ -23,7 +23,7 @@ func NewServiceAccountProvider(serviceAccountFile string) *ServiceAccountProvide
 	if serviceAccountFile == "" {
 		serviceAccountFile = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 	}
-	
+
 	return &ServiceAccountProvider{
 		serviceAccountFile: serviceAccountFile,
 	}

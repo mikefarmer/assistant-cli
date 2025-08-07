@@ -21,7 +21,7 @@ It supports creating example configuration files, viewing current settings, and
 validating configuration for errors.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// If no subcommand is provided, show help
-		cmd.Help()
+		_ = cmd.Help()
 	},
 }
 
@@ -75,12 +75,12 @@ Examples:
 }
 
 var (
-	generateForce   bool
-	generateFormat  string
-	showFormat      string
-	showDefaults    bool
-	showSources     bool
-	maskSensitive   bool
+	generateForce  bool
+	generateFormat string
+	showFormat     string
+	showDefaults   bool
+	showSources    bool
+	maskSensitive  bool
 )
 
 func init() {
@@ -102,7 +102,7 @@ func init() {
 
 func runGenerateConfig(cmd *cobra.Command, args []string) error {
 	var outputPath string
-	
+
 	if len(args) > 0 {
 		outputPath = args[0]
 	} else {
@@ -151,7 +151,7 @@ func runGenerateConfig(cmd *cobra.Command, args []string) error {
 	}
 
 	// Write the file
-	if err := os.WriteFile(outputPath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(outputPath, []byte(content), 0600); err != nil {
 		return fmt.Errorf("failed to write config file: %w", err)
 	}
 
@@ -163,7 +163,7 @@ func runGenerateConfig(cmd *cobra.Command, args []string) error {
 
 func runValidateConfig(cmd *cobra.Command, args []string) error {
 	var configFile string
-	
+
 	if len(args) > 0 {
 		configFile = args[0]
 	}
@@ -181,7 +181,7 @@ func runValidateConfig(cmd *cobra.Command, args []string) error {
 	// Perform comprehensive validation
 	if err := manager.ValidateComprehensive(); err != nil {
 		fmt.Printf("❌ Configuration validation failed:\n")
-		
+
 		if validationErrors, ok := err.(config.ValidationErrors); ok {
 			for i, validationErr := range validationErrors {
 				fmt.Printf("  %d. %s\n", i+1, validationErr.Error())
@@ -208,7 +208,7 @@ func runShowConfig(cmd *cobra.Command, args []string) error {
 	manager := GetConfig()
 
 	config := manager.Get()
-	
+
 	switch showFormat {
 	case "yaml":
 		return showConfigYAML(config, manager)
@@ -224,11 +224,11 @@ func runShowConfig(cmd *cobra.Command, args []string) error {
 func showConfigYAML(cfg *config.Config, manager *config.Manager) error {
 	// Create a copy for display and mask sensitive values if requested
 	displayConfig := *cfg
-	
+
 	if maskSensitive {
 		maskSensitiveValues(&displayConfig)
 	}
-	
+
 	// Print config file source info
 	if showSources {
 		configPath := manager.GetConfigFilePath()
@@ -239,14 +239,14 @@ func showConfigYAML(cfg *config.Config, manager *config.Manager) error {
 		}
 		fmt.Printf("# Environment variables with prefix: ASSISTANT_CLI_\n\n")
 	}
-	
+
 	// For now, let's manually format key sections
 	fmt.Println("# Current Configuration")
 	fmt.Println("auth:")
 	fmt.Printf("  method: %q\n", displayConfig.Auth.Method)
 	fmt.Printf("  timeout: %q\n", displayConfig.Auth.Timeout.String())
 	fmt.Printf("  retry_attempts: %d\n", displayConfig.Auth.RetryAttempts)
-	
+
 	fmt.Println("\ntts:")
 	fmt.Printf("  language: %q\n", displayConfig.TTS.Language)
 	if displayConfig.TTS.Voice != "" {
@@ -256,17 +256,17 @@ func showConfigYAML(cfg *config.Config, manager *config.Manager) error {
 	fmt.Printf("  pitch: %.2f\n", displayConfig.TTS.Pitch)
 	fmt.Printf("  volume_gain: %.2f\n", displayConfig.TTS.VolumeGain)
 	fmt.Printf("  audio_encoding: %q\n", displayConfig.TTS.AudioEncoding)
-	
+
 	fmt.Println("\noutput:")
 	fmt.Printf("  default_path: %q\n", displayConfig.Output.DefaultPath)
 	fmt.Printf("  format: %q\n", displayConfig.Output.Format)
 	fmt.Printf("  overwrite_mode: %q\n", displayConfig.Output.OverwriteMode)
 	fmt.Printf("  auto_filename: %t\n", displayConfig.Output.AutoFilename)
-	
+
 	fmt.Println("\nplayback:")
 	fmt.Printf("  auto_play: %t\n", displayConfig.Playback.AutoPlay)
 	fmt.Printf("  volume: %.2f\n", displayConfig.Playback.Volume)
-	
+
 	return nil
 }
 
@@ -278,22 +278,22 @@ func showConfigJSON(cfg *config.Config, manager *config.Manager) error {
 
 func showConfigTable(cfg *config.Config, manager *config.Manager) error {
 	_ = manager // Manager parameter not used in table format
-	
+
 	displayConfig := *cfg
-	
+
 	if maskSensitive {
 		maskSensitiveValues(&displayConfig)
 	}
-	
+
 	fmt.Printf("%-30s %-20s %s\n", "Setting", "Value", "Source")
 	fmt.Printf("%-30s %-20s %s\n", "-------", "-----", "------")
-	
+
 	// Auth settings
 	fmt.Printf("%-30s %-20s %s\n", "auth.method", displayConfig.Auth.Method, getValueSource("auth.method"))
 	fmt.Printf("%-30s %-20s %s\n", "auth.timeout", displayConfig.Auth.Timeout.String(), getValueSource("auth.timeout"))
 	fmt.Printf("%-30s %-20d %s\n", "auth.retry_attempts", displayConfig.Auth.RetryAttempts,
 		getValueSource("auth.retry_attempts"))
-	
+
 	// TTS settings
 	fmt.Printf("%-30s %-20s %s\n", "tts.language", displayConfig.TTS.Language, getValueSource("tts.language"))
 	if displayConfig.TTS.Voice != "" {
@@ -306,7 +306,7 @@ func showConfigTable(cfg *config.Config, manager *config.Manager) error {
 		getValueSource("tts.volume_gain"))
 	fmt.Printf("%-30s %-20s %s\n", "tts.audio_encoding", displayConfig.TTS.AudioEncoding,
 		getValueSource("tts.audio_encoding"))
-	
+
 	// Output settings
 	fmt.Printf("%-30s %-20s %s\n", "output.default_path", displayConfig.Output.DefaultPath,
 		getValueSource("output.default_path"))
@@ -315,12 +315,12 @@ func showConfigTable(cfg *config.Config, manager *config.Manager) error {
 		getValueSource("output.overwrite_mode"))
 	fmt.Printf("%-30s %-20t %s\n", "output.auto_filename", displayConfig.Output.AutoFilename,
 		getValueSource("output.auto_filename"))
-	
-	// Playback settings  
+
+	// Playback settings
 	fmt.Printf("%-30s %-20t %s\n", "playback.auto_play", displayConfig.Playback.AutoPlay,
 		getValueSource("playback.auto_play"))
 	fmt.Printf("%-30s %-20.2f %s\n", "playback.volume", displayConfig.Playback.Volume, getValueSource("playback.volume"))
-	
+
 	return nil
 }
 

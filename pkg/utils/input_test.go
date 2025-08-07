@@ -11,7 +11,7 @@ import (
 func TestNewInputProcessor(t *testing.T) {
 	reader := strings.NewReader("test input")
 	processor := NewInputProcessor(reader)
-	
+
 	assert.NotNil(t, processor)
 	assert.Equal(t, MaxTextLength, processor.maxLength)
 	assert.Equal(t, reader, processor.reader)
@@ -21,7 +21,7 @@ func TestNewInputProcessorWithLimit(t *testing.T) {
 	reader := strings.NewReader("test input")
 	customLimit := 1000
 	processor := NewInputProcessorWithLimit(reader, customLimit)
-	
+
 	assert.NotNil(t, processor)
 	assert.Equal(t, customLimit, processor.maxLength)
 	assert.Equal(t, reader, processor.reader)
@@ -39,12 +39,12 @@ func TestInputProcessor_ReadText_Success(t *testing.T) {
 		{"unicode text", "Hello 世界! 🌍", "Hello 世界! 🌍"},
 		{"empty lines", "Line 1\n\nLine 3", "Line 1\n\nLine 3"},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			reader := strings.NewReader(tc.input)
 			processor := NewInputProcessor(reader)
-			
+
 			result, err := processor.ReadText()
 			require.NoError(t, err)
 			assert.Equal(t, tc.expected, result)
@@ -61,15 +61,15 @@ func TestInputProcessor_ReadText_EmptyInput(t *testing.T) {
 		{"only whitespace", "   \n\t  \n  "},
 		{"only newlines", "\n\n\n"},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			reader := strings.NewReader(tc.input)
 			processor := NewInputProcessor(reader)
-			
+
 			result, err := processor.ReadText()
 			require.Error(t, err)
-			
+
 			var inputErr *InputError
 			assert.ErrorAs(t, err, &inputErr)
 			assert.Equal(t, "empty", inputErr.Type)
@@ -83,10 +83,10 @@ func TestInputProcessor_ReadText_TooLong(t *testing.T) {
 	longInput := strings.Repeat("a", MaxTextLength+1)
 	reader := strings.NewReader(longInput)
 	processor := NewInputProcessor(reader)
-	
+
 	result, err := processor.ReadText()
 	require.Error(t, err)
-	
+
 	var inputErr *InputError
 	assert.ErrorAs(t, err, &inputErr)
 	assert.Equal(t, "length", inputErr.Type)
@@ -98,10 +98,10 @@ func TestInputProcessor_ReadText_InvalidUTF8(t *testing.T) {
 	invalidUTF8 := string([]byte{0xFF, 0xFE, 0xFD})
 	reader := strings.NewReader("valid text" + invalidUTF8)
 	processor := NewInputProcessor(reader)
-	
+
 	result, err := processor.ReadText()
 	require.Error(t, err)
-	
+
 	var inputErr *InputError
 	assert.ErrorAs(t, err, &inputErr)
 	assert.Equal(t, "encoding", inputErr.Type)
@@ -110,10 +110,10 @@ func TestInputProcessor_ReadText_InvalidUTF8(t *testing.T) {
 
 func TestInputProcessor_ReadText_NilReader(t *testing.T) {
 	processor := NewInputProcessor(nil)
-	
+
 	result, err := processor.ReadText()
 	require.Error(t, err)
-	
+
 	var inputErr *InputError
 	assert.ErrorAs(t, err, &inputErr)
 	assert.Equal(t, "configuration", inputErr.Type)
@@ -132,12 +132,12 @@ func TestInputProcessor_CleanText(t *testing.T) {
 		{"reduce excessive blank lines", "Line1\n\n\n\n\nLine2", "Line1\n\n\nLine2"},
 		{"trim overall whitespace", "  \n  Hello World  \n  ", "Hello World"},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			reader := strings.NewReader("")
 			processor := NewInputProcessor(reader)
-			
+
 			result := processor.CleanText(tc.input)
 			assert.Equal(t, tc.expected, result)
 		})
@@ -147,7 +147,7 @@ func TestInputProcessor_CleanText(t *testing.T) {
 func TestInputProcessor_SplitByLength(t *testing.T) {
 	reader := strings.NewReader("")
 	processor := NewInputProcessor(reader)
-	
+
 	testCases := []struct {
 		name      string
 		input     string
@@ -179,12 +179,12 @@ func TestInputProcessor_SplitByLength(t *testing.T) {
 			[]string{"supercalif", "ragilistic", "expialidoc", "ious"},
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			result := processor.SplitByLength(tc.input, tc.maxLength)
 			assert.Equal(t, len(tc.expected), len(result), "Number of chunks should match")
-			
+
 			for i, expected := range tc.expected {
 				assert.Equal(t, expected, result[i], "Chunk %d should match", i)
 				assert.LessOrEqual(t, len(result[i]), tc.maxLength, "Chunk %d should not exceed max length", i)
@@ -196,14 +196,14 @@ func TestInputProcessor_SplitByLength(t *testing.T) {
 func TestInputProcessor_GetTextStats(t *testing.T) {
 	reader := strings.NewReader("")
 	processor := NewInputProcessor(reader)
-	
+
 	testCases := []struct {
-		name           string
-		input          string
-		expectedChars  int
-		expectedWords  int
-		expectedLines  int
-		expectedUTF    bool
+		name          string
+		input         string
+		expectedChars int
+		expectedWords int
+		expectedLines int
+		expectedUTF   bool
 	}{
 		{
 			"simple text",
@@ -226,17 +226,17 @@ func TestInputProcessor_GetTextStats(t *testing.T) {
 			0, 0, 1, true, // empty string has 1 "line"
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			stats := processor.GetTextStats(tc.input)
-			
+
 			assert.Equal(t, tc.expectedChars, stats.Characters)
 			assert.Equal(t, tc.expectedWords, stats.Words)
 			assert.Equal(t, tc.expectedLines, stats.Lines)
 			assert.Equal(t, tc.expectedUTF, stats.IsValidUTF8)
 			assert.Equal(t, len([]byte(tc.input)), stats.Bytes)
-			
+
 			// Test string representation
 			str := stats.String()
 			assert.Contains(t, str, "Characters:")
@@ -249,7 +249,7 @@ func TestInputProcessor_GetTextStats(t *testing.T) {
 func TestInputProcessor_checkProblematicChars(t *testing.T) {
 	reader := strings.NewReader("")
 	processor := NewInputProcessor(reader)
-	
+
 	testCases := []struct {
 		name        string
 		input       string
@@ -262,11 +262,11 @@ func TestInputProcessor_checkProblematicChars(t *testing.T) {
 		{"excessive control chars", string([]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}), true, "characters"},
 		{"few control chars", "Hello\x01World", false, ""},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			err := processor.checkProblematicChars(tc.input)
-			
+
 			if tc.expectError {
 				require.Error(t, err)
 				var inputErr *InputError
@@ -282,7 +282,7 @@ func TestInputProcessor_checkProblematicChars(t *testing.T) {
 func TestInputProcessor_validateText(t *testing.T) {
 	reader := strings.NewReader("")
 	processor := NewInputProcessor(reader)
-	
+
 	testCases := []struct {
 		name        string
 		input       string
@@ -296,11 +296,11 @@ func TestInputProcessor_validateText(t *testing.T) {
 		{"invalid utf8", "Hello\xFF\xFEWorld", true, "encoding"},
 		{"null byte", "Hello\x00World", true, "characters"},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			err := processor.validateText(tc.input)
-			
+
 			if tc.expectError {
 				require.Error(t, err)
 				var inputErr *InputError
@@ -335,7 +335,7 @@ func TestInputError_Error(t *testing.T) {
 			"input test: test message (input: \"" + strings.Repeat("a", 47) + "...\")",
 		},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			result := tc.err.Error()
@@ -347,7 +347,7 @@ func TestInputError_Error(t *testing.T) {
 func TestInputProcessor_findSplitPoint(t *testing.T) {
 	reader := strings.NewReader("")
 	processor := NewInputProcessor(reader)
-	
+
 	testCases := []struct {
 		name      string
 		input     string
@@ -359,7 +359,7 @@ func TestInputProcessor_findSplitPoint(t *testing.T) {
 		{"split at space", "Hello World and more", 12, 12},
 		{"no good split point", "Verylongwordwithoutspaces", 10, 10},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			result := processor.findSplitPoint(tc.input, tc.maxLength)
@@ -371,7 +371,7 @@ func TestInputProcessor_findSplitPoint(t *testing.T) {
 // Benchmark tests
 func BenchmarkInputProcessor_ReadText(b *testing.B) {
 	text := "Hello World! This is a test input for benchmarking the input processor."
-	
+
 	for i := 0; i < b.N; i++ {
 		reader := strings.NewReader(text)
 		processor := NewInputProcessor(reader)
@@ -383,7 +383,7 @@ func BenchmarkInputProcessor_CleanText(b *testing.B) {
 	text := "Hello\r\nWorld\x00!\tThis\r\nis\n\n\n\na\n\n\ntest  \n  "
 	reader := strings.NewReader("")
 	processor := NewInputProcessor(reader)
-	
+
 	for i := 0; i < b.N; i++ {
 		_ = processor.CleanText(text)
 	}
@@ -394,7 +394,7 @@ func BenchmarkInputProcessor_GetTextStats(b *testing.B) {
 		"and some unicode characters: 世界 🌍\nand various symbols."
 	reader := strings.NewReader("")
 	processor := NewInputProcessor(reader)
-	
+
 	for i := 0; i < b.N; i++ {
 		_ = processor.GetTextStats(text)
 	}

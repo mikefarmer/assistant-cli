@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	cfgFile       string
-	globalConfig  *config.Manager
+	cfgFile      string
+	globalConfig *config.Manager
 )
 
 var version = "dev" // This will be set by build flags
@@ -24,8 +24,8 @@ func SetVersion(v string) {
 // NewRootCmd creates and returns the root command
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:     "assistant-cli",
-		Short:   "A personal assistant CLI tool",
+		Use:   "assistant-cli",
+		Short: "A personal assistant CLI tool",
 		Long: `A personal assistant CLI tool with various capabilities.
 
 This tool provides text-to-speech conversion using Google Cloud Text-to-Speech API,
@@ -50,7 +50,7 @@ It supports multiple authentication methods and provides various customization o
 		Version: version,
 		Run: func(cmd *cobra.Command, args []string) {
 			// If no subcommand is provided, show help
-			cmd.Help()
+			_ = cmd.Help()
 		},
 	}
 
@@ -82,12 +82,12 @@ func Execute() {
 func initConfig() {
 	// Initialize the global config manager
 	globalConfig = config.NewManager()
-	
+
 	// If a specific config file is provided, set it
 	if cfgFile != "" {
 		globalConfig.SetConfigFile(cfgFile)
 	}
-	
+
 	// Load the configuration
 	if err := globalConfig.Load(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading configuration: %v\n", err)

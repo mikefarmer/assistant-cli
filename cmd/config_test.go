@@ -40,7 +40,7 @@ func TestConfigCommand(t *testing.T) {
 			rootCmd.SetArgs(tt.args)
 
 			err := rootCmd.Execute()
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -85,7 +85,7 @@ func TestConfigGenerate(t *testing.T) {
 			rootCmd.SetArgs(tt.args)
 
 			err := rootCmd.Execute()
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -98,7 +98,7 @@ func TestConfigGenerate(t *testing.T) {
 			// Check if file was created
 			if tt.checkFile != "" {
 				assert.FileExists(t, tt.checkFile)
-				
+
 				// Check file content
 				content, err := os.ReadFile(tt.checkFile)
 				require.NoError(t, err)
@@ -160,7 +160,7 @@ invalid_yaml: [
 			rootCmd.SetArgs(tt.args)
 
 			err := rootCmd.Execute()
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -199,7 +199,7 @@ func TestConfigShow(t *testing.T) {
 			rootCmd.SetArgs(tt.args)
 
 			err := rootCmd.Execute()
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -221,11 +221,11 @@ func TestRunGenerateConfigFunction(t *testing.T) {
 	t.Run("generate with default path behavior", func(t *testing.T) {
 		// Test the function directly to avoid home directory issues in CI
 		outputPath := filepath.Join(tempDir, "test-config.yaml")
-		
+
 		// Create the command for testing
 		cmd := generateConfigCmd
 		err := runGenerateConfig(cmd, []string{outputPath})
-		
+
 		assert.NoError(t, err)
 		assert.FileExists(t, outputPath)
 	})
@@ -234,13 +234,13 @@ func TestRunGenerateConfigFunction(t *testing.T) {
 		existingFile := filepath.Join(tempDir, "existing.yaml")
 		err := os.WriteFile(existingFile, []byte("existing"), 0644)
 		require.NoError(t, err)
-		
+
 		// Reset force flag
 		generateForce = false
-		
+
 		cmd := generateConfigCmd
 		err = runGenerateConfig(cmd, []string{existingFile})
-		
+
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "already exists")
 	})
@@ -263,11 +263,11 @@ func TestMaskSensitiveValues(t *testing.T) {
 
 func TestGetValueSource(t *testing.T) {
 	tests := []struct {
-		name       string
-		key        string
-		envVar     string
-		envValue   string
-		expected   string
+		name     string
+		key      string
+		envVar   string
+		envValue string
+		expected string
 	}{
 		{
 			name:     "environment source",

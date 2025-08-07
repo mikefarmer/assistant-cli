@@ -15,19 +15,19 @@ import (
 
 func TestNewSynthesizeCmd(t *testing.T) {
 	cmd := NewSynthesizeCmd()
-	
+
 	// Test command properties
 	assert.Equal(t, "synthesize", cmd.Use)
 	assert.Contains(t, cmd.Short, "Convert text to speech")
 	assert.NotEmpty(t, cmd.Long)
 	assert.NotNil(t, cmd.RunE)
-	
+
 	// Test flags exist
 	flags := []string{"voice", "language", "speed", "pitch", "volume", "output", "format", "play", "list-voices"}
 	for _, flag := range flags {
 		assert.NotNil(t, cmd.Flags().Lookup(flag), "Flag %s should exist", flag)
 	}
-	
+
 	// Test flag shortcuts
 	assert.NotNil(t, cmd.Flags().ShorthandLookup("v"), "Voice flag should have shorthand 'v'")
 	assert.NotNil(t, cmd.Flags().ShorthandLookup("l"), "Language flag should have shorthand 'l'")
@@ -116,18 +116,18 @@ func TestSynthesizeFlagValidation(t *testing.T) {
 			// Mock stdin with some text
 			oldStdin := os.Stdin
 			defer func() { os.Stdin = oldStdin }()
-			
+
 			r, w, err := os.Pipe()
 			require.NoError(t, err)
 			os.Stdin = r
-			
+
 			go func() {
 				defer w.Close()
 				w.WriteString("Test text")
 			}()
 
 			err = rootCmd.Execute()
-			
+
 			// These tests will fail at authentication stage since we don't have auth set up
 			// But we can verify the command structure is correct
 			if tt.expectError {
@@ -211,32 +211,32 @@ func TestPlayAudioFile(t *testing.T) {
 
 func TestSynthesizeFlagDefaults(t *testing.T) {
 	cmd := NewSynthesizeCmd()
-	
+
 	// Test default values
 	voiceFlag := cmd.Flags().Lookup("voice")
 	assert.Equal(t, "", voiceFlag.DefValue)
-	
+
 	languageFlag := cmd.Flags().Lookup("language")
 	assert.Equal(t, "en-US", languageFlag.DefValue)
-	
+
 	speedFlag := cmd.Flags().Lookup("speed")
 	assert.Equal(t, "1", speedFlag.DefValue)
-	
+
 	pitchFlag := cmd.Flags().Lookup("pitch")
 	assert.Equal(t, "0", pitchFlag.DefValue)
-	
+
 	volumeFlag := cmd.Flags().Lookup("volume")
 	assert.Equal(t, "0", volumeFlag.DefValue)
-	
+
 	outputFlag := cmd.Flags().Lookup("output")
 	assert.Equal(t, "output.mp3", outputFlag.DefValue)
-	
+
 	formatFlag := cmd.Flags().Lookup("format")
 	assert.Equal(t, "MP3", formatFlag.DefValue)
-	
+
 	playFlag := cmd.Flags().Lookup("play")
 	assert.Equal(t, "false", playFlag.DefValue)
-	
+
 	listVoicesFlag := cmd.Flags().Lookup("list-voices")
 	assert.Equal(t, "false", listVoicesFlag.DefValue)
 }
@@ -244,11 +244,11 @@ func TestSynthesizeFlagDefaults(t *testing.T) {
 func TestHandleListVoicesInput(t *testing.T) {
 	// Test that list-voices flag is properly recognized
 	cmd := NewSynthesizeCmd()
-	
+
 	// Set the flag
 	err := cmd.Flags().Set("list-voices", "true")
 	assert.NoError(t, err)
-	
+
 	// Verify flag was set
 	listVoicesFlag := cmd.Flags().Lookup("list-voices")
 	assert.Equal(t, "true", listVoicesFlag.Value.String())
@@ -263,38 +263,38 @@ func TestRunSynthesizeComponents(t *testing.T) {
 			APIKey:             "test-key",
 			ServiceAccountFile: "/path/service.json",
 		}
-		
+
 		authConfig := convertToAuthConfig(configAuth)
-		
+
 		assert.Equal(t, "test-key", authConfig.APIKey)
 		assert.Equal(t, "/path/service.json", authConfig.ServiceAccountFile)
 	})
-	
+
 	t.Run("output file handling", func(t *testing.T) {
 		// Test that output file logic works correctly
 		tests := []struct {
-			name       string
-			inputFile  string
-			autoFile   bool
+			name        string
+			inputFile   string
+			autoFile    bool
 			defaultPath string
-			audioFmt   string
-			expected   string
+			audioFmt    string
+			expected    string
 		}{
 			{
-				name:       "custom output file",
-				inputFile:  "custom.wav",
-				expected:   "custom.wav",
+				name:      "custom output file",
+				inputFile: "custom.wav",
+				expected:  "custom.wav",
 			},
 			{
-				name:       "default with auto filename disabled",
-				inputFile:  "output.mp3",
-				autoFile:   false,
+				name:        "default with auto filename disabled",
+				inputFile:   "output.mp3",
+				autoFile:    false,
 				defaultPath: "/tmp",
-				audioFmt:   "MP3",
-				expected:   "/tmp/output.mp3",
+				audioFmt:    "MP3",
+				expected:    "/tmp/output.mp3",
 			},
 		}
-		
+
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				// These tests verify the logic patterns rather than running the full function

@@ -75,20 +75,20 @@ func (p *InputProcessor) ReadText() (string, error) {
 			Message: "no input reader configured",
 		}
 	}
-	
+
 	// Read input with buffering
 	var buffer strings.Builder
 	scanner := bufio.NewScanner(p.reader)
 	// Set scanner buffer to be larger than our limit to avoid scanner errors for length issues
 	scanner.Buffer(make([]byte, BufferSize), p.maxLength+1000)
-	
+
 	// Read all lines
 	for scanner.Scan() {
 		if buffer.Len() > 0 {
 			buffer.WriteString("\n")
 		}
 		buffer.WriteString(scanner.Text())
-		
+
 		// Check length limit during reading
 		if buffer.Len() > p.maxLength {
 			return "", &InputError{
@@ -97,7 +97,7 @@ func (p *InputProcessor) ReadText() (string, error) {
 			}
 		}
 	}
-	
+
 	// Check for scanner errors - but only if it's not a length-related issue
 	if err := scanner.Err(); err != nil {
 		// If we exceeded our length limit, we should have already returned above
@@ -107,14 +107,14 @@ func (p *InputProcessor) ReadText() (string, error) {
 			Message: fmt.Sprintf("failed to read input: %v", err),
 		}
 	}
-	
+
 	text := buffer.String()
-	
+
 	// Validate the resulting text
 	if err := p.validateText(text); err != nil {
 		return "", err
 	}
-	
+
 	return text, nil
 }
 
@@ -133,7 +133,7 @@ func (p *InputProcessor) validateText(text string) error {
 			Message: "input text is empty or contains only whitespace",
 		}
 	}
-	
+
 	// Check length
 	if len(text) > p.maxLength {
 		return &InputError{
@@ -142,7 +142,7 @@ func (p *InputProcessor) validateText(text string) error {
 			Input:   text,
 		}
 	}
-	
+
 	// Validate UTF-8 encoding
 	if !utf8.ValidString(text) {
 		return &InputError{
@@ -151,12 +151,12 @@ func (p *InputProcessor) validateText(text string) error {
 			Input:   text,
 		}
 	}
-	
+
 	// Check for potentially problematic characters
 	if err := p.checkProblematicChars(text); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -169,7 +169,7 @@ func (p *InputProcessor) checkProblematicChars(text string) error {
 			controlCharCount++
 		}
 	}
-	
+
 	// Warn if too many control characters
 	if controlCharCount > 10 {
 		return &InputError{
@@ -178,7 +178,7 @@ func (p *InputProcessor) checkProblematicChars(text string) error {
 			Input:   text,
 		}
 	}
-	
+
 	// Check for null bytes
 	if strings.Contains(text, "\x00") {
 		return &InputError{
@@ -187,7 +187,7 @@ func (p *InputProcessor) checkProblematicChars(text string) error {
 			Input:   text,
 		}
 	}
-	
+
 	return nil
 }
 
@@ -195,31 +195,31 @@ func (p *InputProcessor) checkProblematicChars(text string) error {
 func (p *InputProcessor) CleanText(text string) string {
 	// Remove null bytes
 	cleaned := strings.ReplaceAll(text, "\x00", "")
-	
+
 	// Normalize line endings to Unix style
 	cleaned = strings.ReplaceAll(cleaned, "\r\n", "\n")
 	cleaned = strings.ReplaceAll(cleaned, "\r", "\n")
-	
+
 	// Remove excessive whitespace while preserving intentional formatting
 	lines := strings.Split(cleaned, "\n")
 	cleanedLines := make([]string, 0, len(lines))
-	
+
 	for _, line := range lines {
 		// Trim trailing whitespace but preserve leading whitespace for formatting
 		line = strings.TrimRight(line, " \t")
 		cleanedLines = append(cleanedLines, line)
 	}
-	
+
 	cleaned = strings.Join(cleanedLines, "\n")
-	
+
 	// Remove excessive blank lines (more than 2 consecutive)
 	for strings.Contains(cleaned, "\n\n\n\n") {
 		cleaned = strings.ReplaceAll(cleaned, "\n\n\n\n", "\n\n\n")
 	}
-	
+
 	// Trim leading and trailing whitespace
 	cleaned = strings.TrimSpace(cleaned)
-	
+
 	return cleaned
 }
 
@@ -229,14 +229,14 @@ func (p *InputProcessor) SplitByLength(text string, maxLength int) []string {
 	if len(text) <= maxLength {
 		return []string{text}
 	}
-	
+
 	var chunks []string
 	remaining := text
-	
+
 	for len(remaining) > maxLength {
 		// Find the best split point
 		splitPoint := p.findSplitPoint(remaining, maxLength)
-		
+
 		chunk := remaining[:splitPoint]
 		// Don't trim if the chunk ends with sentence punctuation + space
 		if strings.HasSuffix(chunk, ". ") || strings.HasSuffix(chunk, "! ") || strings.HasSuffix(chunk, "? ") {
@@ -246,12 +246,12 @@ func (p *InputProcessor) SplitByLength(text string, maxLength int) []string {
 		}
 		remaining = strings.TrimSpace(remaining[splitPoint:])
 	}
-	
+
 	// Add the final chunk if there's remaining text
 	if len(remaining) > 0 {
 		chunks = append(chunks, remaining)
 	}
-	
+
 	return chunks
 }
 
@@ -260,10 +260,10 @@ func (p *InputProcessor) findSplitPoint(text string, maxLength int) int {
 	if len(text) <= maxLength {
 		return len(text)
 	}
-	
+
 	// Try to find a good break point
 	breakChars := []string{". ", "! ", "? ", "; ", ", ", " "}
-	
+
 	// Look for the best break point within the allowable length
 	for _, breakChar := range breakChars {
 		// Look for the last occurrence of the break character within maxLength
@@ -273,7 +273,7 @@ func (p *InputProcessor) findSplitPoint(text string, maxLength int) int {
 			if breakChar == ". " || breakChar == "! " || breakChar == "? " {
 				return idx + len(breakChar)
 			}
-			// For word boundaries (just spaces), include the space  
+			// For word boundaries (just spaces), include the space
 			if breakChar == " " {
 				return idx + 1
 			}
@@ -281,7 +281,7 @@ func (p *InputProcessor) findSplitPoint(text string, maxLength int) int {
 			return idx + len(breakChar)
 		}
 	}
-	
+
 	// If no good break point found, split at maxLength
 	return maxLength
 }
@@ -291,7 +291,7 @@ func (p *InputProcessor) GetTextStats(text string) TextStats {
 	lines := strings.Split(text, "\n")
 	words := strings.Fields(text)
 	runes := []rune(text)
-	
+
 	return TextStats{
 		Characters:    len(runes), // Use UTF-8 character count
 		CharactersUTF: len(runes),

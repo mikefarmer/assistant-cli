@@ -11,12 +11,12 @@ import (
 
 func TestNewAuthManager(t *testing.T) {
 	config := AuthConfig{
-		Method:              AuthMethodAPIKey,
-		APIKey:              "test-api-key",
-		ServiceAccountFile:  "/path/to/service-account.json",
-		OAuth2ClientID:      "test-client-id",
-		OAuth2ClientSecret:  "test-client-secret",
-		OAuth2TokenFile:     "/path/to/token.json",
+		Method:             AuthMethodAPIKey,
+		APIKey:             "test-api-key",
+		ServiceAccountFile: "/path/to/service-account.json",
+		OAuth2ClientID:     "test-client-id",
+		OAuth2ClientSecret: "test-client-secret",
+		OAuth2TokenFile:    "/path/to/token.json",
 	}
 
 	manager := NewAuthManager(config)
@@ -141,7 +141,7 @@ func TestAuthManager_SelectAuthMethod(t *testing.T) {
 			expected: AuthMethodAPIKey,
 		},
 		{
-			name:   "OAuth2 with client credentials",
+			name: "OAuth2 with client credentials",
 			config: AuthConfig{
 				Method:             AuthMethodAPIKey,
 				OAuth2ClientID:     "test-client-id",

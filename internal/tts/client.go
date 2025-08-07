@@ -14,16 +14,31 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Audio encoding format constants
+const (
+	audioEncodingMP3      = "MP3"
+	audioEncodingLINEAR16 = "LINEAR16"
+	audioEncodingOGGOpus  = "OGG_OPUS"
+	audioEncodingMULAW    = "MULAW"
+	audioEncodingALAW     = "ALAW"
+	audioEncodingPCM      = "PCM"
+)
+
+// Message constants
+const (
+	perfMonitoringDisabled = "Performance monitoring is disabled"
+)
+
 type Client struct {
-	client            *texttospeech.Client
-	defaultVoice      *texttospeechpb.VoiceSelectionParams
-	defaultAudio      *texttospeechpb.AudioConfig
-	retryAttempts     int
-	retryDelay       time.Duration
-	timeout          time.Duration
-	pool             *ConnectionPool
-	metrics          *Metrics
-	voiceCache       *VoiceCache
+	client             *texttospeech.Client
+	defaultVoice       *texttospeechpb.VoiceSelectionParams
+	defaultAudio       *texttospeechpb.AudioConfig
+	retryAttempts      int
+	retryDelay         time.Duration
+	timeout            time.Duration
+	pool               *ConnectionPool
+	metrics            *Metrics
+	voiceCache         *VoiceCache
 	performanceMonitor *PerformanceMonitor
 }
 
@@ -36,31 +51,31 @@ type ConnectionPool struct {
 }
 
 type Metrics struct {
-	mu               sync.RWMutex
-	requestCount     int64
-	totalLatency     time.Duration
-	failedRequests   int64
-	cacheHits        int64
-	cacheMisses      int64
-	lastRequestTime  time.Time
-	avgLatency       time.Duration
+	mu              sync.RWMutex
+	requestCount    int64
+	totalLatency    time.Duration
+	failedRequests  int64
+	cacheHits       int64
+	cacheMisses     int64
+	lastRequestTime time.Time
+	avgLatency      time.Duration
 }
 
 type ClientConfig struct {
-	Voice           string
-	LanguageCode    string
-	SpeakingRate    float64
-	Pitch           float64
-	VolumeGain      float64
-	AudioEncoding   string
-	RetryAttempts   int
-	RetryDelay      time.Duration
-	Timeout         time.Duration
-	PoolMaxSize     int
-	PoolIdleTimeout time.Duration
-	KeepAliveTime   time.Duration
+	Voice            string
+	LanguageCode     string
+	SpeakingRate     float64
+	Pitch            float64
+	VolumeGain       float64
+	AudioEncoding    string
+	RetryAttempts    int
+	RetryDelay       time.Duration
+	Timeout          time.Duration
+	PoolMaxSize      int
+	PoolIdleTimeout  time.Duration
+	KeepAliveTime    time.Duration
 	KeepAliveTimeout time.Duration
-	EnableMetrics   bool
+	EnableMetrics    bool
 }
 
 func DefaultClientConfig() *ClientConfig {
@@ -112,17 +127,17 @@ func NewClient(ctx context.Context, authManager *auth.AuthManager, config *Clien
 
 	audioEncoding := texttospeechpb.AudioEncoding_MP3
 	switch config.AudioEncoding {
-	case "LINEAR16":
+	case audioEncodingLINEAR16:
 		audioEncoding = texttospeechpb.AudioEncoding_LINEAR16
-	case "OGG_OPUS":
+	case audioEncodingOGGOpus:
 		audioEncoding = texttospeechpb.AudioEncoding_OGG_OPUS
-	case "MP3":
+	case audioEncodingMP3:
 		audioEncoding = texttospeechpb.AudioEncoding_MP3
-	case "MULAW":
+	case audioEncodingMULAW:
 		audioEncoding = texttospeechpb.AudioEncoding_MULAW
-	case "ALAW":
+	case audioEncodingALAW:
 		audioEncoding = texttospeechpb.AudioEncoding_ALAW
-	case "PCM":
+	case audioEncodingPCM:
 		audioEncoding = texttospeechpb.AudioEncoding_PCM
 	default:
 		audioEncoding = texttospeechpb.AudioEncoding_MP3
@@ -135,17 +150,17 @@ func NewClient(ctx context.Context, authManager *auth.AuthManager, config *Clien
 			LanguageCode: config.LanguageCode,
 		},
 		defaultAudio: &texttospeechpb.AudioConfig{
-			AudioEncoding:   audioEncoding,
-			SpeakingRate:    config.SpeakingRate,
-			Pitch:           config.Pitch,
-			VolumeGainDb:    config.VolumeGain,
+			AudioEncoding:    audioEncoding,
+			SpeakingRate:     config.SpeakingRate,
+			Pitch:            config.Pitch,
+			VolumeGainDb:     config.VolumeGain,
 			EffectsProfileId: []string{"headphone-class-device"},
 		},
 		retryAttempts:      config.RetryAttempts,
 		retryDelay:         config.RetryDelay,
-		timeout:           config.Timeout,
-		pool:             pool,
-		metrics:          metrics,
+		timeout:            config.Timeout,
+		pool:               pool,
+		metrics:            metrics,
 		performanceMonitor: perfMonitor,
 	}
 
@@ -166,7 +181,7 @@ func createOptimizedClient(ctx context.Context, authManager *auth.AuthManager,
 func (c *Client) poolCleanup() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for range ticker.C {
 		if c.pool != nil {
 			c.pool.cleanup()
@@ -177,7 +192,7 @@ func (c *Client) poolCleanup() {
 func (cp *ConnectionPool) cleanup() {
 	cp.mu.Lock()
 	defer cp.mu.Unlock()
-	
+
 	now := time.Now()
 	for key, lastUsed := range cp.lastUsed {
 		if now.Sub(lastUsed) > cp.idleTimeout {
@@ -194,16 +209,16 @@ func (c *Client) recordMetrics(start time.Time, success bool) {
 	if c.metrics == nil {
 		return
 	}
-	
+
 	c.metrics.mu.Lock()
 	defer c.metrics.mu.Unlock()
-	
+
 	duration := time.Since(start)
 	c.metrics.requestCount++
 	c.metrics.totalLatency += duration
 	c.metrics.lastRequestTime = start
 	c.metrics.avgLatency = c.metrics.totalLatency / time.Duration(c.metrics.requestCount)
-	
+
 	if !success {
 		c.metrics.failedRequests++
 	}
@@ -213,10 +228,10 @@ func (c *Client) GetMetrics() *Metrics {
 	if c.metrics == nil {
 		return nil
 	}
-	
+
 	c.metrics.mu.RLock()
 	defer c.metrics.mu.RUnlock()
-	
+
 	return &Metrics{
 		requestCount:    c.metrics.requestCount,
 		totalLatency:    c.metrics.totalLatency,
@@ -233,13 +248,13 @@ func (c *Client) Synthesize(ctx context.Context, text string, voice *texttospeec
 	start := time.Now()
 	var success bool
 	var benchmarkDone func(bool, string)
-	
+
 	if c.performanceMonitor != nil {
 		benchmarkDone = c.performanceMonitor.StartBenchmark("synthesize")
 	} else {
 		benchmarkDone = func(bool, string) {}
 	}
-	
+
 	defer func() {
 		c.recordMetrics(start, success)
 		if success {
@@ -262,7 +277,7 @@ func (c *Client) Synthesize(ctx context.Context, text string, voice *texttospeec
 	}
 
 	input := &texttospeechpb.SynthesisInput{}
-	
+
 	if isSSML(text) {
 		input.InputSource = &texttospeechpb.SynthesisInput_Ssml{
 			Ssml: text,
@@ -373,7 +388,7 @@ func (c *Client) GetPerformanceReport() string {
 	if c.performanceMonitor != nil {
 		return c.performanceMonitor.FormatReport()
 	}
-	return "Performance monitoring is disabled"
+	return perfMonitoringDisabled
 }
 
 func (c *Client) ResetPerformanceStats() {
