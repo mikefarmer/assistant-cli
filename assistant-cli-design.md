@@ -22,7 +22,7 @@ This document outlines the design for a Go-based command-line interface (CLI) to
 - Multiple authentication methods (API key, service account, OAuth2)
 - Audio file generation and playback
 - Configuration management
-- Cross-platform distribution
+- macOS distribution
 
 ### 2.2 Phase 2: Google Services Integration (Future)
 **Goal**: Expand assistant-cli with multiple Google services
@@ -253,8 +253,6 @@ func (ap *AudioPlayer) DetectCommand() string
 
 **Platform-specific playback commands:**
 - macOS: `afplay`
-- Linux: `aplay`, `paplay`, or `mpg123`
-- Windows: `powershell -c (New-Object Media.SoundPlayer 'file.mp3').PlaySync()`
 
 ## 5. Data Flow
 
@@ -364,13 +362,17 @@ require (
 ## 10. Deployment and Distribution
 
 ### 9.1 Build Process
-- Cross-platform compilation (Linux, macOS, Windows)
+- macOS compilation
 - Static binary generation
 - Version embedding
 - No embedded credentials
 
 ### 9.2 Distribution Methods
-- GitHub Releases with binaries
+- **GitHub Releases**: Primary distribution method with semantic versioning
+- **Semantic Versioning**: Following semver (MAJOR.MINOR.PATCH) for version management
+- **Automated Releases**: GitHub Actions workflow for automated binary builds and releases
+- **Release Assets**: Pre-compiled macOS binaries attached to each release
+- **Changelog Generation**: Automated changelog generation from commit history
 
 ### 9.3 Authentication Setup Guide
 

@@ -31,6 +31,22 @@ func NewRootCmd() *cobra.Command {
 This tool provides text-to-speech conversion using Google Cloud Text-to-Speech API,
 and will be extended with additional features for Calendar, Gmail, and Drive integration.
 It supports multiple authentication methods and provides various customization options.`,
+		Example: `  # Basic text-to-speech
+  echo "Hello, World!" | assistant-cli synthesize -o hello.mp3
+
+  # Custom voice with playback
+  echo "Welcome!" | assistant-cli synthesize --voice en-US-Wavenet-C --play
+
+  # Set up authentication
+  export ASSISTANT_CLI_API_KEY="your-api-key"
+  assistant-cli login --validate
+
+  # List available voices
+  assistant-cli synthesize --list-voices --language en-US
+
+  # Use configuration file
+  assistant-cli config generate ~/.assistant-cli.yaml
+  assistant-cli --config ~/.assistant-cli.yaml synthesize --help`,
 		Version: version,
 		Run: func(cmd *cobra.Command, args []string) {
 			// If no subcommand is provided, show help

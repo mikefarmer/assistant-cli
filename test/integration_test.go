@@ -25,19 +25,20 @@ func TestCLIBuild(t *testing.T) {
 	}
 
 	// Build the CLI binary
-	buildCmd := exec.Command("go", "build", "-o", "assistant-cli-test", "../main.go")
-	buildCmd.Dir = t.TempDir()
+	tempDir := t.TempDir()
+	buildCmd := exec.Command("go", "build", "-o", filepath.Join(tempDir, "assistant-cli-test"), "main.go")
+	buildCmd.Dir = ".." // Set working directory to project root
 	
 	err := buildCmd.Run()
 	require.NoError(t, err, "Failed to build CLI binary")
 	
 	// Clean up
 	defer func() {
-		os.Remove(filepath.Join(buildCmd.Dir, "assistant-cli-test"))
+		os.Remove(filepath.Join(tempDir, "assistant-cli-test"))
 	}()
 	
 	// Test that binary was created
-	binaryPath := filepath.Join(buildCmd.Dir, "assistant-cli-test")
+	binaryPath := filepath.Join(tempDir, "assistant-cli-test")
 	assert.FileExists(t, binaryPath)
 }
 
@@ -256,7 +257,8 @@ func buildTestBinary(t *testing.T) string {
 	binaryPath := filepath.Join(tempDir, "assistant-cli-test")
 	
 	// Build the binary
-	buildCmd := exec.Command("go", "build", "-o", binaryPath, "../main.go")
+	buildCmd := exec.Command("go", "build", "-o", binaryPath, "main.go")
+	buildCmd.Dir = ".." // Set working directory to project root
 	
 	var stderr bytes.Buffer
 	buildCmd.Stderr = &stderr
@@ -325,7 +327,8 @@ func buildTestBinaryForBench(b *testing.B) string {
 	tempDir := b.TempDir()
 	binaryPath := filepath.Join(tempDir, "assistant-cli-bench")
 	
-	buildCmd := exec.Command("go", "build", "-o", binaryPath, "../main.go")
+	buildCmd := exec.Command("go", "build", "-o", binaryPath, "main.go")
+	buildCmd.Dir = ".." // Set working directory to project root
 	err := buildCmd.Run()
 	if err != nil {
 		b.Fatalf("Failed to build CLI binary: %v", err)

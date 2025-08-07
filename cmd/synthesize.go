@@ -30,8 +30,9 @@ var (
 
 func NewSynthesizeCmd() *cobra.Command {
 	synthesizeCmd := &cobra.Command{
-		Use:   "synthesize",
-		Short: "Convert text to speech using Google Cloud Text-to-Speech",
+		Use:     "synthesize",
+		Aliases: []string{"tts", "speak", "say"},
+		Short:   "Convert text to speech using Google Cloud Text-to-Speech",
 		Long: `Convert text to speech using Google Cloud Text-to-Speech API.
 		
 Reads text from STDIN and generates an audio file with customizable voice settings.
