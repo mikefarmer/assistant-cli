@@ -41,19 +41,14 @@ detect_platform() {
     local os=""
     local arch=""
     
-    # Detect OS
+    # Detect OS - Only macOS supported
     case "$(uname -s)" in
         Darwin*)
             os="darwin"
             ;;
-        Linux*)
-            os="linux"
-            ;;
-        CYGWIN*|MINGW32*|MSYS*|MINGW*)
-            os="windows"
-            ;;
         *)
             print_error "Unsupported operating system: $(uname -s)"
+            print_error "Assistant-CLI currently only supports macOS"
             exit 1
             ;;
     esac

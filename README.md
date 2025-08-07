@@ -105,25 +105,6 @@ chmod +x assistant-cli
 sudo mv assistant-cli /usr/local/bin/
 ```
 
-#### Linux
-```bash
-# AMD64
-curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/latest/download/assistant-cli-linux-amd64
-
-# ARM64
-curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/latest/download/assistant-cli-linux-arm64
-
-chmod +x assistant-cli
-sudo mv assistant-cli /usr/local/bin/
-```
-
-#### Windows
-```powershell
-# Download and save as assistant-cli.exe
-Invoke-WebRequest -Uri "https://github.com/mikefarmer/assistant-cli/releases/latest/download/assistant-cli-windows-amd64.exe" -OutFile "assistant-cli.exe"
-
-# Add to PATH or run directly
-```
 
 #### Verify Installation
 ```bash

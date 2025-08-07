@@ -15,8 +15,8 @@ This guide provides detailed installation instructions for Assistant-CLI across 
 ## System Requirements
 
 ### Minimum Requirements
-- **Operating System**: macOS 10.15+, Linux (Ubuntu 18.04+, RHEL 7+), Windows 10+
-- **Architecture**: AMD64 (x86_64) or ARM64
+- **Operating System**: macOS 10.15+ (Catalina or later)
+- **Architecture**: AMD64 (Intel) or ARM64 (Apple Silicon)
 - **Memory**: 50MB RAM minimum, 100MB recommended
 - **Disk Space**: 20MB for binary, 100MB for cache and temporary files
 - **Network**: Internet connection for Google Cloud TTS API
@@ -30,8 +30,6 @@ This guide provides detailed installation instructions for Assistant-CLI across 
 - **No additional dependencies** - Assistant-CLI is a single static binary
 - **Audio Playback** (optional): 
   - macOS: afplay (built-in)
-  - Linux: aplay (usually pre-installed)
-  - Windows: PowerShell (built-in)
 
 ## Quick Installation
 

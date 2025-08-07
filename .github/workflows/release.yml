@@ -37,21 +37,12 @@ jobs:
     - name: Build binaries
       env:
         VERSION: ${{ steps.version.outputs.VERSION }}
-      run: |
-        # Linux AMD64
-        GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-linux-amd64 main.go
-        
-        # Linux ARM64
-        GOOS=linux GOARCH=arm64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-linux-arm64 main.go
-        
-        # macOS AMD64
+      run: |        
+        # macOS AMD64 (Intel)
         GOOS=darwin GOARCH=amd64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-darwin-amd64 main.go
         
         # macOS ARM64 (Apple Silicon)
         GOOS=darwin GOARCH=arm64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-darwin-arm64 main.go
-        
-        # Windows AMD64
-        GOOS=windows GOARCH=amd64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-windows-amd64.exe main.go
 
     - name: Generate checksums
       run: |
@@ -87,33 +78,19 @@ jobs:
           
           ### Installation
           
-          Download the appropriate binary for your platform:
+          Download the appropriate binary for your macOS system:
           
           #### macOS
           ```bash
-          # Apple Silicon (M1/M2/M3)
+          # Apple Silicon (M1/M2/M3/M4)
           curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-darwin-arm64
           
-          # Intel
+          # Intel Mac
           curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-darwin-amd64
           
+          # Make executable and optionally install system-wide
           chmod +x assistant-cli
-          ```
-          
-          #### Linux
-          ```bash
-          # AMD64
-          curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-linux-amd64
-          
-          # ARM64
-          curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-linux-arm64
-          
-          chmod +x assistant-cli
-          ```
-          
-          #### Windows
-          ```powershell
-          Invoke-WebRequest -Uri "https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-windows-amd64.exe" -OutFile "assistant-cli.exe"
+          sudo mv assistant-cli /usr/local/bin/  # Optional: install system-wide
           ```
           
           ### Verify Installation
@@ -125,11 +102,8 @@ jobs:
           Verify your download with SHA256 checksums available in `checksums.txt`.
 
         files: |
-          dist/assistant-cli-linux-amd64
-          dist/assistant-cli-linux-arm64
           dist/assistant-cli-darwin-amd64
           dist/assistant-cli-darwin-arm64
-          dist/assistant-cli-windows-amd64.exe
           dist/checksums.txt
         draft: false
         prerelease: false

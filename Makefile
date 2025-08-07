@@ -19,14 +19,11 @@ help:
 build:
 	go build ${LDFLAGS} -o ${BINARY_NAME} main.go
 
-## build-all: Build binaries for all supported platforms
+## build-all: Build binaries for macOS platforms
 build-all: clean
 	mkdir -p dist
-	GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -o dist/${BINARY_NAME}-linux-amd64 main.go
-	GOOS=linux GOARCH=arm64 go build ${LDFLAGS} -o dist/${BINARY_NAME}-linux-arm64 main.go
 	GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o dist/${BINARY_NAME}-darwin-amd64 main.go
 	GOOS=darwin GOARCH=arm64 go build ${LDFLAGS} -o dist/${BINARY_NAME}-darwin-arm64 main.go
-	GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o dist/${BINARY_NAME}-windows-amd64.exe main.go
 
 ## install: Install the binary to GOPATH/bin
 install:
