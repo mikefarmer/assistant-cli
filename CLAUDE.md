@@ -81,8 +81,10 @@ The `AuthManager` in `internal/auth/manager.go` coordinates between these method
 - `synthesize.go` - Main TTS command with all voice/audio parameters
 
 **TTS Integration** (`internal/tts/`):
-- `client.go` - Wraps Google Cloud TTS client with retry logic and connection pooling
+- `client.go` - Wraps Google Cloud TTS client with retry logic, connection pooling, and performance monitoring
 - `synthesizer.go` - Handles synthesis requests, SSML support, and audio generation
+- `cache.go` - Implements voice list caching with TTL expiration and statistics
+- `performance.go` - Provides comprehensive performance monitoring and benchmarking
 
 **Configuration** (`internal/config/`):
 - Uses Viper for hierarchical config (flags > env > file > defaults)
@@ -96,9 +98,12 @@ The `AuthManager` in `internal/auth/manager.go` coordinates between these method
 ### Data Flow
 1. User provides text via STDIN
 2. Authentication is established (using stored credentials or flags)
-3. Text is validated and sent to Google Cloud TTS API
-4. Audio data is received and written to file
-5. Optionally, audio is played immediately
+3. Performance monitoring begins (if enabled)
+4. Voice list is retrieved (cached if available)
+5. Text is validated and sent to Google Cloud TTS API
+6. Audio data is received and written to file
+7. Performance metrics are recorded
+8. Optionally, audio is played immediately
 
 ### Key Design Decisions
 
