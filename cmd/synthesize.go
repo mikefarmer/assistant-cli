@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mikefarmer/assistant-cli/internal/auth"
+	"github.com/mikefarmer/assistant-cli/internal/config"
 	"github.com/mikefarmer/assistant-cli/internal/output"
 	"github.com/mikefarmer/assistant-cli/internal/player"
 	"github.com/mikefarmer/assistant-cli/internal/tts"
@@ -51,6 +53,7 @@ Examples:
 	synthesizeCmd.Flags().BoolVar(&playAudio, "play", false, "Play audio immediately after synthesis")
 	synthesizeCmd.Flags().BoolVar(&listVoices, "list-voices", false, "List available voices for the language")
 
+	// Bind flags to viper for backward compatibility
 	viper.BindPFlag("tts.voice", synthesizeCmd.Flags().Lookup("voice"))
 	viper.BindPFlag("tts.language", synthesizeCmd.Flags().Lookup("language"))
 	viper.BindPFlag("tts.speaking_rate", synthesizeCmd.Flags().Lookup("speed"))
@@ -66,26 +69,12 @@ Examples:
 func runSynthesize(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 
-	authConfig := auth.AuthConfig{
-		APIKey:             viper.GetString("auth.api_key"),
-		ServiceAccountFile: viper.GetString("auth.service_account_file"),
-		OAuth2ClientID:     viper.GetString("auth.oauth2_client_id"),
-		OAuth2ClientSecret: viper.GetString("auth.oauth2_client_secret"),
-		OAuth2TokenFile:    viper.GetString("auth.oauth2_token_file"),
-	}
+	// Get the global configuration
+	configManager := GetConfig()
+	cfg := configManager.Get()
 
-	if authConfig.APIKey == "" {
-		authConfig.APIKey = os.Getenv("ASSISTANT_CLI_API_KEY")
-	}
-	if authConfig.ServiceAccountFile == "" {
-		authConfig.ServiceAccountFile = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-	}
-	if authConfig.OAuth2ClientID == "" {
-		authConfig.OAuth2ClientID = os.Getenv("ASSISTANT_CLI_OAUTH2_CLIENT_ID")
-	}
-	if authConfig.OAuth2ClientSecret == "" {
-		authConfig.OAuth2ClientSecret = os.Getenv("ASSISTANT_CLI_OAUTH2_CLIENT_SECRET")
-	}
+	// Convert config.AuthConfig to auth.AuthConfig
+	authConfig := convertToAuthConfig(cfg.Auth)
 
 	authManager := auth.NewAuthManager(authConfig)
 
@@ -93,15 +82,17 @@ func runSynthesize(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("authentication failed: %w\nRun 'assistant-cli login' to set up authentication", err)
 	}
 
+	// Create TTS config from configuration, with command line overrides
 	ttsConfig := &tts.ClientConfig{
-		Voice:         viper.GetString("tts.voice"),
-		LanguageCode:  viper.GetString("tts.language"),
-		SpeakingRate:  viper.GetFloat64("tts.speaking_rate"),
-		Pitch:         viper.GetFloat64("tts.pitch"),
-		VolumeGain:    viper.GetFloat64("tts.volume_gain"),
-		AudioEncoding: viper.GetString("output.format"),
+		Voice:         cfg.TTS.Voice,
+		LanguageCode:  cfg.TTS.Language,
+		SpeakingRate:  cfg.TTS.SpeakingRate,
+		Pitch:         cfg.TTS.Pitch,
+		VolumeGain:    cfg.TTS.VolumeGain,
+		AudioEncoding: cfg.TTS.AudioEncoding,
 	}
 
+	// Override with command line flags if provided
 	if voice != "" {
 		ttsConfig.Voice = voice
 	}
@@ -145,28 +136,35 @@ func runSynthesize(cmd *cobra.Command, args []string) error {
 
 	fmt.Fprintln(os.Stderr, "Reading text from STDIN...")
 	
-	// Use enhanced input processing with validation
-	inputProcessor := utils.NewInputProcessor(os.Stdin)
+	// Use enhanced input processing with configuration-based settings
+	inputProcessor := utils.NewInputProcessorWithConfig(os.Stdin, cfg.Input.MaxLength)
 	text, err := inputProcessor.ReadText()
 	if err != nil {
 		return fmt.Errorf("failed to read input: %w", err)
 	}
 	
-	// Validate and potentially sanitize SSML content
-	validator := utils.NewSSMLValidator()
-	if err := validator.ValidateSSML(text); err != nil {
-		return fmt.Errorf("input validation failed: %w", err)
+	// Validate SSML content if enabled in configuration
+	if cfg.Input.EnableSSMLSecurity {
+		validator := utils.NewSSMLValidator()
+		if err := validator.ValidateSSML(text); err != nil {
+			return fmt.Errorf("input validation failed: %w", err)
+		}
 	}
 	
-	// Display input statistics
-	stats := inputProcessor.GetTextStats(text)
-	fmt.Fprintf(os.Stderr, "✓ Input processed: %s\n", stats.String())
+	// Display input statistics if enabled in configuration
+	if cfg.Input.ShowStats {
+		stats := inputProcessor.GetTextStats(text)
+		fmt.Fprintf(os.Stderr, "✓ Input processed: %s\n", stats.String())
+	}
 	
-	// Generate safe output filename if not provided
-	if outputFile == "output.mp3" {
+	// Handle output file path based on configuration
+	if outputFile == "output.mp3" && cfg.Output.AutoFilename {
 		// Create a filename based on first few words of input
 		safeFilename := output.GetSafeFilename(text[:min(50, len(text))], audioFormat)
 		outputFile = safeFilename
+	} else if outputFile == "output.mp3" {
+		// Use default path from configuration
+		outputFile = cfg.Output.DefaultPath + "/output." + strings.ToLower(audioFormat)
 	}
 	
 	req.OutputFile = outputFile
@@ -181,7 +179,7 @@ func runSynthesize(cmd *cobra.Command, args []string) error {
 	fmt.Fprintf(os.Stderr, "  Format: %s\n", resp.Format)
 	fmt.Fprintf(os.Stderr, "  Size: %d bytes\n", resp.Size)
 
-	if playAudio || viper.GetBool("playback.auto_play") {
+	if playAudio || cfg.Playback.AutoPlay {
 		if err := playAudioFile(resp.OutputFile); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: Failed to play audio: %v\n", err)
 		} else {
@@ -244,6 +242,17 @@ func playAudioFile(filePath string) error {
 	}
 	
 	return nil
+}
+
+// convertToAuthConfig converts config.AuthConfig to auth.AuthConfig
+func convertToAuthConfig(cfg config.AuthConfig) auth.AuthConfig {
+	return auth.AuthConfig{
+		APIKey:             cfg.APIKey,
+		ServiceAccountFile: cfg.ServiceAccountFile,
+		OAuth2ClientID:     cfg.OAuth2ClientID,
+		OAuth2ClientSecret: cfg.OAuth2ClientSecret,
+		OAuth2TokenFile:    cfg.OAuth2TokenFile,
+	}
 }
 
 // min returns the minimum of two integers

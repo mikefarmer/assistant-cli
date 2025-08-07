@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mikefarmer/assistant-cli/internal/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
-	cfgFile string
+	cfgFile       string
+	globalConfig  *config.Manager
 )
 
 var version = "dev" // This will be set by build flags
@@ -45,6 +47,7 @@ It supports multiple authentication methods and provides various customization o
 	// Add subcommands
 	rootCmd.AddCommand(loginCmd)
 	rootCmd.AddCommand(NewSynthesizeCmd())
+	rootCmd.AddCommand(configCmd)
 
 	return rootCmd
 }
@@ -61,6 +64,21 @@ func Execute() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	// Initialize the global config manager
+	globalConfig = config.NewManager()
+	
+	// If a specific config file is provided, set it
+	if cfgFile != "" {
+		globalConfig.SetConfigFile(cfgFile)
+	}
+	
+	// Load the configuration
+	if err := globalConfig.Load(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading configuration: %v\n", err)
+		// Don't exit here, as the app can still work with defaults
+	}
+
+	// Keep the old viper functionality for backward compatibility
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -87,4 +105,15 @@ func initConfig() {
 		// Only print if we're in verbose mode (to be implemented)
 		// fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+// GetConfig returns the global configuration manager
+func GetConfig() *config.Manager {
+	if globalConfig == nil {
+		globalConfig = config.NewManager()
+		if err := globalConfig.Load(); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: Error loading configuration: %v\n", err)
+		}
+	}
+	return globalConfig
 }

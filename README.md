@@ -6,13 +6,14 @@ A personal assistant command-line interface tool with comprehensive authenticati
 
 Assistant-CLI is a Go-based personal assistant tool designed with a phased approach. **Phase 1** (currently in progress) focuses on core text-to-speech functionality using Google Cloud Text-to-Speech API with robust authentication. Future phases will add Calendar, Gmail, Drive integration, and MCP server capabilities.
 
-## Current Status: Phase 1.4 Complete ✅
+## Current Status: Phase 1.5 Complete ✅
 
 - ✅ **Phase 1.1**: Project foundation with Go module, Cobra CLI, and directory structure
 - ✅ **Phase 1.2**: Complete authentication system with API Key, Service Account, and OAuth2 support
 - ✅ **Phase 1.3**: Core TTS integration with Google Cloud Text-to-Speech API
 - ✅ **Phase 1.4**: Cross-platform audio playback and enhanced I/O processing
-- 🚧 **Phase 1.5**: Configuration management and validation (next)
+- ✅ **Phase 1.5**: Enterprise-grade configuration management and validation
+- 🚧 **Phase 1.6**: Performance optimization and caching (next)
 
 ## Features
 
@@ -38,10 +39,19 @@ Assistant-CLI is a Go-based personal assistant tool designed with a phased appro
 - **Enterprise-Grade File Handling**: Path validation, backup creation, and traversal protection
 - **Smart Output Management**: Automatic filename generation and safe file operations
 
-### Platform & Configuration (✅ Complete)
+### Configuration Management (✅ Complete - Phase 1.5)
+- **Hierarchical Configuration**: Comprehensive YAML-based configuration with nested sections
+- **Multiple Configuration Sources**: Files, environment variables, command-line flags, and defaults
+- **Configuration Precedence**: Flags > environment variables > config file > defaults
+- **Configuration Generation**: Generate example configuration files with comprehensive comments
+- **Configuration Validation**: Validate configuration files for errors and consistency
+- **Configuration Inspection**: View current effective configuration with source tracking
+- **Enterprise-Grade Features**: Type validation, range checking, and helpful error messages
+
+### Platform & CLI (✅ Complete)
 - **Cross-Platform**: Works on macOS, Linux, and Windows
-- **Configuration Support**: YAML config files with environment variable support
 - **CLI Framework**: Built with Cobra for excellent user experience
+- **Professional Output**: Formatted tables, progress indicators, and colored output
 
 ## Installation
 
@@ -129,6 +139,31 @@ echo "<speak>Hello <break time='1s'/> <emphasis>World!</emphasis></speak>" | \
 # Smart filename generation (Phase 1.4 feature)
 echo "This will generate a safe filename automatically" | \
   ./assistant-cli synthesize --play
+```
+
+### 4. Configuration Management (✅ Available Now - Phase 1.5)
+
+```bash
+# Generate example configuration file
+./assistant-cli config generate
+
+# Generate config to specific location
+./assistant-cli config generate ~/.config/assistant-cli.yaml
+
+# Validate configuration file
+./assistant-cli config validate ~/.assistant-cli.yaml
+
+# Show current effective configuration
+./assistant-cli config show --format table
+
+# Show configuration with sources
+./assistant-cli config show --show-sources
+
+# Use specific configuration file
+./assistant-cli --config myconfig.yaml synthesize --help
+
+# Environment variable precedence example
+ASSISTANT_CLI_TTS_LANGUAGE=es-ES ./assistant-cli config show
 ```
 
 ## Authentication Methods

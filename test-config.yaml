@@ -1,0 +1,161 @@
+# Assistant-CLI Configuration File
+# This file contains all available configuration options with their default values
+
+# Authentication settings
+auth:
+  # Authentication method: "auto", "apikey", "serviceaccount", "oauth2"
+  method: "auto"
+  
+  # Connection timeout for authentication requests
+  timeout: "30s"
+  
+  # Number of retry attempts for authentication
+  retry_attempts: 3
+  
+  # Note: Sensitive credentials should be set via environment variables:
+  # ASSISTANT_CLI_API_KEY="your-api-key"
+  # GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
+  # ASSISTANT_CLI_OAUTH2_CLIENT_ID="your-client-id"
+  # ASSISTANT_CLI_OAUTH2_CLIENT_SECRET="your-client-secret"
+
+# Text-to-Speech settings
+tts:
+  # Default language code (required)
+  language: "en-US"
+  
+  # Default voice name (optional, will use language default if not set)
+  # voice: "en-US-Wavenet-D"
+  
+  # Speaking rate (0.25 to 4.0)
+  speaking_rate: 1.0
+  
+  # Voice pitch (-20.0 to 20.0)
+  pitch: 0.0
+  
+  # Volume gain in dB (-96.0 to 16.0)
+  volume_gain: 0.0
+  
+  # Audio encoding format
+  audio_encoding: "MP3"
+  
+  # Effects profile for enhanced audio
+  effects_profile:
+    - "headphone-class-device"
+  
+  # Request timeout
+  timeout: "30s"
+  
+  # Maximum retry attempts
+  max_retries: 3
+  
+  # Enable SSML validation
+  enable_ssml_validation: true
+
+# Output settings
+output:
+  # Default output directory
+  default_path: "."
+  
+  # Default audio format
+  format: "MP3"
+  
+  # File overwrite behavior: "never", "always", "prompt", "backup"
+  overwrite_mode: "backup"
+  
+  # File permissions (octal notation)
+  file_permissions: "0644"
+  
+  # Directory permissions (octal notation)
+  dir_permissions: "0755"
+  
+  # Enable automatic filename generation from input text
+  auto_filename: false
+  
+  # Maximum filename length
+  max_filename_length: 100
+  
+  # Create directories automatically
+  create_dirs: true
+
+# Audio playback settings
+playback:
+  # Automatically play audio after synthesis
+  auto_play: false
+  
+  # Preferred audio player (auto-detected if empty)
+  # player: ""
+  
+  # Additional player arguments
+  # player_args: []
+  
+  # Volume level (0.0 to 1.0)
+  volume: 1.0
+  
+  # Enable fallback players if primary player fails
+  enable_fallback: true
+
+# Input processing settings
+input:
+  # Maximum text length for processing
+  max_length: 5000
+  
+  # Buffer size for reading input
+  buffer_size: 4096
+  
+  # Enable automatic text cleaning
+  auto_clean: true
+  
+  # Enable input validation
+  enable_validation: true
+  
+  # Enable SSML security validation
+  enable_ssml_security: true
+  
+  # Show input statistics
+  show_stats: false
+
+# Logging settings
+logging:
+  # Log level: "debug", "info", "warn", "error"
+  level: "info"
+  
+  # Log format: "text", "json"
+  format: "text"
+  
+  # Log output: "stdout", "stderr", or file path
+  output: "stderr"
+  
+  # Enable timestamps in logs
+  timestamps: true
+  
+  # Enable caller information in logs
+  caller: false
+  
+  # Enable performance logging
+  performance: false
+
+# Application settings
+app:
+  # Application name
+  name: "assistant-cli"
+  
+  # Configuration file version (for migration)
+  config_version: "1.5.0"
+  
+  # Enable color output
+  color_output: true
+  
+  # Show progress indicators
+  show_progress: true
+  
+  # Quiet mode (minimal output)
+  quiet: false
+  
+  # Verbose mode (detailed output)
+  verbose: false
+  
+  # Check for updates
+  check_updates: true
+  
+  # Update check interval
+  update_check_interval: "24h"

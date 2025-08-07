@@ -48,6 +48,17 @@ func NewInputProcessor(reader io.Reader) *InputProcessor {
 	}
 }
 
+// NewInputProcessorWithConfig creates a new input processor with custom max length
+func NewInputProcessorWithConfig(reader io.Reader, maxLength int) *InputProcessor {
+	if maxLength <= 0 {
+		maxLength = MaxTextLength
+	}
+	return &InputProcessor{
+		maxLength: maxLength,
+		reader:    reader,
+	}
+}
+
 // NewInputProcessorWithLimit creates a new input processor with custom length limit
 func NewInputProcessorWithLimit(reader io.Reader, maxLength int) *InputProcessor {
 	return &InputProcessor{
