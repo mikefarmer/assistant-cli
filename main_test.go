@@ -19,6 +19,8 @@ func TestVersion(t *testing.T) {
 }
 
 func TestSetVersion(t *testing.T) {
+	_ = t // Test parameter not needed for this simple test
+	
 	// Test that we can set version through cmd package
 	originalVersion := version
 	testVersion := "test-version"

@@ -371,7 +371,8 @@ type mockTTSClient struct {
 	listVoicesError    error
 }
 
-func (m *mockTTSClient) Synthesize(ctx context.Context, text string, voice *texttospeechpb.VoiceSelectionParams, audio *texttospeechpb.AudioConfig) ([]byte, error) {
+func (m *mockTTSClient) Synthesize(ctx context.Context, text string, voice *texttospeechpb.VoiceSelectionParams,
+	audio *texttospeechpb.AudioConfig) ([]byte, error) {
 	return m.synthesizeResponse, m.synthesizeError
 }
 

@@ -50,7 +50,8 @@ Examples:
 	synthesizeCmd.Flags().Float64VarP(&pitch, "pitch", "p", 0.0, "Voice pitch (-20.0 to 20.0)")
 	synthesizeCmd.Flags().Float64VarP(&volumeGain, "volume", "g", 0.0, "Volume gain in dB (-96.0 to 16.0)")
 	synthesizeCmd.Flags().StringVarP(&outputFile, "output", "o", "output.mp3", "Output file path")
-	synthesizeCmd.Flags().StringVarP(&audioFormat, "format", "f", "MP3", "Audio format (MP3, LINEAR16, OGG_OPUS, MULAW, ALAW, PCM)")
+	synthesizeCmd.Flags().StringVarP(&audioFormat, "format", "f", "MP3",
+		"Audio format (MP3, LINEAR16, OGG_OPUS, MULAW, ALAW, PCM)")
 	synthesizeCmd.Flags().BoolVar(&playAudio, "play", false, "Play audio immediately after synthesis")
 	synthesizeCmd.Flags().BoolVar(&listVoices, "list-voices", false, "List available voices for the language")
 

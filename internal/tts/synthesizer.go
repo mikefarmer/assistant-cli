@@ -13,7 +13,8 @@ import (
 
 // TTSClient interface for testability
 type TTSClient interface {
-	Synthesize(ctx context.Context, text string, voice *texttospeechpb.VoiceSelectionParams, audio *texttospeechpb.AudioConfig) ([]byte, error)
+	Synthesize(ctx context.Context, text string, voice *texttospeechpb.VoiceSelectionParams,
+		audio *texttospeechpb.AudioConfig) ([]byte, error)
 	ListVoices(ctx context.Context, languageCode string) ([]*texttospeechpb.Voice, error)
 	Close() error
 }
@@ -46,7 +47,8 @@ func NewSynthesizer(client TTSClient) *Synthesizer {
 	}
 }
 
-func (s *Synthesizer) SynthesizeFromReader(ctx context.Context, reader io.Reader, req *SynthesizeRequest) (*SynthesizeResponse, error) {
+func (s *Synthesizer) SynthesizeFromReader(ctx context.Context, reader io.Reader,
+	req *SynthesizeRequest) (*SynthesizeResponse, error) {
 	textData, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read input: %w", err)
@@ -64,7 +66,8 @@ func (s *Synthesizer) SynthesizeFromReader(ctx context.Context, reader io.Reader
 }
 
 // SynthesizeText synthesizes text directly (wrapper around Synthesize)
-func (s *Synthesizer) SynthesizeText(ctx context.Context, text string, req *SynthesizeRequest) (*SynthesizeResponse, error) {
+func (s *Synthesizer) SynthesizeText(ctx context.Context, text string,
+	req *SynthesizeRequest) (*SynthesizeResponse, error) {
 	req.Text = text
 	return s.Synthesize(ctx, req)
 }

@@ -108,7 +108,8 @@ func (p *OAuth2Provider) GetMethod() AuthMethod {
 // Authenticate performs OAuth2 authentication flow
 func (p *OAuth2Provider) Authenticate(ctx context.Context) error {
 	if !p.isOAuth2Configured() {
-		return fmt.Errorf("OAuth2 client ID and secret are not configured. Set ASSISTANT_CLI_OAUTH2_CLIENT_ID and ASSISTANT_CLI_OAUTH2_CLIENT_SECRET environment variables")
+		return fmt.Errorf("OAuth2 client ID and secret are not configured. " +
+			"Set ASSISTANT_CLI_OAUTH2_CLIENT_ID and ASSISTANT_CLI_OAUTH2_CLIENT_SECRET environment variables")
 	}
 
 	// Try to load existing token
@@ -287,7 +288,7 @@ func (p *OAuth2Provider) performOAuth2Flow(ctx context.Context) error {
 
 	case <-ctx.Done():
 		server.Shutdown(ctx)
-		return fmt.Errorf("OAuth2 flow cancelled: %w", ctx.Err())
+		return fmt.Errorf("OAuth2 flow canceled: %w", ctx.Err())
 	}
 }
 

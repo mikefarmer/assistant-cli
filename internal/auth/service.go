@@ -72,7 +72,8 @@ func (p *ServiceAccountProvider) GetMethod() AuthMethod {
 // Authenticate performs authentication (validation for service account)
 func (p *ServiceAccountProvider) Authenticate(ctx context.Context) error {
 	if !p.IsConfigured() {
-		return fmt.Errorf("service account file is not configured. Set GOOGLE_APPLICATION_CREDENTIALS environment variable or use --service-account flag")
+		return fmt.Errorf("service account file is not configured. " +
+			"Set GOOGLE_APPLICATION_CREDENTIALS environment variable or use --service-account flag")
 	}
 	return nil
 }

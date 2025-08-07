@@ -202,9 +202,8 @@ func TestAudioPlayer_Integration_WithRealFile(t *testing.T) {
 func BenchmarkNewAudioPlayer(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		player, err := NewAudioPlayer()
-		if err == nil && player != nil {
-			// Successful creation
-		}
+		_ = err  // Ignore error in benchmark
+		_ = player  // Ignore player in benchmark
 	}
 }
 

@@ -25,7 +25,7 @@ func (e *ValidationError) Error() string {
 type ValidationErrors []*ValidationError
 
 func (ve ValidationErrors) Error() string {
-	var messages []string
+	messages := make([]string, 0, len(ve))
 	for _, err := range ve {
 		messages = append(messages, err.Error())
 	}
@@ -243,12 +243,6 @@ func (m *Manager) validateOutput(output *OutputConfig) []*ValidationError {
 	
 	// Validate default path
 	if output.DefaultPath != "" {
-		expandedPath := expandPath(output.DefaultPath)
-		if !filepath.IsAbs(expandedPath) {
-			// For relative paths, we can't validate existence at config time
-			// but we can warn about potential issues
-		}
-		
 		// Check if it's a valid path format
 		if strings.ContainsAny(output.DefaultPath, "<>:\"|?*") {
 			errors = append(errors, &ValidationError{

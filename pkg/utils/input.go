@@ -202,7 +202,7 @@ func (p *InputProcessor) CleanText(text string) string {
 	
 	// Remove excessive whitespace while preserving intentional formatting
 	lines := strings.Split(cleaned, "\n")
-	var cleanedLines []string
+	cleanedLines := make([]string, 0, len(lines))
 	
 	for _, line := range lines {
 		// Trim trailing whitespace but preserve leading whitespace for formatting

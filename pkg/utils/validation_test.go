@@ -447,7 +447,8 @@ func BenchmarkSSMLValidator_ValidateSSML_SimpleSSML(b *testing.B) {
 
 func BenchmarkSSMLValidator_ValidateSSML_ComplexSSML(b *testing.B) {
 	validator := NewSSMLValidator()
-	ssml := `<speak><p><prosody rate='slow'>Hello</prosody> <emphasis>World</emphasis></p><break time='2s'/><say-as interpret-as='digits'>123</say-as></speak>`
+	ssml := `<speak><p><prosody rate='slow'>Hello</prosody> <emphasis>World</emphasis></p>` +
+		`<break time='2s'/><say-as interpret-as='digits'>123</say-as></speak>`
 	
 	for i := 0; i < b.N; i++ {
 		_ = validator.ValidateSSML(ssml)

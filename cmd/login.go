@@ -41,7 +41,8 @@ var (
 
 func init() {
 	// Add flags for different authentication methods
-	loginCmd.Flags().StringVarP(&loginMethod, "method", "m", "", "Authentication method: apikey, serviceaccount, or oauth2")
+	loginCmd.Flags().StringVarP(&loginMethod, "method", "m", "",
+		"Authentication method: apikey, serviceaccount, or oauth2")
 	loginCmd.Flags().StringVar(&loginAPIKey, "api-key", "", "Google Cloud API key")
 	loginCmd.Flags().StringVar(&loginServiceFile, "service-account", "", "Path to service account JSON file")
 	loginCmd.Flags().StringVar(&loginClientID, "client-id", "", "OAuth2 client ID")
@@ -281,6 +282,8 @@ func performAuthentication(ctx context.Context, authManager *auth.AuthManager, m
 
 // validateAuthentication validates the authentication by making a test API call
 func validateAuthentication(ctx context.Context, authManager *auth.AuthManager, method auth.AuthMethod) error {
+	_ = method // Method parameter not used in current implementation
+	
 	// Get a client - this will trigger authentication if needed
 	client, err := authManager.GetClient(ctx)
 	if err != nil {

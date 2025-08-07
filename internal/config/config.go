@@ -44,16 +44,16 @@ type AuthConfig struct {
 	APIKey string `mapstructure:"api_key" yaml:"api_key,omitempty" json:"api_key,omitempty"`
 	
 	// Path to service account JSON file
-	ServiceAccountFile string `mapstructure:"service_account_file" yaml:"service_account_file,omitempty" json:"service_account_file,omitempty"`
+	ServiceAccountFile string `mapstructure:"service_account_file" yaml:"service_account_file,omitempty"`
 	
 	// OAuth2 client ID (prefer environment variable)
-	OAuth2ClientID string `mapstructure:"oauth2_client_id" yaml:"oauth2_client_id,omitempty" json:"oauth2_client_id,omitempty"`
+	OAuth2ClientID string `mapstructure:"oauth2_client_id" yaml:"oauth2_client_id,omitempty"`
 	
 	// OAuth2 client secret (prefer environment variable)
-	OAuth2ClientSecret string `mapstructure:"oauth2_client_secret" yaml:"oauth2_client_secret,omitempty" json:"oauth2_client_secret,omitempty"`
+	OAuth2ClientSecret string `mapstructure:"oauth2_client_secret" yaml:"oauth2_client_secret,omitempty"`
 	
 	// OAuth2 token file path
-	OAuth2TokenFile string `mapstructure:"oauth2_token_file" yaml:"oauth2_token_file,omitempty" json:"oauth2_token_file,omitempty"`
+	OAuth2TokenFile string `mapstructure:"oauth2_token_file" yaml:"oauth2_token_file,omitempty"`
 	
 	// Connection timeout for authentication
 	Timeout time.Duration `mapstructure:"timeout" yaml:"timeout" json:"timeout"`
@@ -71,7 +71,7 @@ type TTSConfig struct {
 	Language string `mapstructure:"language" yaml:"language" json:"language" validate:"required"`
 	
 	// Speaking rate (0.25 to 4.0)
-	SpeakingRate float64 `mapstructure:"speaking_rate" yaml:"speaking_rate" json:"speaking_rate" validate:"min=0.25,max=4.0"`
+	SpeakingRate float64 `mapstructure:"speaking_rate" yaml:"speaking_rate" validate:"min=0.25,max=4.0"`
 	
 	// Voice pitch (-20.0 to 20.0)
 	Pitch float64 `mapstructure:"pitch" yaml:"pitch" json:"pitch" validate:"min=-20,max=20"`
@@ -80,7 +80,7 @@ type TTSConfig struct {
 	VolumeGain float64 `mapstructure:"volume_gain" yaml:"volume_gain" json:"volume_gain" validate:"min=-96,max=16"`
 	
 	// Audio encoding format
-	AudioEncoding string `mapstructure:"audio_encoding" yaml:"audio_encoding" json:"audio_encoding" validate:"oneof=MP3 LINEAR16 OGG_OPUS MULAW ALAW PCM"`
+	AudioEncoding string `mapstructure:"audio_encoding" yaml:"audio_encoding"`
 	
 	// Effects profile ID
 	EffectsProfile []string `mapstructure:"effects_profile" yaml:"effects_profile" json:"effects_profile"`
@@ -92,7 +92,7 @@ type TTSConfig struct {
 	MaxRetries int `mapstructure:"max_retries" yaml:"max_retries" json:"max_retries" validate:"min=0,max=10"`
 	
 	// Enable SSML validation
-	EnableSSMLValidation bool `mapstructure:"enable_ssml_validation" yaml:"enable_ssml_validation" json:"enable_ssml_validation"`
+	EnableSSMLValidation bool `mapstructure:"enable_ssml_validation" yaml:"enable_ssml_validation"`
 }
 
 // OutputConfig contains output-related configuration
@@ -101,10 +101,10 @@ type OutputConfig struct {
 	DefaultPath string `mapstructure:"default_path" yaml:"default_path" json:"default_path"`
 	
 	// Default audio format
-	Format string `mapstructure:"format" yaml:"format" json:"format" validate:"oneof=MP3 LINEAR16 WAV OGG_OPUS MULAW ALAW PCM"`
+	Format string `mapstructure:"format" yaml:"format" validate:"oneof=MP3 LINEAR16 WAV OGG_OPUS MULAW ALAW PCM"`
 	
 	// File overwrite behavior: "never", "always", "prompt", "backup"
-	OverwriteMode string `mapstructure:"overwrite_mode" yaml:"overwrite_mode" json:"overwrite_mode" validate:"oneof=never always prompt backup"`
+	OverwriteMode string `mapstructure:"overwrite_mode" yaml:"overwrite_mode" validate:"oneof=never always prompt backup"`
 	
 	// File permissions (octal)
 	FilePermissions string `mapstructure:"file_permissions" yaml:"file_permissions" json:"file_permissions"`
@@ -116,7 +116,7 @@ type OutputConfig struct {
 	AutoFilename bool `mapstructure:"auto_filename" yaml:"auto_filename" json:"auto_filename"`
 	
 	// Maximum filename length
-	MaxFilenameLength int `mapstructure:"max_filename_length" yaml:"max_filename_length" json:"max_filename_length" validate:"min=10,max=255"`
+	MaxFilenameLength int `mapstructure:"max_filename_length" yaml:"max_filename_length" validate:"min=10,max=255"`
 	
 	// Create directories automatically
 	CreateDirs bool `mapstructure:"create_dirs" yaml:"create_dirs" json:"create_dirs"`
@@ -206,7 +206,7 @@ type AppConfig struct {
 	CheckUpdates bool `mapstructure:"check_updates" yaml:"check_updates" json:"check_updates"`
 	
 	// Update check interval
-	UpdateCheckInterval time.Duration `mapstructure:"update_check_interval" yaml:"update_check_interval" json:"update_check_interval"`
+	UpdateCheckInterval time.Duration `mapstructure:"update_check_interval" yaml:"update_check_interval"`
 }
 
 // Manager handles configuration loading, validation, and management

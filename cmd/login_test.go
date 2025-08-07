@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -323,7 +324,7 @@ func TestPerformAuthentication(t *testing.T) {
 			authConfig := auth.DefaultAuthConfig()
 			authManager := auth.NewAuthManager(authConfig)
 			
-			err := performAuthentication(nil, authManager, tt.method)
+			err := performAuthentication(context.TODO(), authManager, tt.method)
 			
 			if tt.expectError {
 				assert.Error(t, err)
@@ -395,7 +396,7 @@ func TestValidateAuthentication(t *testing.T) {
 		authManager := auth.NewAuthManager(authConfig)
 		
 		// This will fail because no valid auth is configured, but we can test error handling
-		err := validateAuthentication(nil, authManager, auth.AuthMethodAPIKey)
+		err := validateAuthentication(context.TODO(), authManager, auth.AuthMethodAPIKey)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "failed to get authenticated client")
 	})

@@ -73,7 +73,8 @@ func NewAuthManager(config AuthConfig) *AuthManager {
 	// Initialize providers
 	manager.providers[AuthMethodAPIKey] = NewAPIKeyProvider(config.APIKey)
 	manager.providers[AuthMethodServiceAccount] = NewServiceAccountProvider(config.ServiceAccountFile)
-	manager.providers[AuthMethodOAuth2] = NewOAuth2Provider(config.OAuth2ClientID, config.OAuth2ClientSecret, config.OAuth2TokenFile)
+	manager.providers[AuthMethodOAuth2] = NewOAuth2Provider(config.OAuth2ClientID,
+		config.OAuth2ClientSecret, config.OAuth2TokenFile)
 
 	return manager
 }

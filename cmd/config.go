@@ -115,7 +115,7 @@ func runGenerateConfig(cmd *cobra.Command, args []string) error {
 	}
 
 	// Expand tilde if present
-	if filepath.HasPrefix(outputPath, "~") {
+	if strings.HasPrefix(outputPath, "~") {
 		home, err := os.UserHomeDir()
 		if err != nil {
 			return fmt.Errorf("failed to get home directory: %w", err)
@@ -277,6 +277,8 @@ func showConfigJSON(cfg *config.Config, manager *config.Manager) error {
 }
 
 func showConfigTable(cfg *config.Config, manager *config.Manager) error {
+	_ = manager // Manager parameter not used in table format
+	
 	displayConfig := *cfg
 	
 	if maskSensitive {
@@ -289,26 +291,34 @@ func showConfigTable(cfg *config.Config, manager *config.Manager) error {
 	// Auth settings
 	fmt.Printf("%-30s %-20s %s\n", "auth.method", displayConfig.Auth.Method, getValueSource("auth.method"))
 	fmt.Printf("%-30s %-20s %s\n", "auth.timeout", displayConfig.Auth.Timeout.String(), getValueSource("auth.timeout"))
-	fmt.Printf("%-30s %-20d %s\n", "auth.retry_attempts", displayConfig.Auth.RetryAttempts, getValueSource("auth.retry_attempts"))
+	fmt.Printf("%-30s %-20d %s\n", "auth.retry_attempts", displayConfig.Auth.RetryAttempts,
+		getValueSource("auth.retry_attempts"))
 	
 	// TTS settings
 	fmt.Printf("%-30s %-20s %s\n", "tts.language", displayConfig.TTS.Language, getValueSource("tts.language"))
 	if displayConfig.TTS.Voice != "" {
 		fmt.Printf("%-30s %-20s %s\n", "tts.voice", displayConfig.TTS.Voice, getValueSource("tts.voice"))
 	}
-	fmt.Printf("%-30s %-20.2f %s\n", "tts.speaking_rate", displayConfig.TTS.SpeakingRate, getValueSource("tts.speaking_rate"))
+	fmt.Printf("%-30s %-20.2f %s\n", "tts.speaking_rate", displayConfig.TTS.SpeakingRate,
+		getValueSource("tts.speaking_rate"))
 	fmt.Printf("%-30s %-20.2f %s\n", "tts.pitch", displayConfig.TTS.Pitch, getValueSource("tts.pitch"))
-	fmt.Printf("%-30s %-20.2f %s\n", "tts.volume_gain", displayConfig.TTS.VolumeGain, getValueSource("tts.volume_gain"))
-	fmt.Printf("%-30s %-20s %s\n", "tts.audio_encoding", displayConfig.TTS.AudioEncoding, getValueSource("tts.audio_encoding"))
+	fmt.Printf("%-30s %-20.2f %s\n", "tts.volume_gain", displayConfig.TTS.VolumeGain,
+		getValueSource("tts.volume_gain"))
+	fmt.Printf("%-30s %-20s %s\n", "tts.audio_encoding", displayConfig.TTS.AudioEncoding,
+		getValueSource("tts.audio_encoding"))
 	
 	// Output settings
-	fmt.Printf("%-30s %-20s %s\n", "output.default_path", displayConfig.Output.DefaultPath, getValueSource("output.default_path"))
+	fmt.Printf("%-30s %-20s %s\n", "output.default_path", displayConfig.Output.DefaultPath,
+		getValueSource("output.default_path"))
 	fmt.Printf("%-30s %-20s %s\n", "output.format", displayConfig.Output.Format, getValueSource("output.format"))
-	fmt.Printf("%-30s %-20s %s\n", "output.overwrite_mode", displayConfig.Output.OverwriteMode, getValueSource("output.overwrite_mode"))
-	fmt.Printf("%-30s %-20t %s\n", "output.auto_filename", displayConfig.Output.AutoFilename, getValueSource("output.auto_filename"))
+	fmt.Printf("%-30s %-20s %s\n", "output.overwrite_mode", displayConfig.Output.OverwriteMode,
+		getValueSource("output.overwrite_mode"))
+	fmt.Printf("%-30s %-20t %s\n", "output.auto_filename", displayConfig.Output.AutoFilename,
+		getValueSource("output.auto_filename"))
 	
 	// Playback settings  
-	fmt.Printf("%-30s %-20t %s\n", "playback.auto_play", displayConfig.Playback.AutoPlay, getValueSource("playback.auto_play"))
+	fmt.Printf("%-30s %-20t %s\n", "playback.auto_play", displayConfig.Playback.AutoPlay,
+		getValueSource("playback.auto_play"))
 	fmt.Printf("%-30s %-20.2f %s\n", "playback.volume", displayConfig.Playback.Volume, getValueSource("playback.volume"))
 	
 	return nil

@@ -390,7 +390,8 @@ func BenchmarkInputProcessor_CleanText(b *testing.B) {
 }
 
 func BenchmarkInputProcessor_GetTextStats(b *testing.B) {
-	text := "Hello World! This is a test input with multiple lines\nand some unicode characters: 世界 🌍\nand various symbols."
+	text := "Hello World! This is a test input with multiple lines\n" +
+		"and some unicode characters: 世界 🌍\nand various symbols."
 	reader := strings.NewReader("")
 	processor := NewInputProcessor(reader)
 	

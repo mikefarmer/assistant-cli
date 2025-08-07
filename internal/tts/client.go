@@ -155,7 +155,8 @@ func NewClient(ctx context.Context, authManager *auth.AuthManager, config *Clien
 	return client, nil
 }
 
-func createOptimizedClient(ctx context.Context, authManager *auth.AuthManager, config *ClientConfig) (*texttospeech.Client, error) {
+func createOptimizedClient(ctx context.Context, authManager *auth.AuthManager,
+	config *ClientConfig) (*texttospeech.Client, error) {
 	// For now, use the existing auth manager method and enhance it with connection optimization
 	// We could implement our own client creation with custom gRPC options, but that would require
 	// duplicating the authentication logic. For Phase 1.6, we'll focus on other optimizations.
@@ -227,7 +228,8 @@ func (c *Client) GetMetrics() *Metrics {
 	}
 }
 
-func (c *Client) Synthesize(ctx context.Context, text string, voice *texttospeechpb.VoiceSelectionParams, audio *texttospeechpb.AudioConfig) ([]byte, error) {
+func (c *Client) Synthesize(ctx context.Context, text string, voice *texttospeechpb.VoiceSelectionParams,
+	audio *texttospeechpb.AudioConfig) ([]byte, error) {
 	start := time.Now()
 	var success bool
 	var benchmarkDone func(bool, string)

@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -28,7 +27,7 @@ func TestOAuth2Provider_IsConfigured(t *testing.T) {
 		tokenFile    string
 		expected     bool
 	}{
-		{"complete configuration", "client-id", "client-secret", "/path/to/token.json", false}, // false because no valid token exists
+		{"complete configuration", "client-id", "client-secret", "/path/to/token.json", false}, // no valid token exists
 		{"missing client ID", "", "client-secret", "/path/to/token.json", false},
 		{"missing client secret", "client-id", "", "/path/to/token.json", false},
 		{"missing token file", "client-id", "client-secret", "", false},
@@ -46,7 +45,7 @@ func TestOAuth2Provider_IsConfigured(t *testing.T) {
 
 func TestOAuth2Provider_loadToken(t *testing.T) {
 	// Create temporary directory
-	tempDir, err := ioutil.TempDir("", "oauth2_test")
+	tempDir, err := os.MkdirTemp("", "oauth2_test")
 	require.NoError(t, err)
 	defer os.RemoveAll(tempDir)
 
@@ -62,12 +61,12 @@ func TestOAuth2Provider_loadToken(t *testing.T) {
 	validFile := filepath.Join(tempDir, "valid_token.json")
 	validData, err := json.Marshal(validToken)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(validFile, validData, 0600)
+	err = os.WriteFile(validFile, validData, 0600)
 	require.NoError(t, err)
 
 	// Create invalid JSON file
 	invalidFile := filepath.Join(tempDir, "invalid_token.json")
-	err = ioutil.WriteFile(invalidFile, []byte("invalid json"), 0600)
+	err = os.WriteFile(invalidFile, []byte("invalid json"), 0600)
 	require.NoError(t, err)
 
 	testCases := []struct {
@@ -100,7 +99,7 @@ func TestOAuth2Provider_loadToken(t *testing.T) {
 
 func TestOAuth2Provider_saveToken(t *testing.T) {
 	// Create temporary directory
-	tempDir, err := ioutil.TempDir("", "oauth2_test")
+	tempDir, err := os.MkdirTemp("", "oauth2_test")
 	require.NoError(t, err)
 	defer os.RemoveAll(tempDir)
 
