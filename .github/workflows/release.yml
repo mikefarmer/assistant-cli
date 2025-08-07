@@ -1,0 +1,135 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Get version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Run tests
+      run: |
+        go mod download
+        go test -v ./...
+
+    - name: Create dist directory
+      run: mkdir -p dist
+
+    - name: Build binaries
+      env:
+        VERSION: ${{ steps.version.outputs.VERSION }}
+      run: |
+        # Linux AMD64
+        GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-linux-amd64 main.go
+        
+        # Linux ARM64
+        GOOS=linux GOARCH=arm64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-linux-arm64 main.go
+        
+        # macOS AMD64
+        GOOS=darwin GOARCH=amd64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-darwin-amd64 main.go
+        
+        # macOS ARM64 (Apple Silicon)
+        GOOS=darwin GOARCH=arm64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-darwin-arm64 main.go
+        
+        # Windows AMD64
+        GOOS=windows GOARCH=amd64 go build -ldflags "-X github.com/mikefarmer/assistant-cli/cmd.version=${VERSION}" -o dist/assistant-cli-windows-amd64.exe main.go
+
+    - name: Generate checksums
+      run: |
+        cd dist
+        sha256sum * > checksums.txt
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        if [ -f CHANGELOG.md ]; then
+          # Extract changelog for this version
+          awk "/^## \[${{ steps.version.outputs.VERSION }}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > current_changelog.md
+          if [ -s current_changelog.md ]; then
+            echo "CHANGELOG_CONTENT<<EOF" >> $GITHUB_OUTPUT
+            cat current_changelog.md >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "CHANGELOG_CONTENT=Release ${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "CHANGELOG_CONTENT=Release ${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.VERSION }}
+        name: ${{ steps.version.outputs.VERSION }}
+        body: |
+          ## Assistant-CLI ${{ steps.version.outputs.VERSION }}
+          
+          ${{ steps.changelog.outputs.CHANGELOG_CONTENT }}
+          
+          ### Installation
+          
+          Download the appropriate binary for your platform:
+          
+          #### macOS
+          ```bash
+          # Apple Silicon (M1/M2/M3)
+          curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-darwin-arm64
+          
+          # Intel
+          curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-darwin-amd64
+          
+          chmod +x assistant-cli
+          ```
+          
+          #### Linux
+          ```bash
+          # AMD64
+          curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-linux-amd64
+          
+          # ARM64
+          curl -L -o assistant-cli https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-linux-arm64
+          
+          chmod +x assistant-cli
+          ```
+          
+          #### Windows
+          ```powershell
+          Invoke-WebRequest -Uri "https://github.com/mikefarmer/assistant-cli/releases/download/${{ steps.version.outputs.VERSION }}/assistant-cli-windows-amd64.exe" -OutFile "assistant-cli.exe"
+          ```
+          
+          ### Verify Installation
+          ```bash
+          ./assistant-cli --version
+          ```
+          
+          ### Checksums
+          Verify your download with SHA256 checksums available in `checksums.txt`.
+
+        files: |
+          dist/assistant-cli-linux-amd64
+          dist/assistant-cli-linux-arm64
+          dist/assistant-cli-darwin-amd64
+          dist/assistant-cli-darwin-arm64
+          dist/assistant-cli-windows-amd64.exe
+          dist/checksums.txt
+        draft: false
+        prerelease: false
